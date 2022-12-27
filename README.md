@@ -335,3 +335,192 @@ For example, a Python skeleton code might include:
 Skeleton code is often created for specific types of projects, such as web applications, command-line tools, or data science projects. There are many open-source skeleton code examples available online that you can use as a starting point for your own projects.
 
 Using skeleton code can help you get started with a new project more quickly, and can provide a set of established best practices to follow as you develop your project. However, it's important to understand that skeleton code is only a starting point, and you will need to customize and adapt it to your specific needs as you develop your project.
+
+## 15- In Python classes, what is the difference between class methods and static methods? and when to use them?
+
+In Python, a class method is a method that is bound to the class and not the instance of the class. A class method can be called on the class itself, as well as on any instance of the class. A class method is defined using the `@classmethod` decorator, and it takes the class as its first argument, conventionally named `cls`.
+
+A static method is a method that is bound to a class and not the instance of the class, but it does not receive any additional arguments beyond the self parameter. A static method is defined using the `@staticmethod` decorator.
+
+Here's an example of how to define and use class methods and static methods in Python:
+
+```pthon
+class MyClass:
+    def __init__(self, value):
+        self.value = value
+
+    @classmethod
+    def class_method(cls, arg):
+        # do something with the class and the arg
+        return arg
+
+    @staticmethod
+    def static_method(arg):
+        # do something with the arg
+        return arg
+
+# Call a class method
+result = MyClass.class_method(arg)
+
+# Call a static method
+result = MyClass.static_method(arg)
+
+# Call a class method on an instance of the class
+obj = MyClass(value)
+result = obj.class_method(arg)
+
+# Call a static method on an instance of the class
+result = obj.static_method(arg)
+```
+
+In general, you should use ***class methods*** when you need to define a method that operates on the class itself, rather than on an instance of the class. An example of this might be a factory method that creates a new instance of the class with some default values. You should use ***static methods*** when you need to define a method that operates on an argument or variables that are independent of the class and its instances. An example of this might be a utility function that performs some computation or transformation on its arguments, but does not need to access any class or instance attributes.
+
+## 16- Please explain the following results of the code executed on a Python shell interpreter
+
+```python
+>>> a=256
+>>> b=256
+>>> a is b
+True
+>>> x=257
+>>> y=257
+>>> x is y
+False
+```
+
+*The output:*
+
+This is because of the integer caching mechanism in Python. To save time and memory costs, Python always pre-loads all the small integers in the range of [-5, 256].
+
+Therefore, all the integers in [-5, 256] have been already saved in the memory. When a new integer variable in this range is declared, Python just references the cached integer to it and won’t create any new object.
+
+Therefore, the explanations of the results are:
+
+* When the variables `a` and `b` were assigned to 256, they were referenced to the same memory location where the 256 was stored. They pointed to the same object.
+* When the variables `x` and `y` were assigned to 257, they were two different objects in different memory locations because the 257 is not on the small integers caching range.
+
+Since the `is` operator is to compare the memory locations of two variables, the `a is b` should output `True`, and the `x is y` should output `False`.
+
+## 17- In objective-oriented programming, there is a concept called abstract classes. Does Python support abstract classes as well?
+
+Yes, Python does support abstract classes. In Python, an abstract class is a class that has one or more abstract methods. An abstract method is a method that has a declaration, but no implementation. Abstract methods are defined using the `abc` (abstract base class) module, which is part of the Python standard library.
+
+To create an abstract class in Python, you need to do the following:
+
+1. Import the abc module.
+2. Create a class that derives from abc.ABC.
+3. Declare one or more abstract methods using the `@abc.abstractmethod` decorator.
+Here is an example of an abstract class in Python:
+
+    ```python
+    import abc
+
+    class Animal(abc.ABC):
+        @abc.abstractmethod
+        def make_sound(self):
+            pass
+
+    class Dog(Animal):
+        def make_sound(self):
+            print("Woof!")
+
+    class Cat(Animal):
+        def make_sound(self):
+            print("Meow!")
+
+    dog = Dog()
+    dog.make_sound()  # Output: "Woof!"
+
+    cat = Cat()
+    cat.make_sound()  # Output: "Meow!"
+
+    ```
+
+In this example, the `Animal` class is an abstract class because it has an abstract method called `make_sound()`. The `Dog` and `Cat` classes are concrete classes because they provide an implementation for the `make_sound()` method. The `dog` and `cat` objects are instances of the `Dog` and `Cat` classes, respectively, and they can be used to call the `make_sound()` method.
+
+## 18- What are `*args` and `**kwargs` in Python
+
+In Python, the `*args` and `**kwargs` syntax is used to pass a variable number of arguments to a function.
+
+`*args` is used to pass a variable number of non-keyworded arguments to a function. It is used to pass a tuple of arguments to the function. For example:
+
+```python
+def my_function(arg1, *args):
+    print(arg1)
+    print(args)
+
+my_function(1, 2, 3, 4, 5)
+
+# Output:
+# 1
+# (2, 3, 4, 5)
+```
+
+`**kwargs` is used to pass a variable number of keyworded arguments to a function. It is used to pass a dictionary of keyword arguments to the function. For example:
+
+```python
+def my_function(**kwargs):
+    print(kwargs)
+
+my_function(arg1=1, arg2=2, arg3=3)
+
+# Output: {'arg1': 1, 'arg2': 2, 'arg3': 3}
+```
+
+Both `*args` and `**kwargs` are commonly used in Python to allow a function to accept a variable number of arguments. They can be useful when you want to write a function that can be flexible and handle a wide range of input parameters.
+
+## 19- What is the difference between tuples, sets and lists in Python?
+
+In Python, tuples, sets, and lists are all data types that can be used to store collections of items. Here are the main differences between them:
+
+1. **Tuples** are immutable, which means that you cannot modify the values of the items in a tuple once it has been created. They are defined using parentheses `()` and their items are separated by commas. also, tuples are generally faster and use less memory than lists, because they do not have the overhead of the extra methods and behaviors that are associated with lists. However, the difference in performance between tuples and lists is usually small and may not be noticeable in most cases.
+
+2. **Sets** are also immutable, but unlike tuples, they do not have a specific order and do not allow duplicate items. Sets are defined using curly braces `{}` and their items are separated by commas. also, sets are generally faster and use less memory than lists, because they are implemented using a hash table data structure, which allows for efficient insertion, deletion, and lookup of items. However, sets do not maintain the order of their items, which can be a drawback if you need to preserve the order of the items in your collection.
+
+3. **Lists** are mutable, which means that you can change the values of their items after the list has been created. They are defined using square brackets `[]` and their items are separated by commas. also, Lists are generally slower and use more memory than tuples, because they are mutable and have the overhead of the extra methods and behaviors that are associated with them. However, lists are more flexible than tuples because you can modify their items after the list has been created.
+
+```python
+# Create a tuple
+t = (1, 2, 3)
+
+# Create a set
+s = {3, 6, 9}
+
+# Create a list
+l = [1, 2, 3]
+
+# Modify a value in a list (this is not possible for tuples or sets)
+l[1] = 4
+
+# Add an item to a list (this is not possible for tuples or sets)
+l.append(5)
+```
+
+Tuples and sets are generally used when you want to store a collection of items that should not be modified, while lists are used when you need to store a collection of items that you want to be able to modify.
+
+## 20- What are pickling and unpickling in python?
+
+In Python, "pickling" refers to the process of converting an object hierarchy (e.g., a list, dictionary, or user-defined object) into a byte stream, and "unpickling" refers to the process of reconstructing the object hierarchy from the byte stream.
+
+The `pickle` module in Python provides functions for pickling and unpickling objects. To pickle an object, you can use the `pickle.dump` function, which takes the object to be pickled and a file-like object (such as a file or a byte stream) as arguments and writes the pickled object to the file-like object. To unpickle an object, you can use the `pickle.load` function, which takes a file-like object as an argument and returns the unpickled object.
+
+Here is an example of how to use the `pickle` module to pickle and unpickle a simple object in Python:
+
+```python
+import pickle
+
+# Define a simple object to be pickled
+data = {'a': [1, 2.0, 3, 4+6j],
+        'b': ('string', u'Unicode string'),
+        'c': None}
+
+# Pickle the object
+with open('data.pkl', 'wb') as f:
+    pickle.dump(data, f)
+
+# Unpickle the object
+with open('data.pkl', 'rb') as f:
+    data_loaded = pickle.load(f)
+```
+
+Pickling is useful for storing complex objects to a file or for sending them over a network connection. However, it is important to note that the pickle module is not intended to be secure, and it is possible to construct malicious pickle data that can execute arbitrary code when unpickled. Therefore, it is generally not recommended to use pickle to serialize and transmit sensitive data over untrusted networks or to unserialize pickle data from untrusted sources.
