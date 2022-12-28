@@ -16,7 +16,7 @@ It is important to note that the GIL can still limit the overall performance of 
 
 ## 3- What will be the output of the following code in each step?
 
-```python
+```Python
 class C:
     dangerous = 2
 c1 = C()
@@ -57,7 +57,7 @@ The ability to treat functions as first-class objects is a powerful feature of P
 
 For example, consider the following code:
 
-```python
+```Python
 def greet(name):
   return "Hello, " + name
 
@@ -69,7 +69,7 @@ In this code, we define a function called `greet` that takes a single argument a
 
 As another example, consider the following code:
 
-```python
+```Python
 def apply_twice(func, arg):
   return func(func(arg))
 
@@ -87,7 +87,7 @@ In Python, arguments are passed by assignment. This means that when you pass an 
 
 For immutable objects, such as numbers, strings, and tuples, this has the same behavior as passing by value. For example, consider the following code:
 
-```python
+```Python
 def increment(x):
   x += 1
 
@@ -100,7 +100,7 @@ In this code, the `increment` function takes an argument `x` and increments it b
 
 For mutable objects, such as lists and dictionaries, passing by assignment has the same behavior as passing by reference. For example, consider the following code:
 
-```python
+```Python
 def append_one(lst):
   lst.append(1)
 
@@ -136,7 +136,7 @@ There are several tools available for linting, debugging, and profiling in Pytho
 
 Here is an example of using the `filter` and `reduce` functions to process an iterable object in Python:
 
-```python
+```Python
 from functools import reduce
 
 # Define a list of numbers
@@ -165,7 +165,7 @@ A list comprehension consists of square brackets containing an expression follow
 
 For example, suppose we have a list of numbers and we want to create a new list that contains only the even numbers from the original list. We could do this using a list comprehension as follows:
 
-```python
+```Python
 numbers = [1, 2, 3, 4, 5, 6]
 even_numbers = [x for x in numbers if x % 2 == 0]
 ```
@@ -176,7 +176,7 @@ A dictionary comprehension is similar to a list comprehension, but it creates a 
 
 For example, suppose we have a list of strings and we want to create a new dictionary that maps each string to its length. We could do this using a dictionary comprehension as follows:
 
-```python
+```Python
 strings = ['cat', 'dog', 'bird']
 lengths = {s: len(s) for s in strings}
 ```
@@ -189,7 +189,7 @@ A closure is a function that retains access to the variables in the environment 
 
 In the context of lambda expressions, a lambda expression forms a closure if it references variables from the environment in which it was defined. For example, consider the following code:
 
-```python
+```Python
 def make_multiplier(n):
     return lambda x: x * n
 
@@ -202,7 +202,7 @@ Here, the `make_multiplier` function returns a lambda expression that takes a si
 
 We can see this in action by calling the `lambda` expressions returned by `make_multiplier`:
 
-```python
+```Python
 print(double(10))  # Output: 20
 print(triple(10))  # Output: 30
 ```
@@ -213,7 +213,7 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
 
 1. *Print statement vs print function*: In Python 2.x, the `print` statement is used to print output, while in Python 3.x, the `print` function is used. For example:
 
-    ```python
+    ```Python
     # Python 2.x
     print "Hello, World!"
 
@@ -224,7 +224,7 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
 
 2. *Division operator*: In Python 2.x, the division operator (`/`) performs floor division for integers and float division for floating-point numbers. In Python 3.x, the division operator always performs float division.
 
-    ```python
+    ```Python
     # Python 2.x
     print(10 / 3)  # Output: 3
     print(10 / 3.0)  # Output: 3.3333333333333335
@@ -236,7 +236,7 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
 
 3. *Exception handling*: In Python 2.x, the `except` statement can be used to catch exceptions of any type, while in Python 3.x, the `except` statement must specify the type of exception being caught.
 
-    ```python
+    ```Python
     # Python 2.x
     try:
         x = 1 / 0
@@ -252,7 +252,7 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
 
 4. *Iterators*: In Python 2.x, the `iteritems` method is used to iterate over the keys and values of a dictionary, while in Python 3.x, the `items` method is used.
 
-    ```python
+    ```Python
         # Python 2.x
     d = {'a': 1, 'b': 2}
     for key, value in d.iteritems():
@@ -278,7 +278,7 @@ In addition to these techniques, Python also provides tools for controlling and 
 
 ## 12- What will be the output of the following code?
 
-```python
+```Python
 _list = ['a', 'b', 'c', 'd', 'e']
 print _list[10:]
 ```
@@ -292,7 +292,7 @@ In this case, the list `_list` has only five elements, so the valid indices are 
 
 ## 13- A palindromic number reads the same both ways. The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99. Find the largest palindrome made from the product of two 3-digit numbers
 
-```python
+```Python
 def is_palindrome(n):
     # Convert the number to a string and check if it is equal to its reverse
     return str(n) == str(n)[::-1]
@@ -377,7 +377,7 @@ In general, you should use ***class methods*** when you need to define a method 
 
 ## 16- Please explain the following results of the code executed on a Python shell interpreter
 
-```python
+```Python
 >>> a=256
 >>> b=256
 >>> a is b
@@ -412,7 +412,7 @@ To create an abstract class in Python, you need to do the following:
 3. Declare one or more abstract methods using the `@abc.abstractmethod` decorator.
 Here is an example of an abstract class in Python:
 
-    ```python
+    ```Python
     import abc
 
     class Animal(abc.ABC):
@@ -444,7 +444,7 @@ In Python, the `*args` and `**kwargs` syntax is used to pass a variable number o
 
 `*args` is used to pass a variable number of non-keyworded arguments to a function. It is used to pass a tuple of arguments to the function. For example:
 
-```python
+```Python
 def my_function(arg1, *args):
     print(arg1)
     print(args)
@@ -458,7 +458,7 @@ my_function(1, 2, 3, 4, 5)
 
 `**kwargs` is used to pass a variable number of keyworded arguments to a function. It is used to pass a dictionary of keyword arguments to the function. For example:
 
-```python
+```Python
 def my_function(**kwargs):
     print(kwargs)
 
@@ -479,7 +479,7 @@ In Python, tuples, sets, and lists are all data types that can be used to store 
 
 3. **Lists** are mutable, which means that you can change the values of their items after the list has been created. They are defined using square brackets `[]` and their items are separated by commas. also, Lists are generally slower and use more memory than tuples, because they are mutable and have the overhead of the extra methods and behaviors that are associated with them. However, lists are more flexible than tuples because you can modify their items after the list has been created.
 
-```python
+```Python
 # Create a tuple
 t = (1, 2, 3)
 
@@ -506,7 +506,7 @@ The `pickle` module in Python provides functions for pickling and unpickling obj
 
 Here is an example of how to use the `pickle` module to pickle and unpickle a simple object in Python:
 
-```python
+```Python
 import pickle
 
 # Define a simple object to be pickled
@@ -524,3 +524,262 @@ with open('data.pkl', 'rb') as f:
 ```
 
 Pickling is useful for storing complex objects to a file or for sending them over a network connection. However, it is important to note that the pickle module is not intended to be secure, and it is possible to construct malicious pickle data that can execute arbitrary code when unpickled. Therefore, it is generally not recommended to use pickle to serialize and transmit sensitive data over untrusted networks or to unserialize pickle data from untrusted sources.
+
+## 21- Does Python support multiple inheritance?
+
+Yes, Python supports multiple inheritance, which means that a class can inherit from multiple superclasses (also called base classes or parent classes). Multiple inheritance can be useful when you want to define a class that inherits behavior from more than one parent class.
+
+To use multiple inheritance in Python, you can specify multiple superclasses in the class definition, separated by commas. For example:
+
+```Python
+class Base1:
+    # Base1 class definition
+
+class Base2:
+    # Base2 class definition
+
+class Derived(Base1, Base2):
+    # Derived class definition
+```
+
+In this example, the `Derived` class inherits from both the `Base1` and `Base2` classes.
+
+It is important to note that Python uses a method resolution order (MRO) to determine which method should be called when a method with the same name is inherited from multiple superclasses. The MRO is based on the order in which the superclasses are specified in the class definition, and it is used to resolve conflicts when a method is defined in multiple superclasses.
+
+For more information about multiple inheritance in Python, you can refer to the documentation on class inheritance in the Python tutorial.
+
+## 21- What are the pitfalls and problems of Python language?
+
+Performance and concurrency are two common areas where Python programmers may encounter pitfalls and problems. Here are some specific issues to consider in these areas:
+
+1. ***Performance issues***: Python is generally slower than compiled languages like C or C++, which means that you may encounter performance issues when running computationally intensive tasks in Python. There are ways to improve the performance of Python code (e.g., using optimized libraries or writing code in Cython), but it is important to be aware of the performance limitations of the language.
+
+2. ***Concurrency issues***: Python has a global interpreter lock (GIL) that prevents multiple threads from executing Python bytecodes at the same time, which can lead to concurrency issues when running multithreaded programs. There are ways to work around the GIL (e.g., using the `multiprocessing` module), but it is important to be aware of this limitation when writing concurrent programs in Python.
+
+Here are some specific issues that you may encounter when dealing with performance and concurrency in Python:
+
+* **Bottlenecks**: It can be difficult to identify which parts of your code are causing performance issues, especially if you are working with large datasets or complex algorithms. You may need to use profiling tools to identify bottlenecks in your code and optimize the most critical parts.
+
+* **Memory usage**: Memory usage can also be a problem when working with large datasets or complex algorithms in Python. You may need to use memory-efficient data structures and algorithms, or write code in a memory-efficient way, to avoid running out of memory.
+
+* **Lack of parallelism**: Because of the GIL, Python threads are not always able to run in parallel on multiple CPU cores. This can limit the scalability of multithreaded Python programs, especially on systems with many CPU cores.
+
+* **Synchronization issues**: When working with concurrent programs, you may need to synchronize access to shared resources to avoid race conditions and other synchronization issues. This can be challenging in Python, especially if you are not familiar with the tools and techniques available for concurrency control.
+
+To avoid these and other issues related to performance and concurrency in Python, it is important to be aware of the limitations of the language and to plan accordingly when writing and testing your code. You may need to use specialized tools and techniques, such as profiling and optimization tools, to improve the performance and scalability of your Python programs.
+
+## 22- How to achieve multithreading in Python?
+
+Python offers a multi-threading package but it is not really good for speeding up the code. The GIL is a great way though it is not really multithreading. It executes one at a time but takes turns for different threads really fast which makes it seem like processes are running simultaneously.
+
+## 23- What is the use of `with` in Python?
+
+In Python, the with statement is used to wrap the execution of a block of code with methods defined by a context manager. A context manager is an object that defines the methods `__enter__` and `__exit__`, which are called before and after the execution of the block of code, respectively.
+
+The `with` statement is used to manage resources that need to be acquired and released, such as file handles or network connections. It is particularly useful when working with resources that need to be closed or released after they are no longer needed, because it ensures that the resources are properly cleaned up even if an exception is raised during the execution of the block of code.
+
+Here is an example of how to use the `with` statement to open and read a file in Python:
+
+```Python
+f = open('filename.txt', 'r')
+try:
+    contents = f.read()
+finally:
+    f.close()
+```
+
+## 24- How are `.py`, `.pyi`, `.pyd`, and `.pyc` files different?
+
+In Python, there are several different file types that you may encounter when working with the language:
+
+1. **`.py`** files are Python source files that contain the code written in the Python language. These files can be executed by the Python interpreter, and they can be imported as modules in other Python programs.
+
+2. **`.pyi`** files are Python interface files that contain type hints for Python programs. These files are used to provide type information for static type checkers, such as mypy, and they are not intended to be executed by the Python interpreter.
+
+3. **`.pyd`** files (also known as Python dynamic libraries) are compiled binary files that contain compiled code written in C, C++, or other languages that can be imported and used by Python programs. These files are typically used to extend the functionality of Python by providing access to compiled code that is not written in Python.
+
+4. **`.pyc`** files are compiled Python bytecode files that contain the bytecode version of Python source files. These files are not intended to be edited by hand and are usually generated automatically by the Python interpreter when a Python module is imported.
+
+Here is an example of how these file types may be used in a Python program:
+
+```Python
+# foo.py
+def foo():
+    print("Hello from foo")
+
+# bar.py
+import foo
+foo.foo()
+```
+
+In this example, `foo.py` is a Python source file that defines a function called `foo`. `bar.py` is another Python source file that imports the `foo` module and calls the `foo` function. When `bar.py` is executed, the Python interpreter will create a compiled `foo.pyc` file (if it doesn't already exist) and use it to execute the code in `foo.py`.
+
+## 25- What are decorators in Python?
+
+Decorators are functions that are used to modify the behavior of other functions. Decorators are implemented as functions that take a function as an argument and return a modified function. They are often used to add additional functionality to an existing function, such as logging, caching, or input validation.
+
+To use a decorator in Python, you define a decorator function and use the `@` symbol to specify that the function being defined is a decorator. The function being decorated is passed as an argument to the decorator function, and the decorator function returns the modified function.
+
+Here is an example of how to use a decorator in Python:
+
+```Python
+def my_decorator(func):
+    def wrapper(*args, **kwargs):
+        print("Before calling the decorated function")
+        result = func(*args, **kwargs)
+        print("After calling the decorated function")
+        return result
+    return wrapper
+
+@my_decorator
+def my_function(x, y):
+    return x + y
+
+print(my_function(3, 4))
+```
+
+In this example, the `my_decorator` function is a decorator that adds additional logging before and after the decorated function is called. The `my_function` function is decorated with the `my_decorator` decorator, which modifies its behavior to include the additional logging. When `my_function` is called, the decorator function is executed first, and then the decorated function is called.
+
+## 26- How to use self in Python?
+
+In Python, the `self` keyword is used to refer to the current instance of a class. It is used inside the methods of a class to access instance variables and instance methods.
+
+Here is an example of how to use `self` in a class definition in Python:
+
+```Python
+class MyClass:
+    def __init__(self, value):
+        self.value = value
+
+    def my_method(self):
+        return self.value
+
+obj = MyClass(10)
+print(obj.my_method())
+```
+
+In this example, the `MyClass` class defines an `__init__` method that takes an argument value and assigns it to the instance variable `self.value`. The `my_method` method returns the value of self.value.
+
+When the `MyClass` class is instantiated with the `MyClass(10)` statement, a new instance of the class is created, and the `__init__` method is called to initialize the instance. The `obj` variable is assigned to the new instance of the class, and the `obj.my_method()` statement calls the `my_method` method on the instance, which returns the value of self.value.
+
+It is important to note that the `self` keyword is not a reserved word in Python and it is not required to use it in your code. However, it is a common convention in Python to use `self` to refer to the current instance of a class, and it is recommended to follow this convention when writing Python code.
+
+## 27- What are namespaces in Python?
+
+In Python, a namespace is a container that holds a set of identifiers (i.e., names) and their corresponding objects. Namespaces are used to avoid name collisions between identifiers that have the same name but are used in different contexts.
+
+There are several types of namespaces in Python:
+
+* **Module namespace**: Each module in Python has its own namespace, which contains the identifiers defined in the module, such as functions, variables, and classes. When you import a module, the identifiers in the module's namespace become available in the current namespace.
+
+* **Class namespace**: Each class in Python has its own namespace, which contains the identifiers defined in the class, such as methods and instance variables. When you create an instance of a class, the instance variables become part of the instance's namespace.
+
+* **Function namespace**: Each function in Python has its own namespace, which contains the identifiers defined in the function, such as local variables and function arguments. The function namespace is created when the function is called and is destroyed when the function returns.
+
+Here is an example of how namespaces are used in Python:
+
+```Python
+# Define a global variable in the module namespace
+x = 10
+
+def foo():
+    # Define a local variable in the function namespace
+    y = 20
+    print(x)  # Access the global variable from the module namespace
+
+class MyClass:
+    def __init__(self):
+        # Define an instance variable in the class namespace
+        self.z = 30
+    def my_method(self):
+        print(self.z)  # Access the instance variable from the class namespace
+
+obj = MyClass()
+obj.my_method()
+```
+
+In this example, the `x` variable is defined in the module namespace and is accessible from the global scope and from the `foo` function. The `y` variable is defined in the function namespace and is only accessible from within the `foo` function. The `z` variable is defined in the class namespace and is accessible from the instance methods of the `MyClass` class.
+
+## 28- What is PEP?
+
+PEP stands for *Python Enhancement Proposal*. PEPs are documents that describe proposed changes, improvements, and new features for Python. They are written by Python developers and are used to communicate ideas and proposals for improving the language to the Python community.
+
+There are different types of PEPs, including:
+
+* **Standards Track PEPs**: These PEPs propose changes to the Python language itself, such as new syntax or built-in functions.
+
+* **Informational PEPs**: These PEPs provide information about Python-related topics, such as best practices or design patterns.
+
+* **Process PEPs**: These PEPs describe changes to the Python development process, such as how PEPs are submitted and reviewed.
+
+PEPs are written in a standard format and are reviewed by the Python community through a process called the PEP process. The PEP process is designed to ensure that proposed changes to Python are well-documented, well-reasoned, and discussed by the community before being accepted and implemented.
+
+## 29- What are dunder methods in python?
+
+In Python, dunder methods (also known as "magic methods") are methods that are defined with double underscores (e.g., `__init__`, `__len__`) and are used to implement special behavior for objects. These methods are called "dunder" because they are surrounded by double underscores (i.e., "double underscore" or "dunder").
+
+Dunder methods are used to define the behavior of various built-in operations in Python, such as arithmetic operations, attribute access, and object creation and destruction. For example, the `__init__` dunder method is used to initialize an object when it is created, the `__add__` dunder method is used to define the behavior of the `+` operator for an object, and the `__str__` dunder method is used to define the string representation of an object.
+
+Here is an example of how dunder methods are used in Python:
+
+```Python
+class MyClass:
+    def __init__(self, value):
+        self.value = value
+
+    def __add__(self, other):
+        return self.value + other.value
+
+    def __str__(self):
+        return f"MyClass({self.value})"
+
+obj1 = MyClass(10)
+obj2 = MyClass(20)
+print(obj1 + obj2)  # Calls the __add__ method
+print(str(obj1))   # Calls the __str__ method
+
+```
+
+In this example, the `MyClass` class defines the `__init__`, `__add__`, and `__str__` dunder methods to customize the behavior of object creation, the `+` operator, and the `str` function for instances of the class.
+
+For more information about dunder methods and how they are used in Python, you can refer to the documentation.
+
+## 30- What does `super` do in Python? - difference between `super().__init__()` and explicit `superclass.__init__()`
+
+In Python, `super` is a special function that refers to the parent class. It is used to access methods and properties of the parent class from within a child class.
+
+When you use `super().__init__()` in a child class, you are calling the `__init__` method of the parent class. This is equivalent to calling `SomeParentClass.__init__(self)`, where `SomeParentClass` is the name of the parent class.
+
+For example, consider the following code:
+
+```Python
+class Animal:
+    def __init__(self, name, species):
+        self.name = name
+        self.species = species
+
+class Cat(Animal):
+    def __init__(self, name, breed, toy):
+        super().__init__(name, species="Cat")
+        self.breed = breed
+        self.toy = toy
+
+cat1 = Cat("Kitty", "Siamese", "Ball")
+```
+
+In this example, the `Cat` class is a child class of the `Animal` class. The `Cat` class has its own `__init__` method, which calls the `__init__` method of the `Animal` class using `super().__init__(name, species="Cat")`. This is equivalent to calling `Animal.__init__(self, name, species="Cat")`, which sets the name and species attributes of the `Cat` object.
+
+On the other hand, if you were to use `SomeParentClass.__init__(self)` to call the `__init__` method of the parent class, you would need to explicitly specify the name of the parent class. For example:
+
+```Python
+class Cat(Animal):
+    def __init__(self, name, breed, toy):
+        Animal.__init__(self, name, species="Cat")
+        self.breed = breed
+        self.toy = toy
+```
+
+In this case, the `__init__` method of the `Animal` class is called using the explicit name of the parent class, `Animal`. This is equivalent to using `super().__init__(name, species="Cat")`.
+
+Both `super().__init__()` and `SomeParentClass.__init__(self)` are used to call the `__init__` method of the parent class from within a child class. The main difference is that `super().__init__()` does not require you to explicitly specify the name of the parent class, while `SomeParentClass.__init__(self)` does.
+
