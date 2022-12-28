@@ -640,7 +640,7 @@ print(my_function(3, 4))
 
 In this example, the `my_decorator` function is a decorator that adds additional logging before and after the decorated function is called. The `my_function` function is decorated with the `my_decorator` decorator, which modifies its behavior to include the additional logging. When `my_function` is called, the decorator function is executed first, and then the decorated function is called.
 
-## 26- How to use self in Python?
+## 26- How to use `self` in Python?
 
 In Python, the `self` keyword is used to refer to the current instance of a class. It is used inside the methods of a class to access instance variables and instance methods.
 
@@ -783,3 +783,432 @@ In this case, the `__init__` method of the `Animal` class is called using the ex
 
 Both `super().__init__()` and `SomeParentClass.__init__(self)` are used to call the `__init__` method of the parent class from within a child class. The main difference is that `super().__init__()` does not require you to explicitly specify the name of the parent class, while `SomeParentClass.__init__(self)` does.
 
+## 31- What is property decorator in python?
+
+In Python, the `property` decorator is a built-in function that is used to create a special kind of attribute called a "property." A property is a special kind of attribute that is defined as a method, but it is accessed like a regular attribute.
+
+Here is an example of how the `property` decorator is used to define a property in a class:
+
+```Python
+class Person:
+    def __init__(self, first_name, last_name):
+        self._first_name = first_name
+        self._last_name = last_name
+
+    @property
+    def full_name(self):
+        return f"{self._first_name} {self._last_name}"
+
+    @full_name.setter
+    def full_name(self, name):
+        first_name, last_name = name.split(" ")
+        self._first_name = first_name
+        self._last_name = last_name
+
+person1 = Person("John", "Doe")
+print(person1.full_name) # prints "John Doe"
+person1.full_name = "Jane Doe"
+print(person1.full_name) # prints "Jane Doe"
+
+```
+
+In this example, the `full_name` attribute is defined as a `property` using the `@property` decorator. The `full_name` property is defined as a method that returns the full name of the person, which is the combination of the `_first_name` and `_last_name` attributes.
+
+The `full_name` property also has a setter, which is defined using the `@full_name.setter` decorator. The setter allows you to set the value of the `full_name` property, which in turn sets the values of the `_first_name` and `_last_name` attributes.
+
+To use the `full_name` property, you can access it like a regular attribute, using dot notation. For example, `person1.full_name` returns the **full name** of the person, and `person1.full_name = "Jane Doe"` sets the full name of the person.
+
+Properties are useful because they allow you to define methods that are accessed like attributes, which can make your code more readable and easier to use. They also allow you to add additional behavior to attribute access, such as data validation or type checking.
+
+## 32- What is the difference between Cython and CPython?
+
+Cython is a programming language that is a superset of Python, which means that it is fully compatible with Python and can be used to write Python code. Cython is designed to make it easy to write Python code that can be efficiently compiled to C or C++ code, which can then be compiled into a native machine code executable.
+
+CPython, on the other hand, is the reference implementation of the Python programming language. It is written in C and is the most widely used implementation of Python.
+
+One of the main differences between Cython and CPython is that Cython allows you to write Python code that can be compiled to native machine code, while CPython is an interpreter that executes Python code directly. This means that Cython code can be faster and more efficient than CPython code, especially for computationally intensive tasks.
+
+Another difference is that Cython allows you to include C or C++ code in your Python code, which can be useful if you want to use existing C or C++ libraries or if you want to write low-level code that is not possible in pure Python.
+
+Overall, Cython is a useful tool for optimizing Python code and extending Python with C or C++ code, while CPython is the reference implementation of the Python language and is used for running Python code on most platforms.
+
+## 33- Specify the difference between local and global variables in Python
+
+In Python, a local variable is a variable that is defined within a function or method and is only accessible within that function or method. A global variable is a variable that is defined outside of any function or method and is accessible from anywhere in the program.
+
+Here is an example of how local and global variables work in Python:
+
+```Python
+# Global variable
+x = 10
+
+def some_function():
+    # Local variable
+    y = 5
+    print(y) # prints 5
+
+some_function()
+print(x) # prints 10
+print(y) # This will cause an error because y is a local variable and is not accessible outside of the some_function() function
+
+```
+
+In this example, `x` is a global variable because it is defined outside of any function or method. It is accessible from anywhere in the program, so it can be printed both inside and outside of the `some_function` function.
+
+`y` is a local variable because it is defined within the `some_function` function. It is only accessible within the `some_function` function and is not accessible outside of it. If you try to access `y` outside of the `some_function` function, it will cause an error because `y` is not defined in the global scope.
+
+It is important to note that local variables take precedence over global variables with the same name. For example:
+
+```Pythn
+x = 10
+
+def some_function():
+    x = 5
+    print(x) # prints 5
+
+some_function()
+print(x) # prints 10
+```
+
+In this case, the `x` variable within the `some_function` function is a local variable and takes precedence over the global `x` variable. When you print `x` within the `some_function` function, it will print the value of the local `x` variable, which is **`5`**. When you print `x` outside of the function, it will print the value of the global `x` variable, which is **`10`**.
+
+To access the global variable from within a function, you can use the global keyword to specify that you want to access the global variable, like this:
+
+```Python
+x = 10
+
+def some_function():
+    global x
+    x = 5
+    print(x) # prints 5
+
+some_function()
+print(x) # prints 5
+```
+
+In this case, the global `x` statement tells Python that you want to access the global `x` variable within the `some_function` function. This allows you to modify the value of the global `x` variable from within the function.
+
+## 34- What are Python iterators?
+
+In Python, an iterator is an object that allows you to iterate over a sequence of elements, such as a list, tuple, or string. An iterator has two main methods: `__iter__` and `__next__`.
+
+The `__iter__` method is called when the iterator object is initialized, and it returns the iterator object itself. The `__next__` method is called to retrieve the next element in the sequence. When there are no more elements to iterate over, the  `__next__` method raises a `StopIteration` exception to signal that the iteration is complete.
+
+Here is an example of how you can use an iterator to iterate over a list in Python:
+
+```Python
+# Define a list
+my_list = [1, 2, 3, 4]
+
+# Create an iterator object
+it = iter(my_list)
+
+# Iterate over the elements of the list
+print(next(it)) # prints 1
+print(next(it)) # prints 2
+print(next(it)) # prints 3
+print(next(it)) # prints 4
+print(next(it)) # This will raise a StopIteration exception
+
+```
+
+In this example, the `iter` function is used to create an iterator object for the `my_list` list. The `next` function is then used to retrieve the elements of the list one by one. When there are no more elements to iterate over, the next function raises a *`StopIteration`* exception.
+
+You can also use a for loop to iterate over an iterator in Python. The for loop will automatically call the `__next__` method of the iterator and will stop when a `StopIteration` exception is raised. For example:
+
+```Python
+# Define a list
+my_list = [1, 2, 3, 4]
+
+# Create an iterator object
+it = iter(my_list)
+
+# Iterate over the elements of the list using a for loop
+for i in it:
+    print(i) # prints 1, 2, 3, 4
+```
+
+Iterators are useful because they allow you to iterate over a sequence of elements in a memory-efficient way. Instead of loading the entire sequence into memory at once, an iterator loads the elements one by one as they are needed, which can save a lot of memory for large sequences.
+
+You can also create your own iterators by defining the `__iter__` and `__next__` methods in a class. For example:
+
+```Python
+class MyIterator:
+    def __init__(self, data):
+        self.data = data
+        self.index = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.index >= len(self.data):
+            raise StopIteration
+        result = self.data[self.index]
+        self.index += 1
+        return result
+
+# Create an instance of the MyIterator class
+it = MyIterator([1, 2, 3, 4])
+
+# Iterate over the elements of the iterator
+for i in it:
+    print(i) # prints 1, 2, 3, 4
+
+```
+
+In this example, the `MyIterator` class defines an iterator that iterates over a list of data. The `__iter__` method returns the iterator object itself, and the `__next__` method returns the next element in
+
+## 35- What are Python generators?
+
+In Python, a generator is a special type of function that allows you to create an iterator that generates a sequence of values on the fly. Generators are similar to iterators, but they are more memory-efficient because they do not store all of the values in memory at once. Instead, they generate the values one by one as they are needed.
+
+To create a generator in Python, you use the `yield` keyword instead of the `return` keyword. The `yield` keyword causes the generator to pause execution and return a value, but it does not terminate the generator function. When the generator is called again, it will resume execution from the point where it left off.
+
+Here is an example of a simple generator function in Python:
+
+```Python
+def my_range(n):
+    i = 0
+    while i < n:
+        yield i
+        i += 1
+
+# Create a generator object
+gen = my_range(5)
+
+# Iterate over the generator
+for i in gen:
+    print(i) # prints 0, 1, 2, 3, 4
+```
+
+In this example, the `my_range` generator function generates a sequence of numbers from `0` to `n-1`. When the generator is called, it returns an iterator object that can be used to iterate over the generated values.
+
+You can also create a generator using a generator expression, which is a compact syntax for creating a generator. A generator expression is similar to a list comprehension, but it uses parentheses instead of square brackets and returns a generator object instead of a list.
+
+Here is an example of a generator expression:
+
+```Python
+# Create a generator object using a generator expression
+gen = (i for i in range(5))
+
+# Iterate over the generator
+for i in gen:
+    print(i) # prints 0, 1, 2, 3, 4
+
+```
+
+Generators are useful when you want to generate a large sequence of values that you do not need to store in memory all at once. They allow you to generate the values one by one as they are needed, which can save a lot of memory and make your program more efficient.
+
+## 36- What is the difference between Python's Generators and Iterators?
+
+In Python, generators and iterators are similar in that they both allow you to iterate over a sequence of values. However, there are some important differences between the two.
+
+The main difference is that a generator is a function that generates an iterator, while an iterator is an object that represents a stream of data. A generator function is defined using the `yield` keyword, which allows the generator to pause execution and return a value, but it does not terminate the generator function. An iterator, on the other hand, is an object that has two main methods: `__iter__` and `__next__`. The `__iter__` method is called when the iterator is initialized, and it returns the iterator object itself. The `__next__` method is called to retrieve the next element in the sequence, and it raises a StopIteration exception when there are no more elements to iterate over.
+
+Here is an example of how generators and iterators work in Python:
+
+```Python
+# Define a generator function
+def my_range(n):
+    i = 0
+    while i < n:
+        yield i
+        i += 1
+
+# Create a generator object
+gen = my_range(5)
+
+# Iterate over the generator using a for loop
+for i in gen:
+    print(i) # prints 0, 1, 2, 3, 4
+
+# Create an iterator object
+it = iter(gen)
+
+# Iterate over the iterator using the next function
+print(next(it)) # prints 0
+print(next(it)) # prints 1
+print(next(it)) # prints 2
+print(next(it)) # prints 3
+print(next(it)) # prints 4
+print(next(it)) # This will raise a StopIteration exception
+```
+
+In this example, the `my_range` generator function defines a generator that generates a sequence of numbers from `0` to `n-1`. The generator is called to create a generator object, which is then iterated over using a for loop. The generator object is also converted to an iterator object using the `iter` function, and the iterator is iterated over using the `next` function.
+
+One important difference between generators and iterators is that generators can only be iterated over once. Once the generator has been exhausted, it cannot be used again. Iterators, on the other hand, can be iterated over multiple times.
+
+Another difference is that generators are more memory-efficient than iterators because they do not store all of the values in memory at once.
+
+## 37- What are Python documentation strings?
+
+In Python, documentation strings (also called docstrings) are strings that are used to document a module, class, method, or function. Docstrings are usually placed at the beginning of the code block that they document, and they are typically used to provide a brief description of what the code does and how it can be used.
+
+In Python, docstrings are written using triple quotes (`'''` or `"""`). For example:
+
+```Python
+def some_function(arg1, arg2):
+    '''
+    This is a docstring for the some_function function.
+    
+    This function does something with the arguments arg1 and arg2.
+    
+    Parameters:
+        arg1 (int): The first argument.
+        arg2 (int): The second argument.
+    
+    Returns:
+        int: The result of the function.
+    '''
+    # Function code goes here
+    return result
+
+```
+
+In this example, the docstring for the `some_function` function is a multi-line string that is placed at the beginning of the function definition. It provides a brief description of what the function does and lists the parameters and return value of the function.
+
+Docstrings can be accessed at runtime using the `__doc__` attribute of the object. For example:
+
+```Python
+print(some_function.__doc__)
+# This will print the docstring for the some_function function.
+```
+
+## 38- Explain the use of `subn()`, `sub()`, and `split()` in the `“re”` module
+
+The `re` is a Python module developers use to execute operations that involve expression matching. In particular, it contains three modules to allow editing strings – `subn()`, `sub()`, and `split()`. 
+
+1. **`subn()`**: Defines all strings with a matching regex pattern, replaces them with a new one, and returns the number of replacements. 
+2. **`sub()`**: Defines all strings with a matching regex pattern and replaces them with a new one.
+3. **`split()`**: Splits strings into lists using regex patterns
+
+## 39- Define polymorphism in Python
+
+In Python, polymorphism refers to the ability of a function or method to behave differently depending on the data type of the arguments passed to it.
+
+Polymorphism is a key feature of object-oriented programming (OOP) and allows you to write code that is more flexible and reusable. It allows you to define a function or method that can accept different types of arguments and perform different actions based on the type of the arguments.
+
+There are two main ways to implement polymorphism in Python:
+
+1. Method overloading: This is the ability to define multiple methods with the same name but different signatures (i.e., different number or types of arguments). Python does not have native support for method overloading, so you have to use function overloading techniques to achieve this.
+
+2. Method overriding: This is the ability to define a method in a subclass that has the same name and signature as a method in the superclass, but with different behavior. Method overriding is a key feature of OOP and allows you to customize the behavior of a method in a subclass to suit the needs of the subclass.
+
+Here is an example of polymorphism using method overriding in Python:
+
+```Python
+class Shape:
+    def area(self):
+        raise NotImplementedError
+
+class Rectangle(Shape):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+    
+    def area(self):
+        return self.width * self.height
+
+class Circle(Shape):
+    def __init__(self, radius):
+        self.radius = radius
+    
+    def area(self):
+        return 3.14 * self.radius * self.radius
+
+# Create a rectangle object
+rect = Rectangle(10, 20)
+
+# Print the area of the rectangle
+print(rect.area()) # prints
+```
+
+## 40- What are the differences between Wheels and Eggs?
+
+In Python, wheels and eggs are two different types of distribution formats for Python packages.
+
+A wheel is a pre-built distribution of a Python package that is built using the     `bdist_wheel` command. Wheels are stored in the `.whl` file format and can be installed using the `pip` package manager. Wheels are designed to be a more efficient and faster way to install Python packages, especially for large packages or packages with many dependencies.
+
+An `egg` is an older distribution format for Python packages that is stored in the `.egg` file format. Eggs were originally used by the `easy_install` package manager, but they are now deprecated in favor of wheels.
+
+There are several key differences between wheels and eggs:
+
+* File format: Wheels are stored in the `.whl` file format, while eggs are stored in the `.egg` file format.
+
+* Installation: Wheels can be installed using the pip package manager, while eggs can be installed using the `easy_install` package manager.
+
+* Compatibility: Wheels are compatible with *Python 2.7* and later versions, while eggs are only compatible with *Python 2.4* and later versions.
+
+* Efficieny: Wheels are generally more efficient and faster to install than eggs because they do not need to be built from source code.
+
+In summary, wheels are the recommended distribution format for Python packages, while eggs are deprecated and should not be used. If you are installing a Python package, you should look for a wheel package if possible.
+
+## 41- What is the purpose of Python non-local statements?
+
+Non-local statements allow assigning variables to outer-scope statements that are not global. The most common application of the keyword is in nested functions, where there’s a need to make sure a variable isn’t accessible by the inner function. 
+
+## 42- How is Python exception handling different from that in Java?
+
+Unlike Java, Python allows developers to see an error in the code without terminating the execution of the program. This mechanism is called try-except. Sometimes, the system suggests a way to solve the problem along with the error description. 
+
+There are two types of try-except clauses in Python:
+
+* Try -> except -> finally
+* Try -> except
+
+## 43- Name the differences between functional and object-oriented programming
+
+Functional programming and object-oriented programming are two programming paradigms that are commonly used in Python. Each paradigm has its own set of characteristics and approaches to solving problems, and they can be used in different situations depending on the needs of the project.
+
+Here are some key differences between functional programming and object-oriented programming in Python:
+
+1. **Data model**: In functional programming, data is treated as immutable and functions are used to transform data. In object-oriented programming, data is encapsulated in objects and accessed through methods.
+
+2. **State**: In functional programming, state is typically avoided or minimized, and functions are designed to be pure and side-effect free. In object-oriented programming, objects have internal state that can be modified through methods.
+
+3. **Inheritance**: In object-oriented programming, inheritance is used to create a hierarchy of classes and reuse code between classes. In functional programming, inheritance is not typically used, and functions are composed and combined to create new functionality.
+
+4. **Polymorphism**: In object-oriented programming, polymorphism allows a method or function to behave differently depending on the type of the arguments passed to it. In functional programming, polymorphism is typically achieved through function overloading or currying.
+
+5. **Concurrency**: In functional programming, concurrency is typically easier to achieve because functions are pure and do not depend on state. In object-oriented programming, concurrency can be more challenging because objects have internal state that can be modified concurrently.
+
+## 44- What does the `PYTHONOPTIMIZE` flag do?
+
+The `PYTHONOPTIMIZE` flag is a command-line option for the Python interpreter that enables various optimization techniques. When the `PYTHONOPTIMIZE` flag is set to a non-zero value, the interpreter will apply various optimization techniques to the bytecode of the program, in an attempt to improve its performance.
+
+The optimization techniques that are applied when `PYTHONOPTIMIZE` is set depend on the specific version of Python that you are using. In general, the optimization techniques that may be applied include:
+
+* Inlining of simple functions
+*Removal of dead code
+* Specialization of function calls
+* Early binding of global names
+* Constant folding and propagation
+* Peephole optimization of bytecode
+
+It's important to note that the `PYTHONOPTIMIZE` flag is intended to be used for debugging and profiling purposes, and is not recommended for use in production environments. This is because the optimizations applied by the flag may change the behavior of the program in ways that are difficult to predict, and may even make the program slower in some cases.
+
+To use the `PYTHONOPTIMIZE` flag, you can specify it as an option when running the Python interpreter from the command line, like this:
+
+```Python
+python -O script.py
+```
+
+This will run the Python interpreter with the `PYTHONOPTIMIZE` flag set to 1. You can also set the flag to a higher value by using the `-OO` flag, which will enable additional optimization techniques:
+
+```Python
+python -OO script.py
+```
+
+It's worth noting that the optimization techniques applied by the PYTHONOPTIMIZE flag are not as effective as those used by modern just-in-time (JIT) compilers, such as PyPy or Numba. These tools are generally more effective at optimizing Python code, and are typically recommended for use in production environments where performance is critical.
+
+## 45- What are descriptors? Is there a difference between a descriptor and a decorator?
+
+In Python, a descriptor is an object attribute with "binding behavior", which means that it has the ability to define how it is accessed and set. Descriptors are implemented using a set of special methods, known as the descriptor protocol, which consists of the `__get__`, `__set__`, and `__delete__` methods.
+
+Descriptors are a way to define custom attribute access behavior in Python. They can be used to implement properties, methods, or any other attribute type with custom behavior. For example, you might use a descriptor to implement lazy evaluation of an attribute, or to provide read-only access to an attribute.
+
+The descriptor protocol defines how the descriptor's methods are called when the attribute is accessed on an object. When an attribute is accessed on an object, Python first checks to see if the attribute is defined on the object itself. If it is, the attribute is accessed directly. If the attribute is not defined on the object, Python looks for a descriptor with the same name on the object's class or any of its base classes. If a descriptor is found, Python calls the descriptor's `__get__`, `__set__`, or `__delete__` method, depending on the type of attribute access that is being performed.
+A decorator is a function that takes another function and extends the behavior of the latter function without explicitly modifying its code. Decorators are implemented using the `@` syntax in Python, and are used to modify the behavior of a function or method.
+
+There is a difference between a descriptor and a decorator in Python. A descriptor is an object attribute with binding behavior, whereas a decorator is a function that takes another function and extends its behavior. Descriptors are implemented using the descriptor protocol, which consists of the `__get__`, `__set__`, and `__delete__` methods, whereas decorators are implemented as functions that take a function as an argument and return a modified version of the function.
