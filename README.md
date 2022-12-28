@@ -1077,9 +1077,9 @@ print(some_function.__doc__)
 
 ## 38- Explain the use of `subn()`, `sub()`, and `split()` in the `“re”` module
 
-The `re` is a Python module developers use to execute operations that involve expression matching. In particular, it contains three modules to allow editing strings – `subn()`, `sub()`, and `split()`. 
+The `re` is a Python module developers use to execute operations that involve expression matching. In particular, it contains three modules to allow editing strings – `subn()`, `sub()`, and `split()`.
 
-1. **`subn()`**: Defines all strings with a matching regex pattern, replaces them with a new one, and returns the number of replacements. 
+1. **`subn()`**: Defines all strings with a matching regex pattern, replaces them with a new one, and returns the number of replacements.
 2. **`sub()`**: Defines all strings with a matching regex pattern and replaces them with a new one.
 3. **`split()`**: Splits strings into lists using regex patterns
 
@@ -1146,11 +1146,11 @@ In summary, wheels are the recommended distribution format for Python packages, 
 
 ## 41- What is the purpose of Python non-local statements?
 
-Non-local statements allow assigning variables to outer-scope statements that are not global. The most common application of the keyword is in nested functions, where there’s a need to make sure a variable isn’t accessible by the inner function. 
+Non-local statements allow assigning variables to outer-scope statements that are not global. The most common application of the keyword is in nested functions, where there’s a need to make sure a variable isn’t accessible by the inner function.
 
 ## 42- How is Python exception handling different from that in Java?
 
-Unlike Java, Python allows developers to see an error in the code without terminating the execution of the program. This mechanism is called try-except. Sometimes, the system suggests a way to solve the problem along with the error description. 
+Unlike Java, Python allows developers to see an error in the code without terminating the execution of the program. This mechanism is called try-except. Sometimes, the system suggests a way to solve the problem along with the error description.
 
 There are two types of try-except clauses in Python:
 
