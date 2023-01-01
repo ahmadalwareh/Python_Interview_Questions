@@ -1784,6 +1784,23 @@ Keep in mind that tuples are **immutable**, which means that you cannot modify a
 
 ## 60- How to join two `sets`?
 
-You can use union method for sets: `set.union(other_set)`
+To join two sets in Python, you can use the `union` method, which returns a new `set` that contains all the elements from both sets.
 
-Note that it returns a new set i.e it doesn't modify itself.
+```Python
+set1 = {1, 2, 3}
+set2 = {3, 4, 5}
+
+set3 = set1.union(set2)
+print(set3)  # Output: {1, 2, 3, 4, 5}
+```
+
+If you want to modify an existing set in place, you can use the `update` method. This method adds all the elements from one set to another set, without creating a new set:
+
+```Python
+set1 = {1, 2, 3}
+set2 = {3, 4, 5}
+
+set1.update(set2)
+print(set1)  # Output: {1, 2, 3, 4, 5}
+
+```
