@@ -1693,7 +1693,7 @@ print(d['d'])  # Output: []
 print(d)  # Output: defaultdict(list, {'a': [1], 'b': [2], 'c': [3], 'd': []})
 ```
 
-In this example, the `defaultdict` is initialized with a default value of an empty `list`, which is returned whenever a `key` is not found in the dictionary. You can see that when we try to access the key `'d'`, which does not exist in the dictionary, the `defaultdict` returns the default value of an empty `list`.
+In the previous example, the `defaultdict` is initialized with a default value of an empty `list`, which is returned whenever a `key` is not found in the dictionary. You can see that when we try to access the key `'d'`, which does not exist in the dictionary, the `defaultdict` returns the default value of an empty `list`.
 
 ## 57 - Can we implement an `array` using Python?
 
