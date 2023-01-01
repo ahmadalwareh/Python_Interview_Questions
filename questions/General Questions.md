@@ -2,17 +2,17 @@
 
 ## 1- Python uses a Global Interpreter Lock. Does that mean it doesn’t use real threads?
 
-No, Python uses real threads, but the Global Interpreter Lock (GIL) is a mechanism that prevents multiple native threads from executing Python bytecodes at once. This lock is necessary because CPython, the reference implementation of Python, is not thread-safe, meaning that multiple threads can potentially interfere with each other and compromise the integrity of an application.
+No, Python uses actual threads, but the Global Interpreter Lock (GIL) is a mechanism that prevents multiple native threads from executing Python bytecodes at once. This lock is necessary because CPython, the reference implementation of Python, is not thread-safe, meaning that multiple threads can potentially interfere with each other and compromise the integrity of an application.
 
-The GIL makes it easy to write simple, thread-safe Python programs, but it can also limit the performance of multi-threaded programs, especially ones that rely heavily on CPU-bound operations. In these cases, Python's threading module may not provide the level of parallelism that you need. In such cases, you may want to consider using an alternative implementation of Python that does not have a GIL, such as PyPy or Jython, or using a different approach to parallelism, such as the multiprocessing module or using subprocesses.
+The GIL makes it easy to write simple, thread-safe Python programs. Still, it can also limit the performance of multithreaded programs, especially ones that rely heavily on CPU-bound operations. In these cases, Python's threading module may not provide the level of parallelism that you need. In such cases, you may consider using an alternative implementation of Python that does not have a GIL, such as PyPy or Jython, or using a different parallel approach, such as the multiprocessing module or using subprocesses.
 
 ## 2- Is it possible to have a producer thread reading from the network and a consumer thread writing to a file, really work in parallel? What about the GIL?
 
 Yes, it is possible to have a producer thread that reads from the network and a consumer thread that writes to a file work in parallel in Python, even with the GIL in place. This is because the GIL only prevents multiple native threads from executing Python bytecodes at once. It does not prevent threads from performing other operations, such as waiting for data to be available on a network socket or waiting for a file to be written to disk.
 
-In the case of a producer thread reading from the network and a consumer thread writing to a file, the producer thread can block on a network read operation, allowing the consumer thread to run in the meantime. Similarly, the consumer thread can block on a file write operation, allowing the producer thread to run. In this way, the two threads can effectively work in parallel, even though only one native thread is executing Python bytecodes at a time due to the GIL.
+In the case of a producer thread reading from the network and a consumer thread writing to a file, the producer thread can block a network read operation, allowing the consumer thread to run in the meantime. Similarly, the consumer thread can block a file write operation, allowing the producer thread to run. In this way, the two threads can effectively work in parallel, even though only one native thread is executing Python bytecodes at a time due to the GIL.
 
-It is important to note that the GIL can still limit the overall performance of a program that uses multiple threads, especially if the threads are CPU-bound. In such cases, you may want to consider using an alternative implementation of Python that does not have a GIL, or using a different approach to parallelism, such as the multiprocessing module or using subprocesses.
+It is important to note that the GIL can still limit the overall performance of a program that uses multiple threads, especially if the threads are CPU-bound. In such cases, you may want to consider using an alternative implementation of Python that does not have a GIL or using a different approach to parallelism, such as the multiprocessing module or using subprocesses.
 
 ## 3- What will be the output of the following code in each step?
 
@@ -37,7 +37,7 @@ In this code, `C` is a class that defines a class attribute called `dangerous`. 
 
 We create two instances of the `C` class, `c1` and `c2`, and print the value of the `dangerous` attribute for each instance. Since the dangerous attribute is a class attribute, it has the same value for both `c1` and `c2`.
 
-Next, we set the value of the `dangerous` attribute for `c1` to **`3`**. This creates an instance attribute for `c1` that shadows the class attribute of the same name. An instance attribute is a variable that is specific to a particular instance of a class, and it takes precedence over any class attributes of the same name.
+Next, we set the value of the `dangerous` attribute for `c1` to **`3`**. This creates an instance attribute for `c1` that shadows the class attribute of the same name. An instance attribute is a variable that is specific to a particular instance of a class, and it takes precedence over any class attribute of the same name.
 
 We then print the value of the dangerous attribute for `c1` and `c2`. The value for `c1` is **`3`**, because it now has an instance attribute of that name, while the value for `c2` is still **`2`**, because it only has the class attribute of that name.
 
@@ -53,7 +53,7 @@ In Python, functions are considered first-class objects because they have the sa
  2. Passed as arguments to functions
  3. Returned as values from functions
  4. Defined inside other functions  
-The ability to treat functions as first-class objects is a powerful feature of Python that enables a number of useful programming patterns, such as higher-order functions, decorators, and functional programming.
+The ability to treat functions as first-class objects is a powerful feature of Python that enables several useful programming patterns, such as higher-order functions, decorators, and functional programming.
 
 For example, consider the following code:
 
@@ -154,7 +154,7 @@ print(product)  # prints 3840
 
 In this example, we define a list of numbers and use the `filter` function to select only the even numbers from the list. The `filter` function takes a function and an iterable as arguments and returns an iterator that yields the elements of the iterable for which the function returns `True`. In this case, we pass a `lambda` function that returns `True` if its argument is even and `False` otherwise, and we pass the list of numbers as the iterable.
 
-We then use the `reduce` function from the `functools` module to compute the product of all the even numbers in the `list`. The `reduce` function takes a function and an iterable as arguments and applies the function to the elements of the iterable in a cumulative manner, returning a single result. In this case, we pass a lambda function that multiplies its arguments and pass the iterator returned by `filter` as the iterable.
+We then use the `reduce` function from the `functools` module to compute the product of all the even numbers in the `list`. The `reduce` function takes a function and an iterable as arguments and applies the function to the elements of the iterable in a cumulative manner, returning a single result. In this case, we pass a lambda function that multiplies its arguments and passes the iterator returned by `filter` as the iterable.
 
 Both `filter` and `reduce` are higher-order functions, meaning that they take a function as an `argument` and return a new function as a result. They are useful for concisely expressing complex operations on iterable objects in Python.
 
@@ -286,7 +286,7 @@ print _list[10:]
 *The output:*
 the output will be an empty list `[]`.
 
-The slicing syntax `list[start:end]` is used to retrieve a subset of the elements in a list. The `start` index specifies the index of the first element to retrieve, and the `end` index specifies the index of the element after the last element to retrieve. If you omit the `end` index, the slicing syntax will return all elements of the list starting from the `start` index until the end of the list.
+The slicing syntax `list[start: end]` is used to retrieve a subset of the elements in a list. The `start` index specifies the index of the first element to retrieve, and the `end` index specifies the index of the element after the last element to retrieve. If you omit the `end` index, the slicing syntax will return all elements of the list starting from the `start` index until the end of the list.
 
 In this case, the list `_list` has only five elements, so the valid indices are `0` through `4`. The index `10` is out of bounds for the list, so the slicing syntax _list`[10:]` will return an empty list.
 
@@ -332,7 +332,7 @@ For example, a Python skeleton code might include:
 * A testing framework and sample test cases
 * Documentation templates and guidelines
 
-Skeleton code is often created for specific types of projects, such as web applications, command-line tools, or data science projects. There are many open-source skeleton code examples available online that you can use as a starting point for your own projects.
+Skeleton code is often created for specific types of projects, such as web applications, command-line tools, or data science projects. There are many open-source skeleton code examples available online that you can use as a starting point for your projects.
 
 Using skeleton code can help you get started with a new project more quickly, and can provide a set of established best practices to follow as you develop your project. However, it's important to understand that skeleton code is only a starting point, and you will need to customize and adapt it to your specific needs as you develop your project.
 
@@ -373,7 +373,7 @@ result = obj.class_method(arg)
 result = obj.static_method(arg)
 ```
 
-In general, you should use ***class methods*** when you need to define a method that operates on the class itself, rather than on an instance of the class. An example of this might be a factory method that creates a new instance of the class with some default values. You should use ***static methods*** when you need to define a method that operates on an argument or variables that are independent of the class and its instances. An example of this might be a utility function that performs some computation or transformation on its arguments, but does not need to access any class or instance attributes.
+In general, you should use ***class methods*** when you need to define a method that operates on the class itself, rather than on an instance of the class. An example of this might be a factory method that creates a new instance of the class with some default values. You should use ***static methods*** when you need to define a method that operates on an argument or variables that are independent of the class and its instances. An example of this might be a utility function that performs some computation or transformation on its arguments but does not need to access any class or instance attributes.
 
 ## 16- Please explain the following results of the code executed on a Python shell interpreter
 
@@ -401,9 +401,9 @@ Therefore, the explanations of the results are:
 
 Since the `is` operator is to compare the memory locations of two variables, the `a is b` should output `True`, and the `x is y` should output `False`.
 
-## 17- In objective-oriented programming, there is a concept called abstract classes. Does Python support abstract classes as well?
+## 17- In objective-oriented programming, there is a concept called abstract classes. How to implement it?
 
-Yes, Python does support abstract classes. In Python, an abstract class is a class that has one or more abstract methods. An abstract method is a method that has a declaration, but no implementation. Abstract methods are defined using the `abc` (abstract base class) module, which is part of the Python standard library.
+In Python, an abstract class is a class that has one or more abstract methods. An abstract method is a method that has a declaration, but no implementation. Abstract methods are defined using the `abc` (abstract base class) module, which is part of the Python standard library.
 
 To create an abstract class in Python, you need to do the following:
 
@@ -500,7 +500,7 @@ Tuples and sets are generally used when you want to store a collection of items 
 
 ## 20- What are pickling and unpickling in python?
 
-In Python, "pickling" refers to the process of converting an object hierarchy (e.g., a list, dictionary, or user-defined object) into a byte stream, and "unpickling" refers to the process of reconstructing the object hierarchy from the byte stream.
+In Python, "pickling" refers to the process of converting an object hierarchy (e.g., a list, dictionary, or a user-defined object) into a byte stream, and "unpickling" refers to the process of reconstructing the object hierarchy from the byte stream.
 
 The `pickle` module in Python provides functions for pickling and unpickling objects. To pickle an object, you can use the `pickle.dump` function, which takes the object to be pickled and a file-like object (such as a file or a byte stream) as arguments and writes the pickled object to the file-like object. To unpickle an object, you can use the `pickle.load` function, which takes a file-like object as an argument and returns the unpickled object.
 
@@ -523,7 +523,7 @@ with open('data.pkl', 'rb') as f:
     data_loaded = pickle.load(f)
 ```
 
-Pickling is useful for storing complex objects to a file or for sending them over a network connection. However, it is important to note that the pickle module is not intended to be secure, and it is possible to construct malicious pickle data that can execute arbitrary code when unpickled. Therefore, it is generally not recommended to use pickle to serialize and transmit sensitive data over untrusted networks or to unserialize pickle data from untrusted sources.
+Pickling is useful for storing complex objects in a file or for sending them over a network connection. However, it is important to note that the pickle module is not intended to be secure, and it is possible to construct malicious pickle data that can execute arbitrary code when unpickled. Therefore, it is generally not recommended to use pickle to serialize and transmit sensitive data over untrusted networks or to unserialize pickle data from untrusted sources.
 
 ## 21- Does Python support multiple inheritance?
 
@@ -570,7 +570,7 @@ To avoid these and other issues related to performance and concurrency in Python
 
 ## 22- How to achieve multithreading in Python?
 
-Python offers a multi-threading package but it is not really good for speeding up the code. The GIL is a great way though it is not really multithreading. It executes one at a time but takes turns for different threads really fast which makes it seem like processes are running simultaneously.
+Python offers a multi-threading package but it is not good for speeding up the code. The GIL is a great way though it is not multithreading. It executes one at a time but takes turns for different threads fast which makes it seem like processes are running simultaneously.
 
 ## 23- What is the use of `with` in Python?
 
@@ -718,7 +718,7 @@ PEPs are written in a standard format and are reviewed by the Python community t
 
 In Python, dunder methods (also known as "magic methods") are methods that are defined with double underscores (e.g., `__init__`, `__len__`) and are used to implement special behavior for objects. These methods are called "dunder" because they are surrounded by double underscores (i.e., "double underscore" or "dunder").
 
-Dunder methods are used to define the behavior of various built-in operations in Python, such as arithmetic operations, attribute access, and object creation and destruction. For example, the `__init__` dunder method is used to initialize an object when it is created, the `__add__` dunder method is used to define the behavior of the `+` operator for an object, and the `__str__` dunder method is used to define the string representation of an object.
+Dunder methods are used to define the behavior of various built-in operations in Python, such as arithmetic operations, attribute access, and object creation and destruction. For example, the `__init__` dunder method is used to initialize an object when it is created, and the `__add__` dunder method is used to define the behavior of the `+` operator for an object, and the `__str__` dunder method is used to define the string representation of an object.
 
 Here is an example of how dunder methods are used in Python:
 
@@ -822,11 +822,11 @@ Properties are useful because they allow you to define methods that are accessed
 
 ## 32- What is the difference between Cython and CPython?
 
-Cython is a programming language that is a superset of Python, which means that it is fully compatible with Python and can be used to write Python code. Cython is designed to make it easy to write Python code that can be efficiently compiled to C or C++ code, which can then be compiled into a native machine code executable.
+Cython is a programming language that is a superset of Python, which means that it is fully compatible with Python and can be used to write Python code. Cython is designed to make it easy to write Python code that can be efficiently compiled into C or C++ code, which can then be compiled into a native machine code executable.
 
 CPython, on the other hand, is the reference implementation of the Python programming language. It is written in C and is the most widely used implementation of Python.
 
-One of the main differences between Cython and CPython is that Cython allows you to write Python code that can be compiled to native machine code, while CPython is an interpreter that executes Python code directly. This means that Cython code can be faster and more efficient than CPython code, especially for computationally intensive tasks.
+One of the main differences between Cython and CPython is that Cython allows you to write Python code that can be compiled into native machine code, while CPython is an interpreter that executes Python code directly. This means that Cython code can be faster and more efficient than CPython code, especially for computationally intensive tasks.
 
 Another difference is that Cython allows you to include C or C++ code in your Python code, which can be useful if you want to use existing C or C++ libraries or if you want to write low-level code that is not possible in pure Python.
 
@@ -1035,7 +1035,7 @@ print(next(it)) # prints 4
 print(next(it)) # This will raise a StopIteration exception
 ```
 
-In this example, the `my_range` generator function defines a generator that generates a sequence of numbers from `0` to `n-1`. The generator is called to create a generator object, which is then iterated over using a for loop. The generator object is also converted to an iterator object using the `iter` function, and the iterator is iterated over using the `next` function.
+In this example, the `my_range` generator function defines a generator that generates a sequence of numbers from `0` to `n-1`. The generator is called to create a generator object, which is then iterated over using a for a loop. The generator object is also converted to an iterator object using the `iter` function, and the iterator is iterated over using the `next` function.
 
 One important difference between generators and iterators is that generators can only be iterated over once. Once the generator has been exhausted, it cannot be used again. Iterators, on the other hand, can be iterated over multiple times.
 
@@ -1087,13 +1087,13 @@ The `re` is a Python module developers use to execute operations that involve ex
 
 In Python, polymorphism refers to the ability of a function or method to behave differently depending on the data type of the arguments passed to it.
 
-Polymorphism is a key feature of object-oriented programming (OOP) and allows you to write code that is more flexible and reusable. It allows you to define a function or method that can accept different types of arguments and perform different actions based on the type of the arguments.
+Polymorphism is a key feature of object-oriented programming (OOP) and allows you to write code that is more flexible and reusable. It allows you to define a function or method that can accept different types of arguments and perform different actions based on the type of arguments.
 
 There are two main ways to implement polymorphism in Python:
 
-1. Method overloading: This is the ability to define multiple methods with the same name but different signatures (i.e., different number or types of arguments). Python does not have native support for method overloading, so you have to use function overloading techniques to achieve this.
+1. **Method overloading**: This is the ability to define multiple methods with the same name but different signatures (i.e., a different number or types of arguments). Python does not have native support for method overloading, so you have to use function overloading techniques to achieve this.
 
-2. Method overriding: This is the ability to define a method in a subclass that has the same name and signature as a method in the superclass, but with different behavior. Method overriding is a key feature of OOP and allows you to customize the behavior of a method in a subclass to suit the needs of the subclass.
+2. **Method overriding**: This is the ability to define a method in a subclass that has the same name and signature as a method in the superclass, but with different behavior. Method overriding is a key feature of OOP and allows you to customize the behavior of a method in a subclass to suit the needs of the subclass.
 
 Here is an example of polymorphism using method overriding in Python:
 
@@ -1130,7 +1130,7 @@ In Python, wheels and eggs are two different types of distribution formats for P
 
 A wheel is a pre-built distribution of a Python package that is built using the     `bdist_wheel` command. Wheels are stored in the `.whl` file format and can be installed using the `pip` package manager. Wheels are designed to be a more efficient and faster way to install Python packages, especially for large packages or packages with many dependencies.
 
-An `egg` is an older distribution format for Python packages that is stored in the `.egg` file format. Eggs were originally used by the `easy_install` package manager, but they are now deprecated in favor of wheels.
+An `egg` is an older distribution format for Python packages that are stored in the `.egg` file format. Eggs were originally used by the `easy_install` package manager, but they are now deprecated in favor of wheels.
 
 There are several key differences between wheels and eggs:
 
@@ -1146,16 +1146,72 @@ In summary, wheels are the recommended distribution format for Python packages, 
 
 ## 41- What is the purpose of Python non-local statements?
 
-Non-local statements allow assigning variables to outer-scope statements that are not global. The most common application of the keyword is in nested functions, where there’s a need to make sure a variable isn’t accessible by the inner function.
+Non-local statements allow assigning variables to outer-scope statements that are not global. The most common application of the keyword is in nested functions, where there's a need to make sure a variable isn't accessible by the inner function.
 
-## 42- How is Python exception handling different from that in Java?
+## 42- How is Python exception is handled?
 
-Unlike Java, Python allows developers to see an error in the code without terminating the execution of the program. This mechanism is called try-except. Sometimes, the system suggests a way to solve the problem along with the error description.
+In Python, exceptions are handled using the `try` and except statements.
 
-There are two types of try-except clauses in Python:
+Here's an example of how you can use the `try` and except statements to handle an exception:
 
-* Try -> except -> finally
-* Try -> except
+```Python
+try:
+    # Code that might cause an exception goes here
+    x = int('foo')
+except ValueError:
+    # Code to handle the exception goes here
+    print('Invalid input')
+```
+
+In this example, the `try` block contains code that might cause a *ValueError* exception to be raised (in this case, attempting to convert the string 'foo' to an integer). If the exception is raised, the execution of the `try` block is halted, and control is transferred to the `except` block. The `except` block contains code that is executed to handle the exception. In this case, it prints an error message to the console.
+
+You can also specify multiple `except` blocks to handle different types of exceptions:
+
+```Python
+try:
+    # Code that might cause an exception goes here
+    x = int('foo')
+except ValueError:
+    # Code to handle the ValueError exception goes here
+    print('Invalid input')
+except TypeError:
+    # Code to handle the TypeError exception goes here
+    print('Invalid type')
+
+```
+
+You can also use the `else` clause to specify a block of code that should be executed if no exceptions are raised in the try block:
+
+```Python
+try:
+    # Code that might cause an exception goes here
+    x = int('3')
+except ValueError:
+    # Code to handle the ValueError exception goes here
+    print('Invalid input')
+else:
+    # Code to be executed if no exceptions are raised goes here
+    print(x)
+
+```
+
+In this example, the `else` block will be executed if the `try` block completes successfully (i.e. if no exceptions are raised), and it will print the value of `x` to the console.
+
+Finally, you can use the `finally` clause to specify a block of code that should always be executed, regardless of whether an exception is raised or not:
+
+```Python
+try:
+    # Code that might cause an exception goes here
+    x = int('foo')
+except ValueError:
+    # Code to handle the ValueError exception goes here
+    print('Invalid input')
+finally:
+    # Code to always be executed goes here
+    print('Done')
+```
+
+In this example, the `finally` block will be executed after the `try` block, regardless of whether an exception is raised or not. It will print the message **`'Done'`** to the console.
 
 ## 43- Name the differences between functional and object-oriented programming
 
