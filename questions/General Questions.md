@@ -1434,3 +1434,356 @@ function()
 ```
 
 As you can see, the decorators are applied in the order that they are listed, with `decorator1` being applied first, followed by `decorator2`. The function itself is called last, after the decorators have been applied.
+
+## 51 - Build a recursive function using python
+
+To build a recursive function in Python, you will need to define a function that calls itself with a modified version of its input. Here's an example of how you can build a recursive function to calculate the factorial of a number:
+
+```Python
+def factorial(n):
+    if n == 1:
+        return 1
+    else:
+        return n * factorial(n - 1)
+
+print(factorial(5))  # Output: 120
+```
+
+In this example, the `factorial` function is defined to take a single argument `n`. The function has a base case (the `if` statement) that returns `1` if `n` is equal to `1`. If `n` is not equal to `1`, the function returns `n` multiplied by the result of calling itself with `n - 1` as the argument.
+
+```Python
+# 1st call: return n * factorial(4) "n = 5"
+# 2nd call: return n * factorial(3) "n = 4"
+# 3rd call: return n * factorial(2) "n = 3"
+# 4th call: return n * factorial(1) "n = 2"
+# 5th call: return 1                "n = 1"
+
+# The stack will execute in-hold calls
+# 4th call: 2 * 1 = 2
+# 3rd call: 3 * 2 = 6
+# 2nd call: 4 * 6 = 24
+# 1st call: 5 * 24 = 120 (5! -> 120)
+```
+
+## 52 - How to implement a binary search tree using python?
+
+To implement a binary search tree (BST) in Python, you will need to create a `Node` class to represent the nodes of the tree, and a `BST` class to represent the `BST` itself.
+
+Here is an example of how you could implement a `Node` class in Python:
+
+```Python
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+```
+
+This `Node` class has three instance variables: `value`, `left`, and `right`. The `value` variable stores the value of the `node`, and the `left` and `right` variables are references to the `left` and `right` child nodes, respectively.
+
+To implement the `BST` itself, you will need to create a `BST` class that has methods for inserting and searching for nodes in the `tree`. Here is an example of how you could implement a `BST` class in Python:
+
+```Python
+class BST:
+    def __init__(self):
+        self.root = None
+
+    def insert(self, value):
+        new_node = Node(value)
+        if self.root is None:
+            self.root = new_node
+            return
+        current = self.root
+        while True:
+            if value < current.value:
+                if current.left is None:
+                    current.left = new_node
+                    return
+                current = current.left
+            else:
+                if current.right is None:
+                    current.right = new_node
+                    return
+                current = current.right
+
+    def search(self, value):
+        if self.root is None:
+            return False
+        current = self.root
+        while current:
+            if value == current.value:
+                return True
+            elif value < current.value:
+                current = current.left
+            else:
+                current = current.right
+        return False
+```
+
+The `BST` class has a `root` variable to store the `root` node of the `tree`, and two methods: `insert` and `search`. The `insert` method is used to insert a new node into the tree, and the `search` method is used to search for a node with a particular value.
+
+To use these classes, you can create a new `BST` object and use the `insert` method to add nodes to the tree. You can then use the search method to search for a particular value in the tree. If a node with the specified `value` is found, the method returns `True`, otherwise it returns `False`.
+
+## 53 - How to implement a binary search using python?
+
+```Python
+# Returns index of x in arr if present, else -1
+def binary_search(arr, low, high, x):
+ 
+    # Check base case
+    if high >= low:
+ 
+        mid = (high + low) // 2
+ 
+        # If element is present at the middle itself
+        if arr[mid] == x:
+            return mid
+ 
+        # If element is smaller than mid, then it can only
+        # be present in left subarray
+        elif arr[mid] > x:
+            return binary_search(arr, low, mid - 1, x)
+ 
+        # Else the element can only be present in right subarray
+        else:
+            return binary_search(arr, mid + 1, high, x)
+ 
+    else:
+        # Element is not present in the array
+        return -1
+ 
+# Test array
+arr = [ 2, 3, 4, 10, 40 ]
+x = 10
+ 
+# Function call
+result = binary_search(arr, 0, len(arr)-1, x)
+ 
+if result != -1:
+    print("Element is present at index", str(result))
+else:
+    print("Element is not present in array")
+```
+
+## 54 - How to implement a Linked list using python?
+
+You will need to define a `Node` class to represent the nodes of the linked list, and a `LinkedList` class to represent the linked list itself.
+
+```Python
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+```
+
+This `Node` class has two instance variables: `value` and `next`. The `value` variable holds the value of the `node`, and the `next` variable holds a reference to the `next` node in the linked list.
+
+Next, you can define the `LinkedList` class, which will contain methods for inserting nodes into the linked list and searching for specific values:
+
+```Python
+class LinkedList:
+    def __init__(self):
+        self.head = None
+    
+    def append(self, value):
+        new_node = Node(value)
+        if self.head is None:
+            self.head = new_node
+        else:
+            current_node = self.head
+            while current_node.next is not None:
+                current_node = current_node.next
+            current_node.next = new_node
+    
+    def traverse(self):
+        current_node = self.head
+        while current_node is not None:
+            print(current_node.value)
+            current_node = current_node.next
+```
+
+The `LinkedList` class has two methods: `append` and `traverse`. The `append` method takes a value as an argument, creates a new `Node` object with that value, and appends it to the end of the linked list. The `traverse` method traverses the linked list and prints the value of each node to the console.
+
+You can use these classes to create and manipulate a linked list like this:
+
+```Python
+my_list = LinkedList()
+my_list.append(1)
+my_list.append(2)
+my_list.append(3)
+my_list.traverse()  # Output: 1 2 3
+```
+
+## 55 - what is `collections.OrderedDict`?
+
+it is a class in the Python `collections` module that provides an ordered dictionary implementation. Like a regular dictionary, an `OrderedDict` stores key-value pairs, but it remembers the order that the keys were added.
+
+Here's an example of how you can use an `OrderedDict`:
+
+```Python
+from collections import OrderedDict
+
+# Create an OrderedDict
+d = OrderedDict()
+
+# Add some key-value pairs
+d['a'] = 1
+d['b'] = 2
+d['c'] = 3
+d['d'] = 4
+
+# Iterate over the OrderedDict
+for key, value in d.items():
+    print(key, value)
+
+# Output:
+# a 1
+# b 2
+# c 3
+# d 4
+```
+
+The `OrderedDict` maintains the order in which the keys were added. This can be useful if you need to preserve the order of the items in the dictionary for some reason.
+
+One thing to note is that `OrderedDict` is implemented as a doubly-linked list, which means that it has a slightly larger memory overhead than a regular dictionary. However, the difference in memory usage is usually not significant unless you are working with very large dictionaries.
+
+## 56 - what is `collections.defaultdict`?
+
+it is a class in the Python `collections` module that provides a dictionary with a default value. This can be useful if you want to initialize a dictionary with a default value that is returned whenever a key is not found in the dictionary.
+
+Here's an example of how you can use a `defaultdict`:
+
+```Python
+from collections import defaultdict
+
+# Create a defaultdict with a default value of 0
+d = defaultdict(int)
+
+# Add some key-value pairs
+d['a'] = 1
+d['b'] = 2
+d['c'] = 3
+
+# Access a key that does not exist in the dictionary
+print(d['d'])  # Output: 0
+
+# Output the entire dictionary
+print(d)  # Output: defaultdict(int, {'a': 1, 'b': 2, 'c': 3, 'd': 0})
+```
+
+In this example, the `defaultdict` is initialized with a default value of `0`, which is returned whenever a `key` is not found in the dictionary. You can see that when we try to access the key `'d'`, which does not exist in the dictionary, the `defaultdict` returns the default value of `0`.
+
+You can use any type as the default value for a `defaultdict`, not just `int`. For example, you can use a `list` as the default value to create a `defaultdict`:
+
+```Python
+from collections import defaultdict
+
+# Create a defaultdict with a default value of an empty list
+d = defaultdict(list)
+
+# Add some key-value pairs
+d['a'].append(1)
+d['b'].append(2)
+d['c'].append(3)
+
+# Access a key that does not exist in the dictionary
+print(d['d'])  # Output: []
+
+# Output the entire dictionary
+print(d)  # Output: defaultdict(list, {'a': [1], 'b': [2], 'c': [3], 'd': []})
+```
+
+In this example, the `defaultdict` is initialized with a default value of an empty `list`, which is returned whenever a `key` is not found in the dictionary. You can see that when we try to access the key `'d'`, which does not exist in the dictionary, the `defaultdict` returns the default value of an empty `list`.
+
+## 57 - Can we implement an `array` using Python?
+
+Yes! By using the `array` module. Python’s `array` module provides space-efficient storage of basic C-style data types like **`bytes, 32-bit integers, floating-point numbers, and so on`**.
+
+Arrays created with the `array.array` class are mutable and behave similarly to lists except for one important difference: they’re **`typed arrays`** constrained to a single data type.
+
+Because of this constraint, `array.array` objects with many elements are more space efficient than `lists` and `tuples`. The elements stored in them are tightly packed, and this can be useful if you need to store many elements of the same type.
+
+Also, arrays support many of the same methods as regular lists, and you might be able to use them as a drop-in replacement without requiring other changes to your application code.
+
+```Python
+>>> import array
+>>> arr = array.array("f", (1.0, 1.5, 2.0, 2.5))
+>>> arr[1]
+1.5
+
+>>> # Arrays have a nice repr:
+>>> arr
+array('f', [1.0, 1.5, 2.0, 2.5])
+
+>>> # Arrays are mutable:
+>>> arr[1] = 23.0
+>>> arr
+array('f', [1.0, 23.0, 2.0, 2.5])
+
+>>> del arr[1]
+>>> arr
+array('f', [1.0, 2.0, 2.5])
+
+>>> arr.append(42.0)
+>>> arr
+array('f', [1.0, 2.0, 2.5, 42.0])
+
+>>> # Arrays are "typed":
+>>> arr[1] = "hello"
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: must be real number, not str
+```
+
+## 58- What is `bytes` type?
+
+The `bytes` type is an immutable sequence of *bytes*. It is similar to the *str* type, but it is meant to hold raw binary data rather than Unicode text.
+
+You can create a `bytes` object by prefixing a string with the b character and enclosing it in quotes, like this:
+
+```Python
+b = b'Hello, world!'
+```
+
+You can also create a `bytes` object from a list of integers using the `bytes` function:
+
+```Python
+b = bytes([104, 101, 108, 108, 111])  # b'hello'
+```
+
+You can access the individual bytes of a `bytes` object using indices, like you would with a string:
+
+```Python
+b = b'Hello, world!'
+print(b[0])  # Output: 72
+print(b[1])  # Output: 101
+```
+
+You can also use slicing to extract a sub-sequence of bytes from a `bytes` object:
+
+```Python
+b = b'Hello, world!'
+print(b[6:11])  # Output: b'world'
+```
+
+## 59- How to concatenate tuples in python?
+
+You can use the `+` operator. For example:
+
+```Python
+tuple1 = (1, 2, 3)
+tuple2 = (4, 5, 6)
+
+tuple3 = tuple1 + tuple2
+print(tuple3)  # Output: (1, 2, 3, 4, 5, 6)
+```
+
+This will create a new tuple that contains the elements of `tuple1` followed by the elements of `tuple2`.
+
+Keep in mind that tuples are **immutable**, which means that you cannot modify an existing `tuple`. If you need to modify a `tuple`, you will need to create a new `tuple` with the modified values.
+
+## 60- How to join two `sets`?
+
+You can use union method for sets: `set.union(other_set)`
+
+Note that it returns a new set i.e it doesn't modify itself.
