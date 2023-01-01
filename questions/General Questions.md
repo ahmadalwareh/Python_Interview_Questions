@@ -1212,3 +1212,169 @@ The descriptor protocol defines how the descriptor's methods are called when the
 A decorator is a function that takes another function and extends the behavior of the latter function without explicitly modifying its code. Decorators are implemented using the `@` syntax in Python, and are used to modify the behavior of a function or method.
 
 There is a difference between a descriptor and a decorator in Python. A descriptor is an object attribute with binding behavior, whereas a decorator is a function that takes another function and extends its behavior. Descriptors are implemented using the descriptor protocol, which consists of the `__get__`, `__set__`, and `__delete__` methods, whereas decorators are implemented as functions that take a function as an argument and return a modified version of the function.
+
+## 46- Generate random number
+
+You can generate a random number using `random` module.
+
+```Python
+import random
+random_number = random.randint(1, 100) 
+# Generate a random number between 1 and 100
+
+random_number = random.random()
+# Generate a random number i.e. 0.3366241606464734
+```
+
+You can set a `seed` for number generation by using `number.seed(x)` where `x` is the value will be used as a **seed** for the randomization.
+
+```Python
+import time
+import random
+
+# Seed the random number generator with the current time
+random.seed(time.time())
+
+# Generate a random number between 1 and 10
+random_number = random.randint(1, 10)
+
+```
+
+## 47 - What are itertools in Python?
+
+The `itertools` module is a Python module that provides a number of functions that are helpful when working with iterators. Iterators are objects that allow you to iterate over a sequence of values, such as a list or a string.
+
+Here are a few examples of functions that are available in the `itertools` module:
+
+* `count`: This function returns an iterator that produces consecutive integers, starting from a given value.
+
+* `cycle`: This function returns an iterator that repeats a sequence of values indefinitely.
+
+* `permutations`: This function returns an iterator that produces all of the permutations of a given sequence.
+
+* `combinations`: This function returns an iterator that produces all of the combinations of a given sequence.
+
+## 47 - what does itertools.islice do?
+
+`itertools.islice` is a function that returns an iterator that returns selected elements from the input iterator. It works by slicing the input iterator and returning an iterator that produces the sliced elements.
+
+Here's an example of how you can use `itertools.islice`:
+
+```Python
+import itertools
+
+# Create a list of integers
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+# Create an iterator using islice that returns every other element
+evens = itertools.islice(numbers, 0, 10, 2)
+
+# Print the even numbers
+for number in evens:
+    print(number)
+
+# This will print the following output:
+1 3 5 7 9
+```
+
+You can also use `itertools.islice` to slice the input iterator at a specific starting and ending position, and with a specific step size. For example, you could use `itertools.islice(numbers, 2, 6, 1)` to return an iterator that produces the elements at index `2` through `5` (inclusive) of the numbers list, with a step size of `1`. below is an example of output based on various input:
+
+```Python
+# itertools.islice(iterable, stop)
+# itertools.islice(iterable, start, stop, step)
+
+# islice('ABCDEFG', 2)          --> A B
+# islice('ABCDEFG', 2, 4)       --> C D
+# islice('ABCDEFG', 2, None)    --> C D E F G
+# islice('ABCDEFG', 0, None, 2) --> A C E G
+```
+
+## 48 - Why this code will never stop?
+
+```Python
+i = 0
+while i != 1:
+    i += 0.1
+    print(i)
+```
+
+This code will never stop because the condition `i != 1` will never be satisfied. The value of `i` is incremented by `0.1` each time the loop iterates, but it will never be equal to `1` because `0.1` is a **`float`**, and **`float`** values are usually not represented exactly in memory.
+
+As a result, the value of `i` will get closer and closer to `1`, but it will never be equal to `1` exactly. This means that the loop will run indefinitely.
+
+## 49 - What is the ouput of this code, and why?
+
+```Python
+import datetime
+from time import sleep
+def my_time(time_now = datetime.datetime.now()):
+    return time_now
+
+print(my_time())
+sleep(3)
+print(my_time())
+```
+
+The output of this code will be two timestamps that are very close to each other (within a few seconds). This is because the default value of the `time_now` parameter is set to the current time `(datetime.datetime.now())` when the `my_time` function is defined, rather than when it is called.
+
+As a result, the value of `time_now` is fixed at the time that the function is defined, and it is not updated when the function is called. This means that the two calls to `my_time` will both return the same value *(the current time when the function was defined)*, even though several seconds have passed between the two calls.
+
+To fix this issue, you could remove the default value for the `time_now` parameter, and set it to the current time inside the function using `datetime.datetime.now()`, like this:
+
+```Python
+import datetime
+from time import sleep
+def my_time(time_now = None):
+    if time_now is None:
+        time_now = datetime.datetime.now()
+    return time_now
+
+print(my_time())
+sleep(3)
+print(my_time())
+```
+
+## 50 - Can we chain Multiple Decorators in Python?
+
+Yes, you can chain multiple decorators in Python. Decorators are functions that are used to modify the behavior of another function. They are applied using the `@` symbol, and can be used to add additional functionality to a function without modifying the function's source code.
+
+To chain multiple decorators, you can simply apply them one after the other, using the `@` symbol, like this:
+
+```Python
+@decorator1
+@decorator2
+@decorator3
+def function():
+    # function code goes here
+```
+
+This will apply the decorators in the order that they are listed, so `decorator1` will be applied first, followed by `decorator2`, and then `decorator3`.
+
+```Python
+def decorator1(func):
+    def wrapper(*args, **kwargs):
+        print('Decorator 1')
+        return func(*args, **kwargs)
+    return wrapper
+
+def decorator2(func):
+    def wrapper(*args, **kwargs):
+        print('Decorator 2')
+        return func(*args, **kwargs)
+    return wrapper
+
+@decorator1
+@decorator2
+def function():
+    print('Function')
+
+function()
+
+# This will produce the following output:
+
+# Decorator 1
+# Decorator 2
+# Function
+```
+
+As you can see, the decorators are applied in the order that they are listed, with `decorator1` being applied first, followed by `decorator2`. The function itself is called last, after the decorators have been applied.
