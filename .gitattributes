@@ -1,2 +1,4 @@
-questions/* linguist-documentation
-questions/* linguist-detectable
+questions/General/README.md linguist-detectable
+questions/General/README.md linguist-detectable
+questions/General/README.md linguist-detectable
+*.md linguist-detectable
