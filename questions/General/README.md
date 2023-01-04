@@ -1854,6 +1854,12 @@ sorted_list = bubble_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
 
+***Time Complexity:***
+
+* Best case:     **O(n)**
+* Average case:  **O(n<sup>2</sup>)**
+* Worst case:    **O(n^2)**
+
 ## 63- How to implement Heap sort in Python?
 
 ```Python
@@ -1919,6 +1925,12 @@ sorted_list = heap_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
 
+***Time Complexity:***
+
+* Best case:     **O(n log(n))**
+* Average case:  **O(n log(n))**
+* Worst case:    **O(n log(n))**
+
 ## 64- How to implement Insertion sort in Python?
 
 ```Python
@@ -1947,6 +1959,12 @@ def insertion_sort(lst):
 sorted_list = insertion_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
+
+***Time Complexity:***
+
+* Best case:     **O(n)**
+* Average case:  **O(n<sup>2</sup>)**
+* Worst case:    **O(n<sup>2</sup>)**
 
 ## 65- How to implement Merge sort in Python?
 
@@ -1991,12 +2009,18 @@ def merge(left, right):
 
 ```
 
-Function call:
+**Function call:**
 
 ```Python
 sorted_list = merge_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
+
+***Time Complexity:***
+
+* Best case:     **O(n log(n))**
+* Average case:  **O(n log(n))**
+* Worst case:    **O(n log(n))**
 
 ## 66- How to implement Quick sort in Python?
 
@@ -2020,6 +2044,12 @@ def quick_sort(lst):
 sorted_list = quick_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
+
+***Time Complexity:***
+
+* Best case:     **O(n log(n))**
+* Average case:  **O(n log(n))**
+* Worst case:    **O(n<sup>2</sup>)**
 
 ## 67- How to implement Selection sort in Python?
 
@@ -2047,6 +2077,12 @@ sorted_list = selection_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
 
+***Time Complexity:***
+
+* Best case:     **O(n<sup>2</sup>)**
+* Average case:  **O(n<sup>2</sup>)**
+* Worst case:    **O(n<sup>2</sup>)**
+
 ## 68- How to implement Shell sort in Python?
 
 ```Python
@@ -2070,3 +2106,9 @@ def shell_sort(arr):
 sorted_list = shell_sort([3, 4, 2, 1, 6, 5])
 print(sorted_list)  # [1, 2, 3, 4, 5, 6]
 ```
+
+***Time Complexity:***
+
+* Best case:     **O(n (log n)<sup>2</sup>)**
+* Average case:  **O(n<sup>3/2</sup>)**
+* Worst case:    **O(n)**
