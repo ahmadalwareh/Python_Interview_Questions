@@ -1804,3 +1804,269 @@ set1.update(set2)
 print(set1)  # Output: {1, 2, 3, 4, 5}
 
 ```
+
+## 61- What is the difference between Python's list methods append and extend?
+
+The `append` method adds an element to the end of a list. It takes a single element as an argument and does not return a new list.
+
+The `extend` method adds all the elements of an iterable (such as a list) to the end of the list. It takes an iterable as an argument and does not return a new list.
+
+Here is an example:
+
+```Python
+list1 = [1, 2, 3]
+list1.append(4)
+print(list1)  # prints [1, 2, 3, 4]
+
+list2 = [5, 6, 7]
+list1.extend(list2)
+print(list1)  # prints [1, 2, 3, 4, 5, 6, 7]
+```
+
+In general, `append` is faster than `extend` because it does not have to create a new list and copy over all the elements of the iterable. However, `extend` is more convenient to use if you have an iterable that you want to add to the list, because you don't have to use a loop to add the elements one at a time.
+
+## 62- How to implement bubble sort in Python?
+
+```Python
+def bubble_sort(lst):
+  # Set swap to True to enter the loop
+  swap = True
+  # Repeat the loop until no swaps are needed
+  while swap:
+    # Set swap to False to start the loop
+    swap = False
+    # Iterate through the list
+    for i in range(len(lst) - 1):
+      # Check if the current element is greater than the next element
+      if lst[i] > lst[i + 1]:
+        # Swap the elements
+        lst[i], lst[i + 1] = lst[i + 1], lst[i]
+        # Set swap to True to continue the loop
+        swap = True
+  # Return the sorted list
+  return lst
+```
+
+**Function call:**
+
+```Python
+sorted_list = bubble_sort([5, 2, 8, 1, 9])
+print(sorted_list)  # [1, 2, 5, 8, 9]
+```
+
+## 63- How to implement Heap sort in Python?
+
+```Python
+def heap_sort(lst):
+  # Create an empty list to store the sorted elements
+  sorted_list = []
+  # Convert the input list into a max heap
+  heapify(lst)
+  # Keep extracting the root element (maximum value) from the heap
+  # until it is empty
+  while lst:
+    # Extract the root element from the heap and append it to the
+    # sorted list
+    sorted_list.append(heappop(lst))
+  # Return the sorted list
+  return sorted_list
+
+def heapify(lst):
+  # Start from the last parent node
+  start = (len(lst) - 2) // 2
+  # Sift down each node to create a max heap
+  while start >= 0:
+    sift_down(lst, start, len(lst) - 1)
+    start -= 1
+
+def sift_down(lst, start, end):
+  # Set the root as the starting element
+  root = start
+  # While the root has a child
+  while root * 2 + 1 <= end:
+    # Set the child as the root's left child
+    child = root * 2 + 1
+    # If the child has a sibling and the sibling is greater than the
+    # child, set the sibling as the child
+    if child + 1 <= end and lst[child] < lst[child + 1]:
+      child += 1
+    # If the child is greater than the root, swap them
+    if lst[root] < lst[child]:
+      lst[root], lst[child] = lst[child], lst[root]
+      # Set the child as the new root
+      root = child
+    # If no swap is needed, exit the loop
+    else:
+      return
+
+def heappop(lst):
+  # Save the root (maximum value) and the last element
+  root = lst[0]
+  last = lst.pop()
+  # If the heap is not empty, set the last element as the root and
+  # sift it down
+  if lst:
+    lst[0] = last
+    sift_down(lst, 0, len(lst) - 1)
+  # Return the root
+  return root
+```
+
+**Function call:**
+
+```Python
+sorted_list = heap_sort([5, 2, 8, 1, 9])
+print(sorted_list)  # [1, 2, 5, 8, 9]
+```
+
+## 64- How to implement Insertion sort in Python?
+
+```Python
+def insertion_sort(lst):
+  # Iterate through the list, starting from the second element
+  for i in range(1, len(lst)):
+    # Save the current element
+    current = lst[i]
+    # Set the position (j) as the index of the previous element
+    j = i - 1
+    # Keep moving the current element to the left as long as it is
+    # smaller than the elements to its left
+    while j >= 0 and current < lst[j]:
+      lst[j + 1] = lst[j]
+      j -= 1
+    # When the correct position is found, insert the current element
+    lst[j + 1] = current
+  # Return the sorted list
+  return lst
+
+```
+
+**Function call:**
+
+```Python
+sorted_list = insertion_sort([5, 2, 8, 1, 9])
+print(sorted_list)  # [1, 2, 5, 8, 9]
+```
+
+## 65- How to implement Merge sort in Python?
+
+```Python
+def merge_sort(lst):
+  # If the input list is empty or has only one element, return it
+  if len(lst) <= 1:
+    return lst
+  # Split the list into two halves
+  mid = len(lst) // 2
+  left = lst[:mid]
+  right = lst[mid:]
+  # Recursively sort the two halves
+  left = merge_sort(left)
+  right = merge_sort(right)
+  # Merge the sorted halves and return the result
+  return merge(left, right)
+
+def merge(left, right):
+  # Create an empty list to store the merged elements
+  merged = []
+  # Set the indices for the left and right lists
+  left_index = 0
+  right_index = 0
+  # While there are elements in both lists
+  while left_index < len(left) and right_index < len(right):
+    # If the left element is smaller, add it to the merged list
+    # and increment the left index
+    if left[left_index] < right[right_index]:
+      merged.append(left[left_index])
+      left_index += 1
+    # If the right element is smaller, add it to the merged list
+    # and increment the right index
+    else:
+      merged.append(right[right_index])
+      right_index += 1
+  # Add the remaining elements (if any) to the merged list
+  merged.extend(left[left_index:])
+  merged.extend(right[right_index:])
+  # Return the merged list
+  return merged
+
+```
+
+Function call:
+
+```Python
+sorted_list = merge_sort([5, 2, 8, 1, 9])
+print(sorted_list)  # [1, 2, 5, 8, 9]
+```
+
+## 66- How to implement Quick sort in Python?
+
+```Python
+def quick_sort(lst):
+  # If the input list has fewer than 2 elements, return it
+  if len(lst) < 2:
+    return lst
+  # Set the pivot as the first element in the list
+  pivot = lst[0]
+  # Create the lists for elements less than and greater than the pivot
+  less_than = [element for element in lst[1:] if element <= pivot]
+  greater_than = [element for element in lst[1:] if element > pivot]
+  # Recursively sort the two lists and return the result
+  return quick_sort(less_than) + [pivot] + quick_sort(greater_than)
+```
+
+**Function call:**
+
+```Python
+sorted_list = quick_sort([5, 2, 8, 1, 9])
+print(sorted_list)  # [1, 2, 5, 8, 9]
+```
+
+## 67- How to implement Selection sort in Python?
+
+```Python
+def selection_sort(lst):
+  # Iterate through the list, starting from the first element
+  for i in range(len(lst)):
+    # Set the minimum element as the current element
+    minimum = i
+    # Find the minimum element in the remaining list
+    for j in range(i + 1, len(lst)):
+      if lst[j] < lst[minimum]:
+        minimum = j
+    # If the minimum element is not the current element, swap them
+    if minimum != i:
+      lst[i], lst[minimum] = lst[minimum], lst[i]
+  # Return the sorted list
+  return lst
+```
+
+**Function call:**
+
+```Python
+sorted_list = selection_sort([5, 2, 8, 1, 9])
+print(sorted_list)  # [1, 2, 5, 8, 9]
+```
+
+## 68- How to implement Shell sort in Python?
+
+```Python
+def shell_sort(arr):
+  gap = len(arr) // 2
+  while gap > 0:
+    for i in range(gap, len(arr)):
+      temp = arr[i]
+      j = i
+      while j >= gap and arr[j - gap] > temp:
+        arr[j] = arr[j - gap]
+        j -= gap
+      arr[j] = temp
+    gap //= 2
+  return arr
+```
+
+**Function call:**
+
+```Python
+sorted_list = shell_sort([3, 4, 2, 1, 6, 5])
+print(sorted_list)  # [1, 2, 3, 4, 5, 6]
+```
