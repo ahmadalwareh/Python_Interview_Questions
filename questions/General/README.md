@@ -31,7 +31,7 @@ C.dangerous = 3
 print (c2.dangerous)
 ```
 
-*The output:*
+_The output:_
 
 In this code, `C` is a class that defines a class attribute called `dangerous`. A class attribute is a variable that is shared by all instances of the class.
 
@@ -49,11 +49,11 @@ Finally, we set the value of the dangerous class attribute to **`3`**. This chan
 
 In Python, functions are considered first-class objects because they have the same properties as other objects in the language. Specifically, this means that functions can be:
 
- 1. Assigned to variables and stored in data structures, just like any other object
- 2. Passed as arguments to functions
- 3. Returned as values from functions
- 4. Defined inside other functions  
-The ability to treat functions as first-class objects is a powerful feature of Python that enables several useful programming patterns, such as higher-order functions, decorators, and functional programming.
+1.  Assigned to variables and stored in data structures, just like any other object
+2.  Passed as arguments to functions
+3.  Returned as values from functions
+4.  Defined inside other functions  
+    The ability to treat functions as first-class objects is a powerful feature of Python that enables several useful programming patterns, such as higher-order functions, decorators, and functional programming.
 
 For example, consider the following code:
 
@@ -118,19 +118,21 @@ It is important to understand how Python passes arguments when writing functions
 There are several tools available for linting, debugging, and profiling in Python. Here are a few popular options:
 
 1. **Linting**: Linting is the process of checking code for syntax and style errors. A linting tool can help you identify and fix issues with your code before you run it. Some popular linting tools for Python include:
-    * Pylint: A widely-used linting tool that can detect a wide range of issues in Python code, including syntax errors, style issues, and potential bugs.
-    * Flake8: A popular linting tool that combines several other tools, including PyFlakes, pycodestyle, and McCabe.
-    * PyCodeStyle (formerly known as pycodestyle): A linting tool that checks code for style issues, such as indentation, line length, and naming conventions.
+
+   - Pylint: A widely-used linting tool that can detect a wide range of issues in Python code, including syntax errors, style issues, and potential bugs.
+   - Flake8: A popular linting tool that combines several other tools, including PyFlakes, pycodestyle, and McCabe.
+   - PyCodeStyle (formerly known as pycodestyle): A linting tool that checks code for style issues, such as indentation, line length, and naming conventions.
 
 2. **Debugging**: Debugging is the process of identifying and fixing errors in your code. Some popular tools for debugging Python code include:
-    * PDB: The Python debugger is a built-in tool that allows you to step through your code, inspect variables, and set breakpoints.
-    * IPython: An interactive Python shell that provides additional debugging features, such as tab completion, object introspection, and history.
-    * PyCharm: An integrated development environment (IDE) that includes a powerful debugger and other debugging tools.
+
+   - PDB: The Python debugger is a built-in tool that allows you to step through your code, inspect variables, and set breakpoints.
+   - IPython: An interactive Python shell that provides additional debugging features, such as tab completion, object introspection, and history.
+   - PyCharm: An integrated development environment (IDE) that includes a powerful debugger and other debugging tools.
 
 3. **Profiling**: ling is the process of measuring the performance of your code and identifying bottlenecks. Some popular tools for profiling Python code include:
-    * cProfile: A built-in module that provides a simple interface for profiling Python code.
-    * perf: A command-line tool that provides detailed performance information about Python programs.
-    * Pyflame: A tool that generates a flame graph of Python program execution, showing where time is being spent.
+   - cProfile: A built-in module that provides a simple interface for profiling Python code.
+   - perf: A command-line tool that provides detailed performance information about Python programs.
+   - Pyflame: A tool that generates a flame graph of Python program execution, showing where time is being spent.
 
 ## 7- Give an example of filter and reduce over an iterable object
 
@@ -211,60 +213,60 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
 
 ## 10- Name a few differences between Python 2.x and 3.x
 
-1. *Print statement vs print function*: In Python 2.x, the `print` statement is used to print output, while in Python 3.x, the `print` function is used. For example:
+1. _Print statement vs print function_: In Python 2.x, the `print` statement is used to print output, while in Python 3.x, the `print` function is used. For example:
 
-    ```Python
-    # Python 2.x
-    print "Hello, World!"
+   ```Python
+   # Python 2.x
+   print "Hello, World!"
 
-    # Python 3.x
-    print("Hello, World!")
+   # Python 3.x
+   print("Hello, World!")
 
-    ```
+   ```
 
-2. *Division operator*: In Python 2.x, the division operator (`/`) performs floor division for integers and float division for floating-point numbers. In Python 3.x, the division operator always performs float division.
+2. _Division operator_: In Python 2.x, the division operator (`/`) performs floor division for integers and float division for floating-point numbers. In Python 3.x, the division operator always performs float division.
 
-    ```Python
-    # Python 2.x
-    print(10 / 3)  # Output: 3
-    print(10 / 3.0)  # Output: 3.3333333333333335
+   ```Python
+   # Python 2.x
+   print(10 / 3)  # Output: 3
+   print(10 / 3.0)  # Output: 3.3333333333333335
 
-    # Python 3.x
-    print(10 / 3)  # Output: 3.3333333333333335
-    print(10 / 3.0)  # Output: 3.3333333333333335
-    ```
+   # Python 3.x
+   print(10 / 3)  # Output: 3.3333333333333335
+   print(10 / 3.0)  # Output: 3.3333333333333335
+   ```
 
-3. *Exception handling*: In Python 2.x, the `except` statement can be used to catch exceptions of any type, while in Python 3.x, the `except` statement must specify the type of exception being caught.
+3. _Exception handling_: In Python 2.x, the `except` statement can be used to catch exceptions of any type, while in Python 3.x, the `except` statement must specify the type of exception being caught.
 
-    ```Python
-    # Python 2.x
-    try:
-        x = 1 / 0
-    except:
-        print("An exception occurred")
+   ```Python
+   # Python 2.x
+   try:
+       x = 1 / 0
+   except:
+       print("An exception occurred")
 
-    # Python 3.x
-    try:
-        x = 1 / 0
-    except Exception:
-        print("An exception occurred")
-    ```
+   # Python 3.x
+   try:
+       x = 1 / 0
+   except Exception:
+       print("An exception occurred")
+   ```
 
-4. *Iterators*: In Python 2.x, the `iteritems` method is used to iterate over the keys and values of a dictionary, while in Python 3.x, the `items` method is used.
+4. _Iterators_: In Python 2.x, the `iteritems` method is used to iterate over the keys and values of a dictionary, while in Python 3.x, the `items` method is used.
 
-    ```Python
-        # Python 2.x
-    d = {'a': 1, 'b': 2}
-    for key, value in d.iteritems():
-        print(key, value)
+   ```Python
+       # Python 2.x
+   d = {'a': 1, 'b': 2}
+   for key, value in d.iteritems():
+       print(key, value)
 
-    # Python 3.x
-    d = {'a': 1, 'b': 2}
-    for key, value in d.items():
-        print(key, value)
-    ```
+   # Python 3.x
+   d = {'a': 1, 'b': 2}
+   for key, value in d.items():
+       print(key, value)
+   ```
 
-5. *Unicode support*: In Python 2.x, Unicode support is not fully integrated, and the unicode and str types are separate. In Python 3.x, Unicode is fully integrated, and the str type is used for Unicode strings.
+5. _Unicode support_: In Python 2.x, Unicode support is not fully integrated, and the unicode and str types are separate. In Python 3.x, Unicode is fully integrated, and the str type is used for Unicode strings.
 
 ## 11- How is memory managed in python?
 
@@ -283,12 +285,12 @@ _list = ['a', 'b', 'c', 'd', 'e']
 print _list[10:]
 ```
 
-*The output:*
+_The output:_
 the output will be an empty list `[]`.
 
 The slicing syntax `list[start: end]` is used to retrieve a subset of the elements in a list. The `start` index specifies the index of the first element to retrieve, and the `end` index specifies the index of the element after the last element to retrieve. If you omit the `end` index, the slicing syntax will return all elements of the list starting from the `start` index until the end of the list.
 
-In this case, the list `_list` has only five elements, so the valid indices are `0` through `4`. The index `10` is out of bounds for the list, so the slicing syntax _list`[10:]` will return an empty list.
+In this case, the list `_list` has only five elements, so the valid indices are `0` through `4`. The index `10` is out of bounds for the list, so the slicing syntax \_list`[10:]` will return an empty list.
 
 ## 13- A palindromic number reads the same both ways. The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99. Find the largest palindrome made from the product of two 3-digit numbers
 
@@ -326,11 +328,11 @@ Skeleton code is often used to provide a consistent structure and set of best pr
 
 For example, a Python skeleton code might include:
 
-* A directory structure for organizing code, tests, and documentation
-* Basic configuration files, such as a `setup.py` file for packaging and distributing the project
-* A `requirements.txt` file for specifying the project's dependencies
-* A testing framework and sample test cases
-* Documentation templates and guidelines
+- A directory structure for organizing code, tests, and documentation
+- Basic configuration files, such as a `setup.py` file for packaging and distributing the project
+- A `requirements.txt` file for specifying the project's dependencies
+- A testing framework and sample test cases
+- Documentation templates and guidelines
 
 Skeleton code is often created for specific types of projects, such as web applications, command-line tools, or data science projects. There are many open-source skeleton code examples available online that you can use as a starting point for your projects.
 
@@ -373,7 +375,7 @@ result = obj.class_method(arg)
 result = obj.static_method(arg)
 ```
 
-In general, you should use ***class methods*** when you need to define a method that operates on the class itself, rather than on an instance of the class. An example of this might be a factory method that creates a new instance of the class with some default values. You should use ***static methods*** when you need to define a method that operates on an argument or variables that are independent of the class and its instances. An example of this might be a utility function that performs some computation or transformation on its arguments but does not need to access any class or instance attributes.
+In general, you should use **_class methods_** when you need to define a method that operates on the class itself, rather than on an instance of the class. An example of this might be a factory method that creates a new instance of the class with some default values. You should use **_static methods_** when you need to define a method that operates on an argument or variables that are independent of the class and its instances. An example of this might be a utility function that performs some computation or transformation on its arguments but does not need to access any class or instance attributes.
 
 ## 16- Please explain the following results of the code executed on a Python shell interpreter
 
@@ -388,7 +390,7 @@ True
 False
 ```
 
-*The output:*
+_The output:_
 
 This is because of the integer caching mechanism in Python. To save time and memory costs, Python always pre-loads all the small integers in the range of [-5, 256].
 
@@ -396,8 +398,8 @@ Therefore, all the integers in [-5, 256] have been already saved in the memory. 
 
 Therefore, the explanations of the results are:
 
-* When the variables `a` and `b` were assigned to 256, they were referenced to the same memory location where the 256 was stored. They pointed to the same object.
-* When the variables `x` and `y` were assigned to 257, they were two different objects in different memory locations because the 257 is not on the small integers caching range.
+- When the variables `a` and `b` were assigned to 256, they were referenced to the same memory location where the 256 was stored. They pointed to the same object.
+- When the variables `x` and `y` were assigned to 257, they were two different objects in different memory locations because the 257 is not on the small integers caching range.
 
 Since the `is` operator is to compare the memory locations of two variables, the `a is b` should output `True`, and the `x is y` should output `False`.
 
@@ -407,34 +409,34 @@ In Python, an abstract class is a class that has one or more abstract methods. A
 
 To create an abstract class in Python, you need to do the following:
 
-1. Import the abc module.
-2. Create a class that derives from abc.ABC.
-3. Declare one or more abstract methods using the `@abc.abstractmethod` decorator.
-Here is an example of an abstract class in Python:
+1.  Import the abc module.
+2.  Create a class that derives from abc.ABC.
+3.  Declare one or more abstract methods using the `@abc.abstractmethod` decorator.
+    Here is an example of an abstract class in Python:
 
-    ```Python
-    import abc
+        ```Python
+        import abc
 
-    class Animal(abc.ABC):
-        @abc.abstractmethod
-        def make_sound(self):
-            pass
+        class Animal(abc.ABC):
+            @abc.abstractmethod
+            def make_sound(self):
+                pass
 
-    class Dog(Animal):
-        def make_sound(self):
-            print("Woof!")
+        class Dog(Animal):
+            def make_sound(self):
+                print("Woof!")
 
-    class Cat(Animal):
-        def make_sound(self):
-            print("Meow!")
+        class Cat(Animal):
+            def make_sound(self):
+                print("Meow!")
 
-    dog = Dog()
-    dog.make_sound()  # Output: "Woof!"
+        dog = Dog()
+        dog.make_sound()  # Output: "Woof!"
 
-    cat = Cat()
-    cat.make_sound()  # Output: "Meow!"
+        cat = Cat()
+        cat.make_sound()  # Output: "Meow!"
 
-    ```
+        ```
 
 In this example, the `Animal` class is an abstract class because it has an abstract method called `make_sound()`. The `Dog` and `Cat` classes are concrete classes because they provide an implementation for the `make_sound()` method. The `dog` and `cat` objects are instances of the `Dog` and `Cat` classes, respectively, and they can be used to call the `make_sound()` method.
 
@@ -552,19 +554,19 @@ For more information about multiple inheritance in Python, you can refer to the 
 
 Performance and concurrency are two common areas where Python programmers may encounter pitfalls and problems. Here are some specific issues to consider in these areas:
 
-1. ***Performance issues***: Python is generally slower than compiled languages like C or C++, which means that you may encounter performance issues when running computationally intensive tasks in Python. There are ways to improve the performance of Python code (e.g., using optimized libraries or writing code in Cython), but it is important to be aware of the performance limitations of the language.
+1. **_Performance issues_**: Python is generally slower than compiled languages like C or C++, which means that you may encounter performance issues when running computationally intensive tasks in Python. There are ways to improve the performance of Python code (e.g., using optimized libraries or writing code in Cython), but it is important to be aware of the performance limitations of the language.
 
-2. ***Concurrency issues***: Python has a global interpreter lock (GIL) that prevents multiple threads from executing Python bytecodes at the same time, which can lead to concurrency issues when running multithreaded programs. There are ways to work around the GIL (e.g., using the `multiprocessing` module), but it is important to be aware of this limitation when writing concurrent programs in Python.
+2. **_Concurrency issues_**: Python has a global interpreter lock (GIL) that prevents multiple threads from executing Python bytecodes at the same time, which can lead to concurrency issues when running multithreaded programs. There are ways to work around the GIL (e.g., using the `multiprocessing` module), but it is important to be aware of this limitation when writing concurrent programs in Python.
 
 Here are some specific issues that you may encounter when dealing with performance and concurrency in Python:
 
-* **Bottlenecks**: It can be difficult to identify which parts of your code are causing performance issues, especially if you are working with large datasets or complex algorithms. You may need to use profiling tools to identify bottlenecks in your code and optimize the most critical parts.
+- **Bottlenecks**: It can be difficult to identify which parts of your code are causing performance issues, especially if you are working with large datasets or complex algorithms. You may need to use profiling tools to identify bottlenecks in your code and optimize the most critical parts.
 
-* **Memory usage**: Memory usage can also be a problem when working with large datasets or complex algorithms in Python. You may need to use memory-efficient data structures and algorithms, or write code in a memory-efficient way, to avoid running out of memory.
+- **Memory usage**: Memory usage can also be a problem when working with large datasets or complex algorithms in Python. You may need to use memory-efficient data structures and algorithms, or write code in a memory-efficient way, to avoid running out of memory.
 
-* **Lack of parallelism**: Because of the GIL, Python threads are not always able to run in parallel on multiple CPU cores. This can limit the scalability of multithreaded Python programs, especially on systems with many CPU cores.
+- **Lack of parallelism**: Because of the GIL, Python threads are not always able to run in parallel on multiple CPU cores. This can limit the scalability of multithreaded Python programs, especially on systems with many CPU cores.
 
-* **Synchronization issues**: When working with concurrent programs, you may need to synchronize access to shared resources to avoid race conditions and other synchronization issues. This can be challenging in Python, especially if you are not familiar with the tools and techniques available for concurrency control.
+- **Synchronization issues**: When working with concurrent programs, you may need to synchronize access to shared resources to avoid race conditions and other synchronization issues. This can be challenging in Python, especially if you are not familiar with the tools and techniques available for concurrency control.
 
 To avoid these and other issues related to performance and concurrency in Python, it is important to be aware of the limitations of the language and to plan accordingly when writing and testing your code. You may need to use specialized tools and techniques, such as profiling and optimization tools, to improve the performance and scalability of your Python programs.
 
@@ -670,11 +672,11 @@ In Python, a namespace is a container that holds a set of identifiers (i.e., nam
 
 There are several types of namespaces in Python:
 
-* **Module namespace**: Each module in Python has its own namespace, which contains the identifiers defined in the module, such as functions, variables, and classes. When you import a module, the identifiers in the module's namespace become available in the current namespace.
+- **Module namespace**: Each module in Python has its own namespace, which contains the identifiers defined in the module, such as functions, variables, and classes. When you import a module, the identifiers in the module's namespace become available in the current namespace.
 
-* **Class namespace**: Each class in Python has its own namespace, which contains the identifiers defined in the class, such as methods and instance variables. When you create an instance of a class, the instance variables become part of the instance's namespace.
+- **Class namespace**: Each class in Python has its own namespace, which contains the identifiers defined in the class, such as methods and instance variables. When you create an instance of a class, the instance variables become part of the instance's namespace.
 
-* **Function namespace**: Each function in Python has its own namespace, which contains the identifiers defined in the function, such as local variables and function arguments. The function namespace is created when the function is called and is destroyed when the function returns.
+- **Function namespace**: Each function in Python has its own namespace, which contains the identifiers defined in the function, such as local variables and function arguments. The function namespace is created when the function is called and is destroyed when the function returns.
 
 Here is an example of how namespaces are used in Python:
 
@@ -702,15 +704,15 @@ In this example, the `x` variable is defined in the module namespace and is acce
 
 ## 28- What is PEP?
 
-PEP stands for *Python Enhancement Proposal*. PEPs are documents that describe proposed changes, improvements, and new features for Python. They are written by Python developers and are used to communicate ideas and proposals for improving the language to the Python community.
+PEP stands for _Python Enhancement Proposal_. PEPs are documents that describe proposed changes, improvements, and new features for Python. They are written by Python developers and are used to communicate ideas and proposals for improving the language to the Python community.
 
 There are different types of PEPs, including:
 
-* **Standards Track PEPs**: These PEPs propose changes to the Python language itself, such as new syntax or built-in functions.
+- **Standards Track PEPs**: These PEPs propose changes to the Python language itself, such as new syntax or built-in functions.
 
-* **Informational PEPs**: These PEPs provide information about Python-related topics, such as best practices or design patterns.
+- **Informational PEPs**: These PEPs provide information about Python-related topics, such as best practices or design patterns.
 
-* **Process PEPs**: These PEPs describe changes to the Python development process, such as how PEPs are submitted and reviewed.
+- **Process PEPs**: These PEPs describe changes to the Python development process, such as how PEPs are submitted and reviewed.
 
 PEPs are written in a standard format and are reviewed by the Python community through a process called the PEP process. The PEP process is designed to ensure that proposed changes to Python are well-documented, well-reasoned, and discussed by the community before being accepted and implemented.
 
@@ -892,7 +894,7 @@ In this case, the global `x` statement tells Python that you want to access the 
 
 In Python, an iterator is an object that allows you to iterate over a sequence of elements, such as a list, tuple, or string. An iterator has two main methods: `__iter__` and `__next__`.
 
-The `__iter__` method is called when the iterator object is initialized, and it returns the iterator object itself. The `__next__` method is called to retrieve the next element in the sequence. When there are no more elements to iterate over, the  `__next__` method raises a `StopIteration` exception to signal that the iteration is complete.
+The `__iter__` method is called when the iterator object is initialized, and it returns the iterator object itself. The `__next__` method is called to retrieve the next element in the sequence. When there are no more elements to iterate over, the `__next__` method raises a `StopIteration` exception to signal that the iteration is complete.
 
 Here is an example of how you can use an iterator to iterate over a list in Python:
 
@@ -912,7 +914,7 @@ print(next(it)) # This will raise a StopIteration exception
 
 ```
 
-In this example, the `iter` function is used to create an iterator object for the `my_list` list. The `next` function is then used to retrieve the elements of the list one by one. When there are no more elements to iterate over, the next function raises a *`StopIteration`* exception.
+In this example, the `iter` function is used to create an iterator object for the `my_list` list. The `next` function is then used to retrieve the elements of the list one by one. When there are no more elements to iterate over, the next function raises a _`StopIteration`_ exception.
 
 You can also use a for loop to iterate over an iterator in Python. The for loop will automatically call the `__next__` method of the iterator and will stop when a `StopIteration` exception is raised. For example:
 
@@ -937,10 +939,10 @@ class MyIterator:
     def __init__(self, data):
         self.data = data
         self.index = 0
-    
+
     def __iter__(self):
         return self
-    
+
     def __next__(self):
         if self.index >= len(self.data):
             raise StopIteration
@@ -1051,13 +1053,13 @@ In Python, docstrings are written using triple quotes (`'''` or `"""`). For exam
 def some_function(arg1, arg2):
     '''
     This is a docstring for the some_function function.
-    
+
     This function does something with the arguments arg1 and arg2.
-    
+
     Parameters:
         arg1 (int): The first argument.
         arg2 (int): The second argument.
-    
+
     Returns:
         int: The result of the function.
     '''
@@ -1106,14 +1108,14 @@ class Rectangle(Shape):
     def __init__(self, width, height):
         self.width = width
         self.height = height
-    
+
     def area(self):
         return self.width * self.height
 
 class Circle(Shape):
     def __init__(self, radius):
         self.radius = radius
-    
+
     def area(self):
         return 3.14 * self.radius * self.radius
 
@@ -1128,19 +1130,19 @@ print(rect.area()) # prints
 
 In Python, wheels and eggs are two different types of distribution formats for Python packages.
 
-A wheel is a pre-built distribution of a Python package that is built using the     `bdist_wheel` command. Wheels are stored in the `.whl` file format and can be installed using the `pip` package manager. Wheels are designed to be a more efficient and faster way to install Python packages, especially for large packages or packages with many dependencies.
+A wheel is a pre-built distribution of a Python package that is built using the `bdist_wheel` command. Wheels are stored in the `.whl` file format and can be installed using the `pip` package manager. Wheels are designed to be a more efficient and faster way to install Python packages, especially for large packages or packages with many dependencies.
 
 An `egg` is an older distribution format for Python packages that are stored in the `.egg` file format. Eggs were originally used by the `easy_install` package manager, but they are now deprecated in favor of wheels.
 
 There are several key differences between wheels and eggs:
 
-* File format: Wheels are stored in the `.whl` file format, while eggs are stored in the `.egg` file format.
+- File format: Wheels are stored in the `.whl` file format, while eggs are stored in the `.egg` file format.
 
-* Installation: Wheels can be installed using the pip package manager, while eggs can be installed using the `easy_install` package manager.
+- Installation: Wheels can be installed using the pip package manager, while eggs can be installed using the `easy_install` package manager.
 
-* Compatibility: Wheels are compatible with *Python 2.7* and later versions, while eggs are only compatible with *Python 2.4* and later versions.
+- Compatibility: Wheels are compatible with _Python 2.7_ and later versions, while eggs are only compatible with _Python 2.4_ and later versions.
 
-* Efficieny: Wheels are generally more efficient and faster to install than eggs because they do not need to be built from source code.
+- Efficieny: Wheels are generally more efficient and faster to install than eggs because they do not need to be built from source code.
 
 In summary, wheels are the recommended distribution format for Python packages, while eggs are deprecated and should not be used. If you are installing a Python package, you should look for a wheel package if possible.
 
@@ -1163,7 +1165,7 @@ except ValueError:
     print('Invalid input')
 ```
 
-In this example, the `try` block contains code that might cause a *ValueError* exception to be raised (in this case, attempting to convert the string 'foo' to an integer). If the exception is raised, the execution of the `try` block is halted, and control is transferred to the `except` block. The `except` block contains code that is executed to handle the exception. In this case, it prints an error message to the console.
+In this example, the `try` block contains code that might cause a _ValueError_ exception to be raised (in this case, attempting to convert the string 'foo' to an integer). If the exception is raised, the execution of the `try` block is halted, and control is transferred to the `except` block. The `except` block contains code that is executed to handle the exception. In this case, it prints an error message to the console.
 
 You can also specify multiple `except` blocks to handle different types of exceptions:
 
@@ -1235,12 +1237,12 @@ The `PYTHONOPTIMIZE` flag is a command-line option for the Python interpreter th
 
 The optimization techniques that are applied when `PYTHONOPTIMIZE` is set depend on the specific version of Python that you are using. In general, the optimization techniques that may be applied include:
 
-* Inlining of simple functions
-*Removal of dead code
-* Specialization of function calls
-* Early binding of global names
-* Constant folding and propagation
-* Peephole optimization of bytecode
+- Inlining of simple functions
+  \*Removal of dead code
+- Specialization of function calls
+- Early binding of global names
+- Constant folding and propagation
+- Peephole optimization of bytecode
 
 It's important to note that the `PYTHONOPTIMIZE` flag is intended to be used for debugging and profiling purposes, and is not recommended for use in production environments. This is because the optimizations applied by the flag may change the behavior of the program in ways that are difficult to predict, and may even make the program slower in some cases.
 
@@ -1275,7 +1277,7 @@ You can generate a random number using `random` module.
 
 ```Python
 import random
-random_number = random.randint(1, 100) 
+random_number = random.randint(1, 100)
 # Generate a random number between 1 and 100
 
 random_number = random.random()
@@ -1302,13 +1304,13 @@ The `itertools` module is a Python module that provides a number of functions th
 
 Here are a few examples of functions that are available in the `itertools` module:
 
-* `count`: This function returns an iterator that produces consecutive integers, starting from a given value.
+- `count`: This function returns an iterator that produces consecutive integers, starting from a given value.
 
-* `cycle`: This function returns an iterator that repeats a sequence of values indefinitely.
+- `cycle`: This function returns an iterator that repeats a sequence of values indefinitely.
 
-* `permutations`: This function returns an iterator that produces all of the permutations of a given sequence.
+- `permutations`: This function returns an iterator that produces all of the permutations of a given sequence.
 
-* `combinations`: This function returns an iterator that produces all of the combinations of a given sequence.
+- `combinations`: This function returns an iterator that produces all of the combinations of a given sequence.
 
 ## 47 - what does itertools.islice do?
 
@@ -1373,7 +1375,7 @@ print(my_time())
 
 The output of this code will be two timestamps that are very close to each other (within a few seconds). This is because the default value of the `time_now` parameter is set to the current time `(datetime.datetime.now())` when the `my_time` function is defined, rather than when it is called.
 
-As a result, the value of `time_now` is fixed at the time that the function is defined, and it is not updated when the function is called. This means that the two calls to `my_time` will both return the same value *(the current time when the function was defined)*, even though several seconds have passed between the two calls.
+As a result, the value of `time_now` is fixed at the time that the function is defined, and it is not updated when the function is called. This means that the two calls to `my_time` will both return the same value _(the current time when the function was defined)_, even though several seconds have passed between the two calls.
 
 To fix this issue, you could remove the default value for the `time_now` parameter, and set it to the current time inside the function using `datetime.datetime.now()`, like this:
 
@@ -1529,36 +1531,36 @@ To use these classes, you can create a new `BST` object and use the `insert` met
 ```Python
 # Returns index of x in arr if present, else -1
 def binary_search(arr, low, high, x):
- 
+
     # Check base case
     if high >= low:
- 
+
         mid = (high + low) // 2
- 
+
         # If element is present at the middle itself
         if arr[mid] == x:
             return mid
- 
+
         # If element is smaller than mid, then it can only
         # be present in left subarray
         elif arr[mid] > x:
             return binary_search(arr, low, mid - 1, x)
- 
+
         # Else the element can only be present in right subarray
         else:
             return binary_search(arr, mid + 1, high, x)
- 
+
     else:
         # Element is not present in the array
         return -1
- 
+
 # Test array
 arr = [ 2, 3, 4, 10, 40 ]
 x = 10
- 
+
 # Function call
 result = binary_search(arr, 0, len(arr)-1, x)
- 
+
 if result != -1:
     print("Element is present at index", str(result))
 else:
@@ -1584,7 +1586,7 @@ Next, you can define the `LinkedList` class, which will contain methods for inse
 class LinkedList:
     def __init__(self):
         self.head = None
-    
+
     def append(self, value):
         new_node = Node(value)
         if self.head is None:
@@ -1594,7 +1596,7 @@ class LinkedList:
             while current_node.next is not None:
                 current_node = current_node.next
             current_node.next = new_node
-    
+
     def traverse(self):
         current_node = self.head
         while current_node is not None:
@@ -1737,7 +1739,7 @@ TypeError: must be real number, not str
 
 ## 58- What is `bytes` type?
 
-The `bytes` type is an immutable sequence of *bytes*. It is similar to the *str* type, but it is meant to hold raw binary data rather than Unicode text.
+The `bytes` type is an immutable sequence of _bytes_. It is similar to the _str_ type, but it is meant to hold raw binary data rather than Unicode text.
 
 You can create a `bytes` object by prefixing a string with the b character and enclosing it in quotes, like this:
 
@@ -1854,11 +1856,11 @@ sorted_list = bubble_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
 
-***Time Complexity:***
+**_Time Complexity:_**
 
-* Best case:     **O(n)**
-* Average case:  **O(n<sup>2</sup>)**
-* Worst case:    **O(n^2)**
+- Best case: **O(n)**
+- Average case: **O(n<sup>2</sup>)**
+- Worst case: **O(n^2)**
 
 ## 63- How to implement Heap sort in Python?
 
@@ -1925,11 +1927,11 @@ sorted_list = heap_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
 
-***Time Complexity:***
+**_Time Complexity:_**
 
-* Best case:     **O(n log(n))**
-* Average case:  **O(n log(n))**
-* Worst case:    **O(n log(n))**
+- Best case: **O(n log(n))**
+- Average case: **O(n log(n))**
+- Worst case: **O(n log(n))**
 
 ## 64- How to implement Insertion sort in Python?
 
@@ -1960,11 +1962,11 @@ sorted_list = insertion_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
 
-***Time Complexity:***
+**_Time Complexity:_**
 
-* Best case:     **O(n)**
-* Average case:  **O(n<sup>2</sup>)**
-* Worst case:    **O(n<sup>2</sup>)**
+- Best case: **O(n)**
+- Average case: **O(n<sup>2</sup>)**
+- Worst case: **O(n<sup>2</sup>)**
 
 ## 65- How to implement Merge sort in Python?
 
@@ -2016,11 +2018,11 @@ sorted_list = merge_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
 
-***Time Complexity:***
+**_Time Complexity:_**
 
-* Best case:     **O(n log(n))**
-* Average case:  **O(n log(n))**
-* Worst case:    **O(n log(n))**
+- Best case: **O(n log(n))**
+- Average case: **O(n log(n))**
+- Worst case: **O(n log(n))**
 
 ## 66- How to implement Quick sort in Python?
 
@@ -2045,11 +2047,11 @@ sorted_list = quick_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
 
-***Time Complexity:***
+**_Time Complexity:_**
 
-* Best case:     **O(n log(n))**
-* Average case:  **O(n log(n))**
-* Worst case:    **O(n<sup>2</sup>)**
+- Best case: **O(n log(n))**
+- Average case: **O(n log(n))**
+- Worst case: **O(n<sup>2</sup>)**
 
 ## 67- How to implement Selection sort in Python?
 
@@ -2077,11 +2079,11 @@ sorted_list = selection_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
 
-***Time Complexity:***
+**_Time Complexity:_**
 
-* Best case:     **O(n<sup>2</sup>)**
-* Average case:  **O(n<sup>2</sup>)**
-* Worst case:    **O(n<sup>2</sup>)**
+- Best case: **O(n<sup>2</sup>)**
+- Average case: **O(n<sup>2</sup>)**
+- Worst case: **O(n<sup>2</sup>)**
 
 ## 68- How to implement Shell sort in Python?
 
@@ -2107,8 +2109,168 @@ sorted_list = shell_sort([3, 4, 2, 1, 6, 5])
 print(sorted_list)  # [1, 2, 3, 4, 5, 6]
 ```
 
-***Time Complexity:***
+**_Time Complexity:_**
 
-* Best case:     **O(n (log n)<sup>2</sup>)**
-* Average case:  **O(n<sup>3/2</sup>)**
-* Worst case:    **O(n)**
+- Best case: **O(n (log n)<sup>2</sup>)**
+- Average case: **O(n<sup>3/2</sup>)**
+- Worst case: **O(n)**
+
+## 69- What are the commands that are used to copy an object in Python?
+
+There are several ways to copy an object in Python. Here are some of the most common methods:
+
+- Using the `copy` module:
+
+  ```Python
+  import copy
+  new_object = copy.copy(old_object)
+  ```
+
+  This creates a shallow copy of the object. If the object contains references to other objects, the copy will contain references to the same objects as the original.
+
+- Using the `deepcopy` function:
+
+  ```Python
+  import copy
+  new_object = copy.deepcopy(old_object)
+  ```
+
+  This creates a deep copy of the object. If the object contains references to other objects, the copy will contain copies of those objects as well, rather than references to the same objects.
+
+- Using the `copy()` method:
+
+  ```Python
+  new_object = old_object.copy()
+  ```
+
+  This creates a shallow copy of the object. This method is available for objects that support the `copy` protocol (e.g., lists, dictionaries, sets, etc.).
+
+## 70- What is the difference between deep and shallow copy?
+
+- Shallow copy is used when a new instance type gets created and it keeps the values that are copied in the new instance. Whereas, deep copy is used to store the values that are already copied.
+- Shallow copy is used to copy the reference pointers just like it copies the values. These references point to the original objects and the changes made in any member of the class will also affect the original copy of it. Whereas, deep copy doesn’t copy the reference pointers to the objects. Deep copy makes the reference to an object and the new object that is pointed by some other object gets stored. The changes made in the original copy won’t affect any other copy that uses the object.
+- Shallow copy allows faster execution of the program and it depends on the size of the data that is used. Whereas, deep copy makes it slower due to making certain copies for each object that is been called.
+
+## 72- How can the ternary operators be used in python?
+
+In Python, the ternary operator is known as the conditional operator or ternary conditional operator. It is an operator that takes three arguments: a condition, a result for the condition being true, and a result for the condition being false.
+
+The syntax for the ternary operator is:
+
+```Python
+result = expression1 if condition else expression2
+```
+
+Here, `expression1` and `expression2` are the results that are returned if the condition is true or false, respectively.
+
+Here's an example of how you can use the ternary operator to assign a value to a variable based on a condition:
+
+```Python
+x = 10
+y = 20
+max_value = x if x > y else y
+print(max_value)
+```
+
+In this example, the condition `x > y` is false, so `y` is assigned to `max_value`. The output of this code will be **`20`**.
+
+You can also use the ternary operator to return a value from a function based on a condition:
+
+```Python
+def get_max_value(x, y):
+    return x if x > y else y
+
+max_value = get_max_value(10, 20)
+print(max_value)
+```
+
+In this example, the function `get_max_value()` returns `x` if `x` is greater than `y`, and returns `y` if `x` is not greater than `y`. When called with the arguments `(10, 20)`, the function will return `20`.
+
+## 73- What will be the output of the code below?
+
+```Python
+def extendList(val, list=[]):
+    list.append(val)
+    return list
+
+list1 = extendList(10)
+list2 = extendList(123,[])
+list3 = extendList('a')
+
+print("list1 = %s" % list1)
+print("list2 = %s" % list2)
+print("list3 = %s" % list3)
+```
+
+**The output:**
+
+```Python
+list1 = [10, 'a']
+list2 = [123]
+list3 = [10, 'a']
+```
+
+- In the first call to `extendList()`, the default value of list is used, which is an empty list `[]`. The value `10` is appended to this list, and the modified list is returned. This list is assigned to `list1`.
+
+- In the second call to `extendList()`, a new list `[123]` is passed as the value for the list parameter, so the default value is not used. The value `123` is appended to this list, and the modified list is returned and assigned to `list2`.
+
+- In the third call to `extendList()`, the default value of list is used again. This time, the default value is the list that was modified in the first call to the function, which contains the value `10`. The value `'a'` is appended to this list, and the modified list is returned and assigned to `list3`.
+  This behavior occurs because default values are evaluated when the function is defined, not when it is called. In this case, the default value of the list parameter is an empty list `[]`, which is evaluated when the `extendList()` function is defined. This means that the same `list` object is used as the default value for the `list` parameter every time the `extendList()` function is called, unless a different value is provided for the list parameter in the function call.
+
+The definition of the `extendList` function could be modified as follows, though, to always begin a new list when no `list` argument is specified, which is more likely to have been the desired behavior:
+
+```Python
+def extendList(val, list=None):
+    if list is None:
+        list = []
+  list.append(val)
+  return list
+```
+
+## 74- What will be the output of the code below?
+
+```Python
+def multipliers():
+  return [lambda x : i * x for i in range(4)]
+
+print [m(2) for m in multipliers()]
+```
+
+The output of the above code will be `[6, 6, 6, 6]`.
+
+The reason for this is that Python’s closures are late binding. This means that the values of variables used in closures are looked up at the time the inner function is called. So as a result, when any of the functions returned by `multipliers()` are called, the value of `i` is looked up in the surrounding scope at that time. By then, regardless of which of the returned functions is called, the `for` loop has completed and `i` is left with its final value of 3. Therefore, every returned function multiplies the value it is passed by `3`, so since a value of `2` is passed in the above code, they all return a value of `6` (i.e., 3 x 2).
+
+## 75- What will be the output of the code below?
+
+```Python
+class Parent(object):
+    x = 1
+
+class Child1(Parent):
+    pass
+
+class Child2(Parent):
+    pass
+
+print(Parent.x, Child1.x, Child2.x)
+Child1.x = 2
+print(Parent.x, Child1.x, Child2.x)
+Parent.x = 3
+print(Parent.x, Child1.x, Child2.x)
+```
+
+**The output of the above code will be:**
+
+```
+1 1 1
+1 2 1
+3 2 3
+```
+
+In Python, class variables are internally handled as dictionaries. If a variable name is not found in the dictionary of the current class, the class hierarchy (i.e., its parent classes) are searched until the referenced variable name is found (if the referenced variable name is not found in the class itself or anywhere in its hierarchy, an `AttributeError` occurs).
+
+Therefore, setting `x = 1` in the `Parent` class makes the class variable `x` (with a value of 1) referenceable in that class and any of its children. That’s why the first `print` statement outputs `1 1 1`.
+
+Subsequently, if any of its child classes overrides that value (for example, when we execute the statement `Child1.x = 2`), then the value is changed in that child only. That’s why the second `print` statement outputs `1 2 1`.
+
+Finally, if the value is then changed in the `Parent` (for example, when we execute the statement `Parent.x = 3`), that change is reflected also by any children that have not yet overridden the value (which in this case would be `Child2`). That’s why the third print statement outputs `3 2 3`
