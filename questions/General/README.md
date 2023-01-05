@@ -49,10 +49,10 @@ Finally, we set the value of the dangerous class attribute to **`3`**. This chan
 
 In Python, functions are considered first-class objects because they have the same properties as other objects in the language. Specifically, this means that functions can be:
 
-1.  Assigned to variables and stored in data structures, just like any other object
-2.  Passed as arguments to functions
-3.  Returned as values from functions
-4.  Defined inside other functions  
+1. Assigned to variables and stored in data structures, just like any other object
+2. Passed as arguments to functions
+3. Returned as values from functions
+4. Defined inside other functions  
     The ability to treat functions as first-class objects is a powerful feature of Python that enables several useful programming patterns, such as higher-order functions, decorators, and functional programming.
 
 For example, consider the following code:
@@ -409,34 +409,33 @@ In Python, an abstract class is a class that has one or more abstract methods. A
 
 To create an abstract class in Python, you need to do the following:
 
-1.  Import the abc module.
-2.  Create a class that derives from abc.ABC.
-3.  Declare one or more abstract methods using the `@abc.abstractmethod` decorator.
+1. Import the abc module.
+2. Create a class that derives from abc.ABC.
+3. Declare one or more abstract methods using the `@abc.abstractmethod` decorator.
     Here is an example of an abstract class in Python:
 
-        ```Python
-        import abc
+    ```Python
+    import abc
 
-        class Animal(abc.ABC):
-            @abc.abstractmethod
-            def make_sound(self):
-                pass
+    class Animal(abc.ABC):
+        @abc.abstractmethod
+        def make_sound(self):
+            pass
 
-        class Dog(Animal):
-            def make_sound(self):
-                print("Woof!")
+    class Dog(Animal):
+        def make_sound(self):
+            print("Woof!")
 
-        class Cat(Animal):
-            def make_sound(self):
-                print("Meow!")
+    class Cat(Animal):
+        def make_sound(self):
+            print("Meow!")
 
-        dog = Dog()
-        dog.make_sound()  # Output: "Woof!"
+    dog = Dog()
+    dog.make_sound()  # Output: "Woof!"
 
-        cat = Cat()
-        cat.make_sound()  # Output: "Meow!"
-
-        ```
+    cat = Cat()
+    cat.make_sound()  # Output: "Meow!"
+    ```
 
 In this example, the `Animal` class is an abstract class because it has an abstract method called `make_sound()`. The `Dog` and `Cat` classes are concrete classes because they provide an implementation for the `make_sound()` method. The `dog` and `cat` objects are instances of the `Dog` and `Cat` classes, respectively, and they can be used to call the `make_sound()` method.
 
@@ -2261,7 +2260,7 @@ print(Parent.x, Child1.x, Child2.x)
 
 **The output of the above code will be:**
 
-```
+```Python
 1 1 1
 1 2 1
 3 2 3
