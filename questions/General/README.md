@@ -2273,3 +2273,120 @@ Therefore, setting `x = 1` in the `Parent` class makes the class variable `x` (w
 Subsequently, if any of its child classes overrides that value (for example, when we execute the statement `Child1.x = 2`), then the value is changed in that child only. That’s why the second `print` statement outputs `1 2 1`.
 
 Finally, if the value is then changed in the `Parent` (for example, when we execute the statement `Parent.x = 3`), that change is reflected also by any children that have not yet overridden the value (which in this case would be `Child2`). That’s why the third print statement outputs `3 2 3`
+
+## 76- What is `__slots__` in python?
+
+It is a feature of Python classes that allows you to specify the attributes that an instance of the class should have. By default, Python classes create a dictionary for each instance to store its attributes. This dictionary takes up more memory than is necessary for most objects and can cause performance problems, especially for objects with a large number of attributes.
+
+Using `__slots__` can help mitigate this issue by allowing you to specify exactly which attributes an instance should have, and the Python interpreter will use a more efficient representation for the instance. This can save memory and improve performance.
+
+Here's an example of how you might use `__slots__` in a Python class:
+
+```Python
+class Point:
+    __slots__ = ['x', 'y']
+    
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+```
+
+In this example, the Point class has two attributes: `x` and `y`. By specifying these attributes in `__slots__`, we are telling the Python interpreter that instances of the Point class should only have these two attributes and no others.
+
+There are a few things to note about using `__slots__`:
+
+- You can only specify attributes in `__slots__` that are instance variables. You cannot use `__slots__` to define class-level attributes or methods.
+
+- If you define `__slots__` in a class, its instances will not be able to have a dictionary for attributes, so they will not be able to have any additional attributes beyond those listed in `__slots__`.
+
+- Using `__slots__` can improve memory usage and performance, but it also means that you have to explicitly specify all of the attributes that an instance should have, which can be inconvenient if you need to add new attributes to an instance later on.
+
+## 77- What is `__contains__` in python?
+
+The `__contains__` method is a special method in Python that is used to implement the `in` operator. If a class defines a `__contains__` method, you can use the in operator to check if an instance of the class contains a particular value.
+
+Here's an example of how you might use the `__contains__` method in a Python class:
+
+```Python
+class Color:
+    def __init__(self, r, g, b):
+        self.r = r
+        self.g = g
+        self.b = b
+    
+    def __contains__(self, value):
+        return value in (self.r, self.g, self.b)
+
+color = Color(255, 0, 0)
+print(0 in color)  # prints False
+print(255 in color)  # prints True
+```
+
+In this example, the `Color` class has a `__contains__` method that checks if the given value is one of the `r`, `g`, or `b` values of the `Color` instance. When you use the in operator with an instance of the `Color` class, it will call the `__contains__` method to determine whether the value is contained within the instance.
+
+It's important to note that the `__contains__` method is not the same as the `__len__` method, which is used to implement the `len()` function. The `__len__` method should return the length of the object, while the `__contains__` method should return a boolean indicating whether the object contains a given value.
+
+## 78- What is a "callable"?
+
+A callable is an object we can call - function or an object implementing the `__call__` special method. Any object can be made callable.
+
+Here are a few examples of callables in Python:
+
+- Functions:
+
+    ```Python
+    def greet(name):
+    print(f"Hello, {name}!")
+
+    greet("Alice")  # prints "Hello, Alice!"
+    ```
+
+- Methods:
+
+    ```Python
+    class Greeter:
+    def __init__(self, name):
+        self.name = name
+    
+    def greet(self):
+        print(f"Hello, {self.name}!")
+
+    g = Greeter("Bob")
+    g.greet()  # prints "Hello, Bob!"
+    ```
+
+- Objects with the `__call__` method:
+
+    ```Python
+    class CallableClass:
+        def __call__(self, *args, **kwargs):
+            print("Called with arguments:", args, kwargs)
+
+    cc = CallableClass()
+    cc(1, 2, 3, a=4, b=5)  # prints "Called with arguments: (1, 2, 3) {'a': 4, 'b': 5}"
+    ```
+
+You can check if an object is callable using the `callable()` built-in function:
+
+```Python
+print(callable(greet))  # prints True
+print(callable(g.greet))  # prints True
+print(callable(cc))  # prints True
+print(callable(1))  # prints False
+```
+
+## 79- How would you `XOR` in Python?
+
+1. `(a and not b) or (not a and b)`
+2. `bool(a) != bool(b)`
+3. `bool(a) ^ bool(b)`
+4. `from operator import xor -> xor(bool(a), bool(b))`
+
+## 80- What is introspection/reflection and does Python support it?
+
+Introspection is the ability to examine an object at runtime. Python has a `dir()` function that supports examining the attributes of an object, `type()` to check the object type, `isinstance()`, etc. While introspection is passive examination of the objects, reflection is a more powerful tool where we could modify objects at runtime and access them dynamically. E.g.  
+
+- `setattr()` adds or modifies an object's attribute;  
+- `getattr()` gets the value of an attribute of an object.
+
+It can even invoke functions dynamically - `getattr(my_obj, "my_func_name")()`
