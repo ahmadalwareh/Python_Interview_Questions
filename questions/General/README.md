@@ -2503,3 +2503,151 @@ The `__pycache__` directory is a directory that is created by the Python interpr
 The `__pycache__` directory is typically located in the same directory as the Python source files that were used to create it. It is created automatically by the interpreter, and you do not need to worry about managing it manually.
 
 Note that the `__pycache__` directory and the compiled bytecode files it contains are specific to a particular version of Python. This means that if you change the version of Python that you are using, the interpreter will create a new `__pycache__` directory with compiled bytecode files that are compatible with the new version of Python.
+
+## 86- What is the unittest in Python?
+
+`unittest` is a unit testing framework in Python. It is a part of the Python Standard Library, and it is used to test small units of code, such as individual functions or methods.
+
+The `unittest` framework provides a set of tools for organizing and running tests, as well as for verifying the correctness of the code being tested. It includes a set of assertion methods that you can use to check the output of your code and ensure that it is correct.
+
+To use the `unittest` framework, you define a series of test cases, which are individual units of testing that each test a specific aspect of your code. Each test case is a subclass of the `unittest.TestCase` class, and it includes a series of test methods that define the tests to be run. You can then use the `unittest` test runner to discover and run the tests in your test cases.
+
+Here is a simple example of how to use the `unittest` framework to test a function:
+
+```Python
+import unittest
+
+def add(x, y):
+    return x + y
+
+class TestAdd(unittest.TestCase):
+    def test_add_two_positive_numbers(self):
+        result = add(2, 3)
+        self.assertEqual(result, 5)
+
+    def test_add_two_negative_numbers(self):
+        result = add(-2, -3)
+        self.assertEqual(result, -5)
+
+if __name__ == '__main__':
+    unittest.main()
+```
+
+In this example, the `TestAdd` class defines two test methods, `test_add_two_positive_numbers` and `test_add_two_negative_numbers`, which test the `add` function with different input values. The `unittest.main()` function is used to run the tests and report the results.
+
+## 87- What is the difference between xrange and range?
+
+`range` and `xrange` are both functions that are used to generate a sequence of numbers. However, they differ in how they generate the numbers and in the type of object they return.
+
+The `range` function generates a sequence of numbers by creating a list object that contains all of the numbers in the sequence. For example:
+
+```Python
+>>> range(5)
+[0, 1, 2, 3, 4]
+>>> range(2, 5)
+[2, 3, 4]
+>>> range(2, 10, 2)
+[2, 4, 6, 8]
+```
+
+The `range` function is useful when you need to generate a sequence of numbers and you need to access the numbers multiple times or perform operations on them. However, it can be inefficient when generating large sequences of numbers, as it creates a new list object in memory to hold the numbers.
+
+The `xrange` function generates a sequence of numbers in a similar way to range, but it returns a `generator` object rather than a `list`. A generator is an object that produces a sequence of values one at a time, rather than generating the entire sequence at once. This means that `xrange` is more memory-efficient than range when generating large sequences of numbers.
+
+For example:
+
+```Python
+>>> xrange(5)
+xrange(5)
+>>> list(xrange(5))
+[0, 1, 2, 3, 4]
+>>> xrange(2, 5)
+xrange(2, 5)
+>>> list(xrange(2, 5))
+[2, 3, 4]
+>>> xrange(2, 10, 2)
+xrange(2, 10, 2)
+>>> list(xrange(2, 10, 2))
+[2, 4, 6, 8]
+```
+
+The `xrange` function was introduced in **`Python 2`** as a more efficient alternative to range. In **`Python 3`**, the `range` function was redesigned to behave more like `xrange`, and `xrange` was removed from the language.
+
+## 88- What is the use of `//` operator in Python?
+
+In Python, the `//` operator is the floor division operator. It is used to perform division, but it returns the result as an integer rather than a floating-point number.
+
+For example:
+
+```Python
+>>> 5 / 2
+2.5
+>>> 5 // 2
+2
+>>> 5.0 // 2
+2.0
+```
+
+In the first example, the `/` operator is used to perform division, and it returns a floating-point number. In the second and third examples, the `//` operator is used to perform floor division, and it returns an integer.
+
+The `//` operator is useful when you want to divide two numbers and you only care about the integer part of the result, rather than the fractional part. For example, you might use the `//` operator to calculate the number of times one number can be divided by another, or to calculate the number of times one number goes into another.
+
+Here are a few more examples of the `//` operator in action:
+
+```Python
+>>> 10 // 3
+3
+>>> 10 // 4
+2
+>>> 10 // 5
+2
+>>> 10 // 6
+1
+```
+
+## 89- How are dict and set implemented internally? What is the complexity of retrieving an item? How much memory do these structures consume?
+
+In Python, both dictionaries (called `dict`) and `sets` are implemented using hash tables. A hash table is a data structure that uses a hash function to map keys to indices in an array, allowing for fast insertion, deletion, and lookup of keys.
+
+In the case of `dict`, each key-value pair is stored in the hash table. The keys are used to calculate a hash value, which is used to determine the index in the array where the key-value pair should be stored. The value is then stored at that index. To retrieve a value from the `dict`, the hash function is used to calculate the index of the key-value pair, and the value is retrieved from that index.
+
+The complexity of retrieving an item from a `dict` or a `set` is typically `O(1)` on average, meaning that it takes a constant amount of time to retrieve an item, regardless of the size of the `dict` or `set`. However, in the worst case, the complexity can be `O(n)`, meaning that it takes linear time to retrieve an item, if the hash function is poorly designed and causes many keys to hash to the same index.
+
+As for memory consumption, the amount of memory that a `dict` or `set` consumes depends on the number of keys it contains and the size of the keys and values. In general, `dict` and `set` objects use more memory than other data structures, such as lists and tuples, because they store the keys and values in addition to the overhead of the hash table data structure. However, the exact amount of memory consumed will depend on the specific keys and values being stored and on the implementation of the Python interpreter.
+
+## 90- What is MRO in Python? How does it work?
+
+In Python, MRO stands for "Method Resolution Order." It is a mechanism that is used to determine the order in which the methods of a class should be inherited when a class is derived from multiple base classes.
+
+In Python, a class can be derived from multiple base classes, creating a class hierarchy. When a class is derived from multiple base classes, it is said to have multiple inheritance. In multiple inheritance, a class can inherit methods from multiple base classes, and it is important to determine the order in which these methods should be inherited to avoid conflicts.
+
+The MRO of a class is the order in which the methods of the class and its base classes are searched when looking up a method. In Python, the MRO of a class is determined using the C3 linearization algorithm, which produces a linear order that preserves the local precedence order of the base classes.
+
+Here is an example of a class hierarchy with multiple inheritance in Python:
+
+```Python
+class A:
+    def foo(self):
+        print("A.foo")
+
+class B:
+    def foo(self):
+        print("B.foo")
+
+class C:
+    def foo(self):
+        print("C.foo")
+
+class D(B, C, A):
+    pass
+```
+
+In this example, the class `D` is derived from the classes `B`, `C`, and `A`, in that order. The MRO of the `D` class is determined using the C3 linearization algorithm, and it is as follows:
+
+```Python
+D.__mro__ == (D, B, C, A, object)
+```
+
+This means that when looking up a method on an instance of the `D` class, the interpreter will first search the `D` class, then the `B` class, then the `C` class, then the `A` class, and finally the object class, which is the base class of all classes in Python.
+
+The MRO is an important concept in Python because it determines the order in which methods are inherited and how conflicts are resolved when a class has multiple inheritance. Understanding how the MRO works is essential to understanding how multiple inheritance works in Python.
