@@ -2390,3 +2390,116 @@ Introspection is the ability to examine an object at runtime. Python has a `dir(
 - `getattr()` gets the value of an attribute of an object.
 
 It can even invoke functions dynamically - `getattr(my_obj, "my_func_name")()`
+
+## 81- What will be the ouput of lines 2, 4, 6, and 8 from the following code, and why?
+
+```Python
+list = [ [ ] ] * 5
+list  # output?
+list[0].append(10)
+list  # output?
+list[1].append(20)
+list  # output?
+list.append(30)
+list  # output?
+```
+
+**The ouput:**
+
+```Python
+list = [ [ ] ] * 5
+list  # output: [[], [], [], [], []]
+list[0].append(10)
+list  # output: [[10], [10], [10], [10], [10]]
+list[1].append(20)
+list  # output: [[10, 20], [10, 20], [10, 20], [10, 20], [10, 20]]
+list.append(30)
+list  # output: [[10, 20], [10, 20], [10, 20], [10, 20], [10, 20], 30]
+```
+
+In the first line, `list` is initialized as a list containing 5 copies of an empty list. When you append `10` to the first element of `list`, you are actually modifying the same empty `list` that is being referenced by all 5 elements of `list`. This is why all elements of `list` are modified when you append to the first element. In the fourth line, you are adding a new element to the end of `list`, which is why `30` is appended to the end of the list rather than being appended to one of the inner lists.
+
+## 82- Write a function that prints the least integer that is not present in a given list and cannot be represented by the summation of the sub-elements of the list
+
+```Python
+def find_least_integer(lst):
+    # Sort the list in ascending order
+    lst.sort()
+
+    # Initialize least integer to 1
+    least_int = 1
+
+    # Iterate through the list
+    for num in lst:
+        # If the current number is greater than least_int, return least_int
+        if num > least_int:
+            return least_int
+        # If the current number is equal to least_int, increment least_int
+        elif num == least_int:
+            least_int += 1
+
+    # Return least_int if no integer was found that was not present in the list
+    # and could not be represented by the summation of the sub-elements of the list
+    return least_int
+```
+
+This function first sorts the input list in ascending order, then iterates through the list and keeps track of the least integer that is not present in the list and cannot be represented by the summation of the sub-elements of the list. If the current number is greater than `least_int`, the function returns `least_int`. If the current number is equal to `least_int`, the function increments `least_int` and continues iterating through the list. If the loop completes without finding such an integer, the function returns `least_int`.
+
+Here is an example of how to use the function:
+
+```Python
+lst = [1, 3, 6, 10, 11, 15]
+print(find_least_integer(lst))  # Output: 2
+```
+
+## 83- How do you reverse a list? Can you come up with at least three ways?
+
+Here are three ways to reverse a list in Python:
+
+1. Using the `reverse()` method:
+
+    ```Python
+    lst = [1, 2, 3, 4, 5]
+    lst.reverse()
+    print(lst)  # Output: [5, 4, 3, 2, 1]
+    ```
+
+2. Using slicing with a step of -1:
+
+    ```Python
+    lst = [1, 2, 3, 4, 5]
+    lst = lst[::-1]
+    print(lst)  # Output: [5, 4, 3, 2, 1]
+    ```
+
+3. Using a `for` loop:
+
+    ```Python
+    lst = [1, 2, 3, 4, 5]
+    reversed_lst = []
+    for i in range(len(lst)-1, -1, -1):
+        reversed_lst.append(lst[i])
+    print(reversed_lst)  # Output: [5, 4, 3, 2, 1]
+    ```
+
+All three of these methods produce the same output: a new list that is the reverse of the original list. The first method modifies the list in place, while the second and third methods create a new list.
+
+## 84- How does Python execute code?
+
+When you run a Python program, the interpreter executes the code you have written in a sequence of steps.
+
+Here is a general outline of how the Python interpreter executes code:
+
+1. The interpreter reads the code you have written and converts it into a series of instructions, called bytecode, that it can execute.
+2. The interpreter loads the bytecode into memory and begins executing the instructions.
+3. As the interpreter executes the instructions, it may encounter statements that define variables, functions, or classes. When this happens, the interpreter creates the corresponding objects in memory and assigns them to the specified names.
+4. The interpreter may also encounter statements that call functions or methods. When this happens, the interpreter looks up the function or method and executes the code it contains.
+5. If the interpreter encounters an error while executing the code, it will raise an exception. If the error is not caught by the code, the interpreter will print an error message and stop executing the program.
+
+## 85- What is `__pycache__`?
+
+The `__pycache__` directory is a directory that is created by the Python interpreter to store compiled bytecode files. When you run a Python program, the interpreter converts the source code into a form that is more efficient to execute. This conversion process is known as compiling. The compiled bytecode files are stored in the `__pycache__` directory so that they can be used in future executions of the program without the need to recompile the source code.
+
+The `__pycache__` directory is typically located in the same directory as the Python source files that were used to create it. It is created automatically by the interpreter, and you do not need to worry about managing it manually.
+
+Note that the `__pycache__` directory and the compiled bytecode files it contains are specific to a particular version of Python. This means that if you change the version of Python that you are using, the interpreter will create a new `__pycache__` directory with compiled bytecode files that are compatible with the new version of Python.
