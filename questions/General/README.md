@@ -2651,3 +2651,273 @@ D.__mro__ == (D, B, C, A, object)
 This means that when looking up a method on an instance of the `D` class, the interpreter will first search the `D` class, then the `B` class, then the `C` class, then the `A` class, and finally the object class, which is the base class of all classes in Python.
 
 The MRO is an important concept in Python because it determines the order in which methods are inherited and how conflicts are resolved when a class has multiple inheritance. Understanding how the MRO works is essential to understanding how multiple inheritance works in Python.
+
+## 91- How to distribute Python code?
+
+There are several ways to distribute Python code, depending on the specific needs of your project. Here are a few common options:
+
+1. `Packaging and distributing using setup.py`: One way to distribute Python code is to package it using the `setup.py` script and the `distutils` library. This allows you to create a package that can be installed using the pip package manager. To create a package, you need to define the metadata of your package in the `setup.py` script and use the `setuptools` library to package your code.
+
+2. `Distributing as a package using pip`: If you have already packaged your code using the `setup.py` script, you can use the `pip` package manager to distribute your package. `pip` is the recommended way to install Python packages, and it allows users to easily install your package from the command line.
+
+3. `Distributing as a standalone executable`: If you want to distribute your Python code as a standalone executable that does not require a Python interpreter to be installed, you can use tools like `py2exe` (for Windows) or `py2app` (for Mac) to create an executable file. These tools allow you to package your Python code, along with the Python interpreter and any necessary libraries, into a single executable file that can be run on the target platform.
+
+## 92- How to work with Python transitive dependencies?
+
+Transitive dependencies are dependencies that are required by a package that your code depends on. For example, if your code depends on package `A`, and package `A` depends on package `B`, then package `B` is a transitive dependency of your code.
+
+To work with transitive dependencies in Python, you typically use a package manager like `pip` to install and manage your dependencies. When you install a package using `pip`, it will automatically install any transitive dependencies that the package requires.
+
+For example, suppose you have a Python project that depends on package `A`, which in turn depends on package `B`. To install these dependencies using `pip`, you can use the following command:
+
+```Bash
+pip install A
+```
+
+This will install both package `A` and its transitive dependency, package `B`.
+
+If you want to specify the exact version of a package and its transitive dependencies that you want to install, you can use the `-r` flag to specify a requirements file. A `requirements` file is a text file that lists the packages and their versions that your project depends on. For example:
+
+```Python
+A==1.0
+B==2.0
+```
+
+To install the packages and their transitive dependencies from this requirements file, you can use the following command:
+
+```Bash
+pip install -r requirements.txt
+```
+
+This will install package `A` version **`1.0`** and its transitive dependency, package `B` version **`2.0`**.
+
+Using a package manager like `pip` to manage your transitive dependencies is a good way to ensure that your code has the correct dependencies installed and to keep them up to date. It also makes it easier to share your code with others, as they can use the requirements file to install the correct dependencies for your project.
+
+## 93- What's the output of this code?
+
+```Python
+def Foo(): 
+    yield 42;
+    return 666
+```
+
+The function `Foo` is a generator function, as indicated by the `yield` keyword. When the function is called, it will return a generator object that can be used to execute the code in the function.
+
+The generator object can be iterated over using a `for` loop or other iteration constructs, and each time the generator is iterated, it will execute the code in the function until it encounters the `yield` keyword. When the `yield` keyword is encountered, the value following it (in this case, `42`) is returned to the caller and the generator suspends its execution.
+
+When the generator is iterated again, it will resume execution from the point where it was suspended and continue until it encounters the `return` keyword. When the `return` keyword is encountered, the generator stops execution and raises a `StopIteration` exception to signal that it has finished.
+
+## 94- What's the output of this code?
+
+```Python
+_MangledGlobal__mangled = 23
+
+class MangledGlobal:
+     def test(self):
+         return __mangled
+```
+
+The `MangledGlobal` class contains a reference to a global variable with a name that has been "`mangled`" to avoid name conflicts with other variables in the global namespace.
+
+In Python, name `mangling` is a technique that is used to protect instance variables in a class from being accidentally overwritten by derived classes. Name `mangling` works by adding a double underscore prefix to the name of an instance variable, which causes the interpreter to automatically rename the variable in a way that is unique to the class.
+
+For example, the instance variable `__mangled` in the `MangledGlobal` class would actually be stored as `_MangledGlobal__mangled` in memory, to avoid conflicts with other variables in the global namespace.
+
+To access the `mangled` variable from inside the class, you can use the name `self.__mangled`. From outside the class, you can use the name `_MangledGlobal__mangled`.
+
+Here is an example of how you might use the `MangledGlobal` class:
+
+```Python
+_MangledGlobal__mangled = 23
+
+class MangledGlobal:
+     def test(self):
+         return __mangled
+
+mg = MangledGlobal()
+print(mg.test())  # Output: 23
+print(_MangledGlobal__mangled)  # Output: 23
+```
+
+Note that while name `mangling` is intended to protect instance variables from being overwritten by derived classes, it is not a security feature and should not be relied upon to protect sensitive data. Name `mangling` can be easily bypassed by using the mangled name directly, as shown in the example above.
+
+## 95- How to create a class without a class statement in python?
+
+In Python, you can create a class without using the `class` statement by defining a function and using the `type` function to create a new class.
+
+Here is an example of how you might create a simple class using this technique:
+
+```Python
+def MyClass(object):
+    def __init__(self, value):
+        self.value = value
+
+# Create a new class using the type function
+MyClass = type("MyClass", (object,), {"__init__": __init__})
+
+# Create an instance of the new class
+obj = MyClass(42)
+
+# Access the instance variable
+print(obj.value)  # Output: 42
+```
+
+In this example, the `type` function is used to create a new class called `MyClass`. The `type` function takes three arguments: **the name of the class**, a tuple of **base classes**, and a dictionary containing the **methods and attributes** of the class.
+
+The `__init__` method is defined as a function, and it is passed to the type function as an attribute of the class. When the `MyClass` class is created, the `__init__` method is used as the constructor of the class, and it can be called to initialize new instances of the class.
+
+Using the `type` function to create a class is a powerful technique that allows you to create custom classes at runtime, but it is generally not recommended for most use cases. The `class` statement is a more concise and readable way to define a class, and it is the recommended way to create classes in Python.
+
+## 96- What's the difference between `globals()`, `locals()`, and `vars()`?
+
+In Python, the `globals()`, `locals()`, and `vars()` functions are `built-in` functions that can be used to retrieve the global, local, and instance variables in a program, respectively.
+
+The `globals()` function returns a dictionary that contains the `global` variables in the current program. **Global variables** are variables that are defined at the top level of a module or script and are accessible from anywhere in the program.
+
+The `locals()` function returns a dictionary that contains the local variables in the current function or method. **Local variables** are variables that are defined within a function or method and are only accessible within that function or method.
+
+The `vars()` function returns a dictionary that contains the instance variables of an object. If called without arguments, `vars()` returns the instance variables of the current object. If called with an object as an argument, `vars()` returns the instance variables of the object.
+
+Here is an example of how you might use these functions:
+
+```Python
+x = 10
+y = 20
+
+def my_function():
+    z = 30
+    print(f"globals: {globals()}")
+    print(f"locals: {locals()}")
+    print(f"vars(globals()): {vars(globals())}")
+    print(f"vars(): {vars()}")
+
+my_function()
+```
+
+The output of this code would be:
+
+```Python
+globals: {'__name__': '__main__', '__doc__': None, '__package__': None, '__loader__': <class '_frozen_importlib.BuiltinImporter'>, '__spec__': None, '__annotations__': {}, '__builtins__': <module 'builtins' (built-in)>, 'x': 10, 'y': 20, 'my_function': <function my_function at 0x10fdf8b70>}
+locals: {'z': 30}
+vars(globals()): {'__name__': '__main__', '__doc__': None, '__package__': None, '__loader__': <class '_frozen_importlib.BuiltinImporter'>, '__spec__': None, '__annotations__': {}, '__builtins__': <module 'builtins' (built-in)>, 'x': 10, 'y': 20, 'my_function': <function my_function at 0x10fdf8b70>}
+vars(): {'z': 30}
+```
+
+## 97- What is the `__init__.py` module? What it's for?
+
+The `__init__.py` file is used to mark directories on disk as Python package directories. It is required for Python to treat the directories as containing packages; otherwise, the directories are just treated as directories and are not searched for modules.
+
+The `__init__.py` file can contain code that initializes the package or sets up any additional functionality that the package provides. It is executed when the package is imported.
+
+For example, consider the following directory structure:
+
+```Python
+my_package/
+    __init__.py
+    module1.py
+    module2.py
+    subpackage/
+        __init__.py
+        submodule1.py
+```
+
+To import `module1` from the `my_package` package, you would use the following import statement:
+
+```Python
+import my_package.module1
+```
+
+When this `import` statement is executed, Python will execute the code in `my_package/__init__.py` before it loads `module1`.
+
+The `__init__.py` file can be an empty file, but it must be present for Python to treat the directory as a package.
+
+## 98- How do I view object methods?
+
+To view the methods of an object in Python, you can use the `dir()` function. This function returns a `list` of all the attributes and methods of an object, including special attributes like `__dict__` and `__doc__`.
+
+For example, consider the following object:
+
+```Python
+class MyClass:
+    def __init__(self):
+        self.x = 10
+    
+    def my_method(self):
+        pass
+```
+
+To view the methods of this object, you could do the following:
+
+```Python
+obj = MyClass()
+methods = dir(obj)
+print(methods)
+```
+
+This would output the following list:
+
+```Bash
+['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', 
+'__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'my_method', 'x']
+```
+
+You can then filter this list to only include methods by using a list comprehension:
+
+```Python
+obj_methods = [m for m in methods if callable(getattr(obj, m))]
+print(obj_methods)
+```
+
+This would output the following list:
+
+```Python
+['my_method']
+```
+
+## 99- Which is a better practice - global import or local import in python
+
+Local imports are generally considered to be better practice than global imports in Python for a few reasons:
+
+1. Local imports make it clear which functions depend on specific libraries, which can make the code easier to understand and maintain.
+2. Local imports reduce the risk of conflicts between libraries. For example, if two different libraries define a function with the same name, using a local import for one of the libraries will prevent the conflict.
+3. Local imports can potentially reduce the memory footprint of a program by only loading libraries into memory when they are needed.
+
+That being said, global imports do have some benefits as well. For example, global imports may be slightly more efficient because the imported libraries are only loaded into memory once, regardless of how many functions use them. However, this difference in efficiency is usually minimal and is generally not a significant concern.
+
+In general, it is recommended to use local imports whenever possible, and only use global imports when necessary.
+
+## 100- what is tilde symbol `(~)` used for in Python?
+
+In a `requirements` file for Python packages, the tilde symbol `(~)` is used to specify a version constraint. For example, if a package `foo` requires version `bar` equal to or greater than `1.2.3` but less than `1.3.0`, the constraint could be specified as `foo~=1.2.3`.
+
+This syntax is used to specify a minimum version of the package, as well as allowing for updates that might be made to the package that are compatible with the project's requirements. It allows for patch-level updates (e.g. `1.2.3` to `1.2.4`) but not for updates that might introduce backwards-incompatible changes (e.g. `1.2.3` to `1.3.0`).
+
+For example, a `requirements` file might contain the following line:
+
+```Python
+foo~=1.2.3
+```
+
+This would install the latest version of `foo` that is equal to or greater than `1.2.3` and less than `1.3.0`.
+
+Also, the tilde symbol `(~)` is a bitwise `NOT` operator. It operates on an integer operand and inverts all of its bits. For example:
+
+```Python
+>>> x = 0b1100
+>>> y = ~x
+>>> y
+-0b1101
+```
+
+In this example, the value of `x` is `12` (`1100` in binary), and the value of `y` is `-13` (`-1101` in binary).
+
+The tilde symbol is also sometimes used in combination with other operators. For example, the `~` symbol can be used with the `*` operator to unpack a list or tuple into separate arguments:
+
+```Python
+>>> def foo(a, b, c):
+...     print(a, b, c)
+...
+>>> lst = [1, 2, 3]
+>>> foo(*lst)
+1 2 3
+```
