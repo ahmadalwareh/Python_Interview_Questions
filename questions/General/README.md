@@ -1,4 +1,4 @@
-# Python Interview Questions
+# 100 Python Interview Questions
 
 ## 1- Python uses a Global Interpreter Lock. Does that mean it doesn’t use real threads?
 
