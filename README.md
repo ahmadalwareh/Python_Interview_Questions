@@ -1,12 +1,12 @@
 # Python Interview Questions
 
-## This repository contains questions and thier answers on different levels: (Junior, Mid-level, and Senior)
+## This repository contains questions and answers on different levels: (Junior, Mid-level, and Senior)
 
 Questions covers most important topics in `Python`:
 
-1. Automation and Scripting
-2. Software developemnt and optimization
-3. Backend development
+1. [Automation and Scripting](https://github.com/ahmadalwareh/Python_Interview_Questions/blob/main/questions/Automation/README.md)
+2. [Software developemnt and optimization](https://github.com/ahmadalwareh/Python_Interview_Questions/blob/main/questions/General/README.md)
+3. [Backend development](https://github.com/ahmadalwareh/Python_Interview_Questions/blob/main/questions/Backend/README.md)
 
 ## Contribution
 
