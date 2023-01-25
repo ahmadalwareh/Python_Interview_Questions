@@ -15,3 +15,50 @@
 6. **Flask-RESTful**: A simple but flexible extension for Flask that makes it easy to handle RESTful API requests.
 
 7. **Sanic**: A Flask like Python 3.5+ web server that's written to go fast. It allows the usage of the async/await syntax added in Python 3.5, which makes your code non-blocking and speedy.
+
+## 2- Write an API using Django REST
+
+```Python
+# myapp/models.py
+from django.db import models
+
+class Book(models.Model):
+    title = models.CharField(max_length=255)
+    author = models.CharField(max_length=255)
+    published_date = models.DateField()
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+
+# myapp/serializers.py
+from rest_framework import serializers
+from .models import Book
+
+class BookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ('id', 'title', 'author', 'published_date', 'price')
+
+# myapp/views.py
+from rest_framework import viewsets
+from .models import Book
+from .serializers import BookSerializer
+
+class BookViewSet(viewsets.ModelViewSet):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+# myapp/urls.py
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import BookViewSet
+
+router = DefaultRouter()
+router.register(r'books', BookViewSet)
+
+urlpatterns = [
+    path('', include(router.urls)),
+]
+```
+
+This example defines a simple `Book` model with fields for (`title, author, published date, and price`). The `BookSerializer` class is used to convert the `Book` model into a format that can be returned by the API. The `BookViewSet` class is a view that handles the logic for creating, reading, updating, and deleting books. The URL routing is handled by the `DefaultRouter` class, which automatically generates the appropriate URLs for the API based on the views and models.
+
+You can now run the development server and access the API endpoints at `http://localhost:8000/books/`. The API will support `GET, POST, PUT and DELETE` methods and you can use them to list, create, update, and delete books respectively.
