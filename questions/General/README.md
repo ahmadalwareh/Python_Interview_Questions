@@ -53,7 +53,7 @@ In Python, functions are considered first-class objects because they have the sa
 2. Passed as arguments to functions
 3. Returned as values from functions
 4. Defined inside other functions  
-    The ability to treat functions as first-class objects is a powerful feature of Python that enables several useful programming patterns, such as higher-order functions, decorators, and functional programming.
+   The ability to treat functions as first-class objects is a powerful feature of Python that enables several useful programming patterns, such as higher-order functions, decorators, and functional programming.
 
 For example, consider the following code:
 
@@ -412,30 +412,30 @@ To create an abstract class in Python, you need to do the following:
 1. Import the abc module.
 2. Create a class that derives from abc.ABC.
 3. Declare one or more abstract methods using the `@abc.abstractmethod` decorator.
-    Here is an example of an abstract class in Python:
+   Here is an example of an abstract class in Python:
 
-    ```Python
-    import abc
+   ```Python
+   import abc
 
-    class Animal(abc.ABC):
-        @abc.abstractmethod
-        def make_sound(self):
-            pass
+   class Animal(abc.ABC):
+       @abc.abstractmethod
+       def make_sound(self):
+           pass
 
-    class Dog(Animal):
-        def make_sound(self):
-            print("Woof!")
+   class Dog(Animal):
+       def make_sound(self):
+           print("Woof!")
 
-    class Cat(Animal):
-        def make_sound(self):
-            print("Meow!")
+   class Cat(Animal):
+       def make_sound(self):
+           print("Meow!")
 
-    dog = Dog()
-    dog.make_sound()  # Output: "Woof!"
+   dog = Dog()
+   dog.make_sound()  # Output: "Woof!"
 
-    cat = Cat()
-    cat.make_sound()  # Output: "Meow!"
-    ```
+   cat = Cat()
+   cat.make_sound()  # Output: "Meow!"
+   ```
 
 In this example, the `Animal` class is an abstract class because it has an abstract method called `make_sound()`. The `Dog` and `Cat` classes are concrete classes because they provide an implementation for the `make_sound()` method. The `dog` and `cat` objects are instances of the `Dog` and `Cat` classes, respectively, and they can be used to call the `make_sound()` method.
 
@@ -2285,7 +2285,7 @@ Here's an example of how you might use `__slots__` in a Python class:
 ```Python
 class Point:
     __slots__ = ['x', 'y']
-    
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -2313,7 +2313,7 @@ class Color:
         self.r = r
         self.g = g
         self.b = b
-    
+
     def __contains__(self, value):
         return value in (self.r, self.g, self.b)
 
@@ -2334,37 +2334,37 @@ Here are a few examples of callables in Python:
 
 - Functions:
 
-    ```Python
-    def greet(name):
-    print(f"Hello, {name}!")
+  ```Python
+  def greet(name):
+  print(f"Hello, {name}!")
 
-    greet("Alice")  # prints "Hello, Alice!"
-    ```
+  greet("Alice")  # prints "Hello, Alice!"
+  ```
 
 - Methods:
 
-    ```Python
-    class Greeter:
-    def __init__(self, name):
-        self.name = name
-    
-    def greet(self):
-        print(f"Hello, {self.name}!")
+  ```Python
+  class Greeter:
+  def __init__(self, name):
+      self.name = name
 
-    g = Greeter("Bob")
-    g.greet()  # prints "Hello, Bob!"
-    ```
+  def greet(self):
+      print(f"Hello, {self.name}!")
+
+  g = Greeter("Bob")
+  g.greet()  # prints "Hello, Bob!"
+  ```
 
 - Objects with the `__call__` method:
 
-    ```Python
-    class CallableClass:
-        def __call__(self, *args, **kwargs):
-            print("Called with arguments:", args, kwargs)
+  ```Python
+  class CallableClass:
+      def __call__(self, *args, **kwargs):
+          print("Called with arguments:", args, kwargs)
 
-    cc = CallableClass()
-    cc(1, 2, 3, a=4, b=5)  # prints "Called with arguments: (1, 2, 3) {'a': 4, 'b': 5}"
-    ```
+  cc = CallableClass()
+  cc(1, 2, 3, a=4, b=5)  # prints "Called with arguments: (1, 2, 3) {'a': 4, 'b': 5}"
+  ```
 
 You can check if an object is callable using the `callable()` built-in function:
 
@@ -2384,9 +2384,9 @@ print(callable(1))  # prints False
 
 ## 80- What is introspection/reflection and does Python support it?
 
-Introspection is the ability to examine an object at runtime. Python has a `dir()` function that supports examining the attributes of an object, `type()` to check the object type, `isinstance()`, etc. While introspection is passive examination of the objects, reflection is a more powerful tool where we could modify objects at runtime and access them dynamically. E.g.  
+Introspection is the ability to examine an object at runtime. Python has a `dir()` function that supports examining the attributes of an object, `type()` to check the object type, `isinstance()`, etc. While introspection is passive examination of the objects, reflection is a more powerful tool where we could modify objects at runtime and access them dynamically. E.g.
 
-- `setattr()` adds or modifies an object's attribute;  
+- `setattr()` adds or modifies an object's attribute;
 - `getattr()` gets the value of an attribute of an object.
 
 It can even invoke functions dynamically - `getattr(my_obj, "my_func_name")()`
@@ -2458,29 +2458,29 @@ Here are three ways to reverse a list in Python:
 
 1. Using the `reverse()` method:
 
-    ```Python
-    lst = [1, 2, 3, 4, 5]
-    lst.reverse()
-    print(lst)  # Output: [5, 4, 3, 2, 1]
-    ```
+   ```Python
+   lst = [1, 2, 3, 4, 5]
+   lst.reverse()
+   print(lst)  # Output: [5, 4, 3, 2, 1]
+   ```
 
 2. Using slicing with a step of -1:
 
-    ```Python
-    lst = [1, 2, 3, 4, 5]
-    lst = lst[::-1]
-    print(lst)  # Output: [5, 4, 3, 2, 1]
-    ```
+   ```Python
+   lst = [1, 2, 3, 4, 5]
+   lst = lst[::-1]
+   print(lst)  # Output: [5, 4, 3, 2, 1]
+   ```
 
 3. Using a `for` loop:
 
-    ```Python
-    lst = [1, 2, 3, 4, 5]
-    reversed_lst = []
-    for i in range(len(lst)-1, -1, -1):
-        reversed_lst.append(lst[i])
-    print(reversed_lst)  # Output: [5, 4, 3, 2, 1]
-    ```
+   ```Python
+   lst = [1, 2, 3, 4, 5]
+   reversed_lst = []
+   for i in range(len(lst)-1, -1, -1):
+       reversed_lst.append(lst[i])
+   print(reversed_lst)  # Output: [5, 4, 3, 2, 1]
+   ```
 
 All three of these methods produce the same output: a new list that is the reverse of the original list. The first method modifies the list in place, while the second and third methods create a new list.
 
@@ -2696,7 +2696,7 @@ Using a package manager like `pip` to manage your transitive dependencies is a g
 ## 93- What's the output of this code?
 
 ```Python
-def Foo(): 
+def Foo():
     yield 42;
     return 666
 ```
@@ -2741,32 +2741,48 @@ print(_MangledGlobal__mangled)  # Output: 23
 
 Note that while name `mangling` is intended to protect instance variables from being overwritten by derived classes, it is not a security feature and should not be relied upon to protect sensitive data. Name `mangling` can be easily bypassed by using the mangled name directly, as shown in the example above.
 
-## 95- How to create a class without a class statement in python?
+## 95- What is packing and unpacking in python?
 
-In Python, you can create a class without using the `class` statement by defining a function and using the `type` function to create a new class.
+In Python, packing and unpacking refer to two related concepts involving the conversion of data between different structures.
 
-Here is an example of how you might create a simple class using this technique:
+Packing refers to the process of taking multiple values or items and combining them into a single data structure. This is often done using tuples, which are a type of immutable data structure in Python. For example, we can create a tuple that contains three elements like this:
 
 ```Python
-def MyClass(object):
-    def __init__(self, value):
-        self.value = value
-
-# Create a new class using the type function
-MyClass = type("MyClass", (object,), {"__init__": __init__})
-
-# Create an instance of the new class
-obj = MyClass(42)
-
-# Access the instance variable
-print(obj.value)  # Output: 42
+my_tuple = (1, "hello", True)
 ```
 
-In this example, the `type` function is used to create a new class called `MyClass`. The `type` function takes three arguments: **the name of the class**, a tuple of **base classes**, and a dictionary containing the **methods and attributes** of the class.
+Unpacking, on the other hand, refers to the process of taking a data structure and splitting it into multiple values or items. This is often done using tuples, lists, or dictionaries. For example, we can unpack a tuple into multiple variables like this:
 
-The `__init__` method is defined as a function, and it is passed to the type function as an attribute of the class. When the `MyClass` class is created, the `__init__` method is used as the constructor of the class, and it can be called to initialize new instances of the class.
+```Python
+my_tuple = (1, "hello", True)
+a, b, c = my_tuple
+```
 
-Using the `type` function to create a class is a powerful technique that allows you to create custom classes at runtime, but it is generally not recommended for most use cases. The `class` statement is a more concise and readable way to define a class, and it is the recommended way to create classes in Python.
+Also, the asterisk (\*) symbol can be used in unpacking expressions to represent a variable number of elements. This is sometimes referred to as "extended unpacking".
+
+The asterisk can be used in several ways:
+
+1. Unpacking into individual variables: If you have a list or tuple with an unknown number of elements, you can use the asterisk to unpack the elements into individual variables. For example:
+
+```Python
+my_list = [1, 2, 3, 4, 5]
+a, b, *rest = my_list
+print(a) # 1
+print(b) # 2
+print(rest) # [3, 4, 5]
+```
+
+2. Unpacking in function calls: The asterisk can also be used to unpack arguments in function calls. For example:
+
+```Python
+def my_function(a, b, c):
+    print(a, b, c)
+
+my_list = [1, 2, 3]
+my_function(*my_list)
+```
+
+this example, the elements of `my_list` are unpacked and passed as arguments to the function `my_function`.
 
 ## 96- What's the difference between `globals()`, `locals()`, and `vars()`?
 
@@ -2841,7 +2857,7 @@ For example, consider the following object:
 class MyClass:
     def __init__(self):
         self.x = 10
-    
+
     def my_method(self):
         pass
 ```
@@ -2857,7 +2873,7 @@ print(methods)
 This would output the following list:
 
 ```Bash
-['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', 
+['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__',
 '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'my_method', 'x']
 ```
 
