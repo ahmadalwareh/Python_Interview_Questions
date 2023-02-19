@@ -745,7 +745,7 @@ In this example, the `MyClass` class defines the `__init__`, `__add__`, and `__s
 
 For more information about dunder methods and how they are used in Python, you can refer to the documentation.
 
-## 30- What does `super` do in Python? - difference between `super().__init__()` and explicit `superclass.__init__()`
+## 30- What does `super` do in Python? and what is the difference between `super().__init__()` and explicit `superclass.__init__()`
 
 In Python, `super` is a special function that refers to the parent class. It is used to access methods and properties of the parent class from within a child class.
 
@@ -2693,7 +2693,7 @@ This will install package `A` version **`1.0`** and its transitive dependency, p
 
 Using a package manager like `pip` to manage your transitive dependencies is a good way to ensure that your code has the correct dependencies installed and to keep them up to date. It also makes it easier to share your code with others, as they can use the requirements file to install the correct dependencies for your project.
 
-## 93- What's the output of this code?
+## 93- What is the output of this code?
 
 ```Python
 def Foo():
@@ -2707,7 +2707,7 @@ The generator object can be iterated over using a `for` loop or other iteration 
 
 When the generator is iterated again, it will resume execution from the point where it was suspended and continue until it encounters the `return` keyword. When the `return` keyword is encountered, the generator stops execution and raises a `StopIteration` exception to signal that it has finished.
 
-## 94- What's the output of this code?
+## 94- What is the output of this code?
 
 ```Python
 _MangledGlobal__mangled = 23
@@ -2764,23 +2764,23 @@ The asterisk can be used in several ways:
 
 1. Unpacking into individual variables: If you have a list or tuple with an unknown number of elements, you can use the asterisk to unpack the elements into individual variables. For example:
 
-```Python
-my_list = [1, 2, 3, 4, 5]
-a, b, *rest = my_list
-print(a) # 1
-print(b) # 2
-print(rest) # [3, 4, 5]
-```
+   ```Python
+   my_list = [1, 2, 3, 4, 5]
+   a, b, *rest = my_list
+   print(a) # 1
+   print(b) # 2
+   print(rest) # [3, 4, 5]
+   ```
 
 2. Unpacking in function calls: The asterisk can also be used to unpack arguments in function calls. For example:
 
-```Python
-def my_function(a, b, c):
-    print(a, b, c)
+   ```Python
+   def my_function(a, b, c):
+       print(a, b, c)
 
-my_list = [1, 2, 3]
-my_function(*my_list)
-```
+   my_list = [1, 2, 3]
+   my_function(*my_list)
+   ```
 
 this example, the elements of `my_list` are unpacked and passed as arguments to the function `my_function`.
 
