@@ -1,4 +1,4 @@
-# 100 Python Interview Questions
+# 100+ Python Interview Questions
 
 ## 1- Python uses a Global Interpreter Lock. Does that mean it doesn’t use real threads?
 
@@ -2937,3 +2937,38 @@ The tilde symbol is also sometimes used in combination with other operators. For
 >>> foo(*lst)
 1 2 3
 ```
+
+## 101- What is the difference between `__str__` and `__repr__`?
+
+Both `__str__` and `__repr__` are special methods in Python that can be used to represent objects as strings. However, there are some differences between them:
+
+1. `__str__` is used to return a human-readable string representation of an object. It is intended to be used for display purposes, such as printing the object to the console or displaying it in a GUI. `__str__` should be easy to read and understand for humans, and it should not contain unnecessary technical details.
+
+2. `__repr__` is used to return an unambiguous string representation of an object. It is intended to be used for debugging purposes, such as inspecting the object's state or reproducing the object in code. `__repr__` should be a valid Python expression that can be used to recreate the object, and it should contain all the relevant technical details about the object.
+
+In summary, `__str__` is used for display purposes and should be easy to read, while `__repr__` is used for debugging purposes and should contain all the relevant technical details. You can define both methods in your classes, and if only one of them is defined, the other will fall back to it.
+
+## 102- What is `lru_cache` decorator in Python?
+
+`lru_cache` is a decorator provided by the Python Standard Library's functools module that is used to cache the results of a function. It stands for "Least Recently Used Cache" and is a technique that can be used to speed up the execution of a function by caching its results.
+
+The `lru_cache` decorator works by storing the results of the function in a cache dictionary. If the same set of arguments is passed to the function again, the cached result is returned instead of executing the function again. This can be useful when the function takes a long time to execute, or when the same set of arguments are used repeatedly.
+
+The `lru_cache` decorator has several optional arguments, such as `maxsize` which determines the maximum number of results to cache, and `typed` which determines whether to treat arguments of different types separately. By default, the `lru_cache` decorator uses a maximum cache size of `128`.
+
+Here's an example of how to use the `lru_cache` decorator in Python:
+
+```Python
+from functools import lru_cache
+
+@lru_cache
+def fibonacci(n):
+    if n < 2:
+        return n
+    else:
+        return fibonacci(n-1) + fibonacci(n-2)
+
+print(fibonacci(30))
+```
+
+In this example, the `fibonacci` function is decorated with `lru_cache`, which caches the results of the function. When the function is called with the argument `30`, it returns the result of the computation without having to recompute it, since it was already cached.
