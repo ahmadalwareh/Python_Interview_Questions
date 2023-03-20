@@ -2972,3 +2972,76 @@ print(fibonacci(30))
 ```
 
 In this example, the `fibonacci` function is decorated with `lru_cache`, which caches the results of the function. When the function is called with the argument `30`, it returns the result of the computation without having to recompute it, since it was already cached.
+
+## 103- What does `__all__` do?
+
+In Python, `__all__` is a special variable that can be defined at the top of a module, which is a list of strings that defines what symbols (e.g., functions, classes, and variables) the module exports when other modules import it using the `from module import *` syntax.
+
+When a module is imported using the `from module import *` syntax, Python only imports the names listed in the module's `__all__` list (if it is defined). If `__all__` is not defined, Python will import all names that do not start with an underscore (_).
+
+Defining `__all__` can be useful for controlling the public interface of a module, especially for large modules with many symbols. By specifying a list of only the public symbols, the module author can prevent accidental imports of internal or private symbols, which can reduce naming conflicts and make the code easier to understand.
+
+Here's an example of how `__all__` can be used:
+
+```Python
+# my_module.py
+
+def foo():
+    pass
+
+def _bar():
+    pass
+
+__all__ = ['foo']
+```
+
+In this example, `my_module` defines two functions foo and `_bar`. `_bar` is intended to be used only within the module and is not meant to be part of the module's public API. By setting `__all__` to `['foo']`, we tell Python to only export the foo function when other modules import `my_module` using the `from my_module import *` syntax.
+
+## 104- List some of dunder methods?
+
+1. `__init__`: Constructor method, called when an object is created
+2. `__repr__`: Method that returns a printable representation of an object
+3. `__str__`: Method that returns a string representation of an object
+4. `__len__`: Method that returns the length of an object
+5. `__getitem__`: Method that allows you to access an item in an object using the square bracket notation (`[]`)
+6. `__setitem__`: Method that allows you to set an item in an object using the square bracket notation (`[]`)
+7. `__delitem__`: Method that allows you to delete an item from an object using the square bracket notation (`[]`)
+8. `__iter__`: Method that returns an iterator for an object
+9. `__next__`: Method that returns the next value from an iterator
+10. `__call__`: Method that allows you to call an object as if it were a function
+11. `__getattr__`: Method that is called when an attribute is not found in an object
+12. `__setattr__`: Method that is called when an attribute is set in an object
+13. `__delattr__`: Method that is called when an attribute is deleted from an object
+14. `__enter__`: Method that is called when a context manager is entered
+15. `__exit__`: Method that is called when a context manager is exited
+16. `__hash__`: Method that returns a hash value for an object
+17. `__bool__`: Method that defines the boolean value of an object
+18. `__format__`: Method that returns a formatted string representation of an object
+
+## 105- List some of dunder methods used in Mathematical operations?
+
+- `__add__`: Method that defines the behavior of the + operator
+- `__sub__`: Method that defines the behavior of the - operator
+- `__mul__`: Method that defines the behavior of the * operator
+- `__div__`: Method that defines the behavior of the / operator
+- `__mod__`: Method that defines the behavior of the % operator
+- `__eq__`: Method that defines the behavior of the == operator
+- `__ne__`: Method that defines the behavior of the != operator
+- `__lt__`: Method that defines the behavior of the < operator
+- `__le__`: Method that defines the behavior of the <= operator
+- `__gt__`: Method that defines the behavior of the > operator
+- `__ge__`: Method that defines the behavior of the >= operator
+
+## 105- List some of Dunder variables?
+
+- `__name__`: The name of the current module
+- `__file__`: The path to the file that the module was loaded from
+- `__doc__`: The docstring for the module, function, class, or method
+- `__annotations__`: A dictionary containing type annotations for the module, function, class, or method
+- `__package__`: The name of the package that the module belongs to
+- `__loader__`: The loader that loaded the module
+- `__spec__`: The specification of the module
+- `__path__`: The path to the package that the module belongs to (if it is a package)
+- `__builtins__`: A dictionary containing the built-in names
+- `__all__`: A list of strings containing the names of the symbols that should be exported when using the `from module import *` syntax
+- `__dict__`: A dictionary or other mapping object used to store an object’s  attributes.
