@@ -174,7 +174,7 @@ even_numbers = [x for x in numbers if x % 2 == 0]
 
 This would create a new list `even_numbers` containing only the even numbers from the original list `numbers`.
 
-A dictionary comprehension is similar to a list comprehension, but it creates a new dictionary instead of a list. It consists of a dictionary key expression followed by a `for` clause, then zero or more `for` or `if` clauses. The result is a new dictionary that is computed by evaluating the key and value expressions in the context of the `for` and `if` clauses.
+A dictionary comprehension is similar to list comprehension, but it creates a new dictionary instead of a list. It consists of a dictionary key expression followed by a `for` clause, then zero or more `for` or `if` clauses. The result is a new dictionary that is computed by evaluating the key and value expressions in the context of the `for` and `if` clauses.
 
 For example, suppose we have a list of strings and we want to create a new dictionary that maps each string to its length. We could do this using a dictionary comprehension as follows:
 
@@ -266,9 +266,9 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
        print(key, value)
    ```
 
-5. _Unicode support_: In Python 2.x, Unicode support is not fully integrated, and the unicode and str types are separate. In Python 3.x, Unicode is fully integrated, and the str type is used for Unicode strings.
+5. _Unicode support_: In Python 2.x, Unicode support is not fully integrated, and the Unicode and str types are separate. In Python 3.x, Unicode is fully integrated, and the str type is used for Unicode strings.
 
-## 11- How is memory managed in python?
+## 11- How is memory managed in Python?
 
 In Python, memory management is handled by the Python interpreter itself. When a Python program runs, the interpreter creates and manages a number of objects in memory to store the data used by the program. The interpreter also tracks the objects that are no longer being used and reclaims their memory, a process known as garbage collection.
 
@@ -346,7 +346,7 @@ A static method is a method that is bound to a class and not the instance of the
 
 Here's an example of how to define and use class methods and static methods in Python:
 
-```pthon
+```Python
 class MyClass:
     def __init__(self, value):
         self.value = value
