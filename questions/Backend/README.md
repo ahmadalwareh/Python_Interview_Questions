@@ -62,3 +62,33 @@ urlpatterns = [
 This example defines a simple `Book` model with fields for (`title, author, published date, and price`). The `BookSerializer` class is used to convert the `Book` model into a format that can be returned by the API. The `BookViewSet` class is a view that handles the logic for creating, reading, updating, and deleting books. The URL routing is handled by the `DefaultRouter` class, which automatically generates the appropriate URLs for the API based on the views and models.
 
 You can now run the development server and access the API endpoints at `http://localhost:8000/books/`. The API will support `GET, POST, PUT and DELETE` methods and you can use them to list, create, update, and delete books respectively.
+
+## 3- What are the differences between Django Framework and Django REST Framework?
+
+Django Framework and Django REST Framework are both web frameworks built on top of the Python programming language. However, they have different purposes and use different approaches to building web applications. **Django Framework** is a general-purpose web framework that can be used to build any type of web application.  
+**Django REST Framework** is a framework specifically designed for building RESTful APIs. It provides a number of features that make it easy to build APIs that follow the REST architectural style.
+
+A code sample using Django Framework:
+
+```Python
+from django.core.serializers import serialize
+from django.http import HttpResponse
+
+
+class SerializedListView(View):
+    def get(self, request, *args, **kwargs):
+        qs = MyObj.objects.all()
+        json_data = serialize("json", qs, fields=('my_field', 'my_other_field'))
+        return HttpResponse(json_data, content_type='application/json')
+```
+
+A code sample using Django REST Framework:
+
+```Python
+from rest_framework import generics
+
+
+class MyObjListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = MyObjSerializer
+```
