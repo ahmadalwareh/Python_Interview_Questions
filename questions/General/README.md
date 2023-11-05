@@ -1,18 +1,18 @@
 # 100+ Python Interview Questions
 
-## 1- Python uses a Global Interpreter Lock. Does that mean it doesn’t use real threads?
+## 1- Python uses a Global Interpreter Lock. Does that mean it doesn’t use actual threads?
 
 No, Python uses actual threads, but the Global Interpreter Lock (GIL) is a mechanism that prevents multiple native threads from executing Python bytecodes at once. This lock is necessary because CPython, the reference implementation of Python, is not thread-safe, meaning that multiple threads can potentially interfere with each other and compromise the integrity of an application.
 
-The GIL makes it easy to write simple, thread-safe Python programs. Still, it can also limit the performance of multithreaded programs, especially ones that rely heavily on CPU-bound operations. In these cases, Python's threading module may not provide the level of parallelism that you need. In such cases, you may consider using an alternative implementation of Python that does not have a GIL, such as PyPy or Jython, or using a different parallel approach, such as the multiprocessing module or using subprocesses.
+The GIL makes it easy to write simple, thread-safe Python programs. Still, it can also limit the performance of multithreaded programs, especially ones that rely heavily on CPU-bound operations. In these cases, Python's threading module may need to provide a different level of parallelism. In such cases, consider using an alternative implementation of Python that does not have a GIL, such as PyPy or Jython, or using a different parallel approach, such as the multiprocessing module or subprocesses.
 
-## 2- Is it possible to have a producer thread reading from the network and a consumer thread writing to a file, really work in parallel? What about the GIL?
+## 2- Is it possible to have a producer thread reading from the network and a consumer thread writing to a file work in parallel? What about the GIL?
 
-Yes, it is possible to have a producer thread that reads from the network and a consumer thread that writes to a file work in parallel in Python, even with the GIL in place. This is because the GIL only prevents multiple native threads from executing Python bytecodes at once. It does not prevent threads from performing other operations, such as waiting for data to be available on a network socket or waiting for a file to be written to disk.
+Yes, it is possible to have a producer thread that reads from the network and a consumer thread that writes to a file work in parallel in Python, even with the GIL in place. The GIL prevents multiple native threads from executing Python bytecodes simultaneously. It does not prevent threads from performing other operations, such as waiting for data to be available on a network socket or for a file to be written to disk.
 
-In the case of a producer thread reading from the network and a consumer thread writing to a file, the producer thread can block a network read operation, allowing the consumer thread to run in the meantime. Similarly, the consumer thread can block a file write operation, allowing the producer thread to run. In this way, the two threads can effectively work in parallel, even though only one native thread is executing Python bytecodes at a time due to the GIL.
+With a producer thread reading from the network and a consumer thread writing to a file, the producer thread can block a network read operation, allowing the consumer thread to run. Similarly, the consumer thread can block a file write operation, allowing the producer thread to run. In this way, the two threads can effectively work in parallel, even though only one native thread executes Python bytecodes at a time due to the GIL.
 
-It is important to note that the GIL can still limit the overall performance of a program that uses multiple threads, especially if the threads are CPU-bound. In such cases, you may want to consider using an alternative implementation of Python that does not have a GIL or using a different approach to parallelism, such as the multiprocessing module or using subprocesses.
+It is important to note that the GIL can still limit the overall performance of a program that uses multiple threads, especially if the threads are CPU-bound. In such cases, consider using an alternative implementation of Python that does not have a GIL or using a different approach to parallelism, such as the multiprocessing module or using subprocesses.
 
 ## 3- What will be the output of the following code in each step?
 
@@ -35,17 +35,17 @@ _The output:_
 
 In this code, `C` is a class that defines a class attribute called `dangerous`. A class attribute is a variable that is shared by all instances of the class.
 
-We create two instances of the `C` class, `c1` and `c2`, and print the value of the `dangerous` attribute for each instance. Since the dangerous attribute is a class attribute, it has the same value for both `c1` and `c2`.
+We create two instances of the `C` class, `c1` and `c2`, and print the value of the `dangerous` attribute for each instance. Since the dangerous attribute is a class attribute, it has the same value for `c1` and `c2`.
 
-Next, we set the value of the `dangerous` attribute for `c1` to **`3`**. This creates an instance attribute for `c1` that shadows the class attribute of the same name. An instance attribute is a variable that is specific to a particular instance of a class, and it takes precedence over any class attribute of the same name.
+Next, we set the value of the `dangerous` attribute for `c1` to **`3`**. This creates an instance attribute for `c1` that shadows the class attribute of the same name. An instance attribute is a variable specific to a particular instance of a class, and it takes precedence over any class attribute of the same name.
 
-We then print the value of the dangerous attribute for `c1` and `c2`. The value for `c1` is **`3`**, because it now has an instance attribute of that name, while the value for `c2` is still **`2`**, because it only has the class attribute of that name.
+We then print the value of the dangerous attribute for `c1` and `c2`. The value for `c1` is **`3`** because it now has an instance attribute of that name, while the value for `c2` is still **`2`** because it only has the class attribute of that name.
 
 Next, we delete the instance attribute for `c1` using the del statement. This removes the instance attribute, revealing the underlying class attribute of the same name.
 
-Finally, we set the value of the dangerous class attribute to **`3`**. This changes the value of the class attribute for all instances of the class, including `c2`. When we print the value of the dangerous attribute for `c2`, it is now **`3`**.
+Finally, we set the value of the dangerous class attribute to **`3`**. This changes the value of the class attribute for all class instances, including `c2`. When we print the value of the dangerous attribute for `c2`, it is now **`3`**.
 
-## 4- Why are functions considered first class objects in Python?
+## 4- Why are functions considered first-class objects in Python?
 
 In Python, functions are considered first-class objects because they have the same properties as other objects in the language. Specifically, this means that functions can be:
 
@@ -53,7 +53,7 @@ In Python, functions are considered first-class objects because they have the sa
 2. Passed as arguments to functions
 3. Returned as values from functions
 4. Defined inside other functions  
-   The ability to treat functions as first-class objects is a powerful feature of Python that enables several useful programming patterns, such as higher-order functions, decorators, and functional programming.
+   The ability to treat functions as first-class objects is a powerful feature of Python that enables several functional programming patterns, such as higher-order functions, decorators, and functional programming.
 
 For example, consider the following code:
 
@@ -65,7 +65,7 @@ greeting = greet
 print(greeting("John"))  # prints "Hello, John"
 ```
 
-In this code, we define a function called `greet` that takes a single argument and returns a string. We then assign the function to a variable called `greeting`, and call the `greeting` function just like we would call the `greet` function. This demonstrates how a function can be treated as a first-class object and assigned to a variable.
+In this code, we define a function called `greet` that takes a single argument and returns a string. We then assign the function to a variable called `greeting` and call the `greeting` function just like we would call the `greet` function. This demonstrates how a function can be treated as a first-class object and assigned to a variable.
 
 As another example, consider the following code:
 
@@ -81,9 +81,9 @@ print(apply_twice(add_two, 10))  # prints 14
 
 In this code, we define a function called `apply_twice` that takes another function as an argument and applies it twice to a given argument. We then define a function called `add_two` that adds two to its argument. We pass the `add_two` function to `apply_twice` as an argument, and it is used to increment the value of `10` by two twice, resulting in a final value of `14`. This demonstrates how a function can be passed as an argument to another function.
 
-## 5- Do arguments in Python get passed by reference or by value?
+## 5- Do arguments in Python get passed by reference or value?
 
-In Python, arguments are passed by assignment. This means that when you pass an object to a function as an argument, a reference to the object is passed, rather than a copy of the object itself.
+In Python, arguments are passed by assignment. This means that when you pass an object to a function as an argument, a reference to the object is passed rather than a copy of the object itself.
 
 For immutable objects, such as numbers, strings, and tuples, this has the same behavior as passing by value. For example, consider the following code:
 
@@ -96,7 +96,7 @@ increment(a)
 print(a)  # prints 10
 ```
 
-In this code, the `increment` function takes an argument `x` and increments it by `1`. However, when we pass the value `10` to the function as an argument and then print the value of `a`, it is still `10`. This is because the `increment` function operates on a copy of the value of `a`, rather than modifying the value of `a` itself.
+In this code, the `increment` function takes an argument `x` and increments it by `1`. However, when we pass the value `10` to the function as an argument and then print the value of `a`, it is still `10`. This is because the `increment` function operates on a copy of the value of `a` rather than modifying the value of `a` itself.
 
 For mutable objects, such as lists and dictionaries, passing by assignment has the same behavior as passing by reference. For example, consider the following code:
 
@@ -109,27 +109,27 @@ append_one(a)
 print(a)  # prints [1, 2, 3, 1]
 ```
 
-In this code, the `append_one` function takes an argument `lst` and appends the value `1` to the end of the list. When we pass the list `[1, 2, 3]` to the function as an argument and then print the value of `a`, the list has been modified to include the value `1` at the end. This is because the `append_one` function operates on the original list, rather than a copy of the list.
+In this code, the `append_one` function takes an argument `lst` and appends the value `1` to the end of the list. When we pass the list `[1, 2, 3]` to the function as an argument and then print the value of `a`, the list has been modified to include the value `1` at the end. This is because the `append_one` function operates on the original list rather than a copy of the list.
 
-It is important to understand how Python passes arguments when writing functions, as it can affect the behavior of your code. If you want to modify an object that you pass to a function and have the changes persist outside the function, you will need to use a mutable object such as a list or a dictionary. If you want to pass an object to a function and ensure that it is not modified, you should use an immutable object such as a number, string, or tuple.
+It is crucial to understand how Python passes arguments when writing functions, as it can affect the behavior of your code. If you want to modify an object that you pass to a function and have the changes persist outside the function, you must use a mutable object such as a list or a dictionary. If you want to pass an object to a function and ensure that it is not modified, you should use an immutable object such as a number, string, or tuple.
 
 ## 6- What tools to use for linting, debugging, and profiling?
 
-There are several tools available for linting, debugging, and profiling in Python. Here are a few popular options:
+Several tools are available for linting, debugging, and profiling in Python. Here are a few popular options:
 
-1. **Linting**: Linting is the process of checking code for syntax and style errors. A linting tool can help you identify and fix issues with your code before you run it. Some popular linting tools for Python include:
+1. **Linting**: Linting checks code for syntax and style errors. A linting tool can help you identify and fix issues with your code before you run it. Some popular linting tools for Python include:
 
-   - Pylint: A widely-used linting tool that can detect a wide range of issues in Python code, including syntax errors, style issues, and potential bugs.
-   - Flake8: A popular linting tool that combines several other tools, including PyFlakes, pycodestyle, and McCabe.
-   - PyCodeStyle (formerly known as pycodestyle): A linting tool that checks code for style issues, such as indentation, line length, and naming conventions.
+   - Pylint: A widely-used linting tool that can detect various issues in Python code, including syntax errors, style issues, and potential bugs.
+   - Flake8: A popular linting tool that combines several other tools, including `PyFlakes`, `pycodestyle`, and `McCabe`.
+   - PyCodeStyle (formerly known as `pycodestyle`): A linting tool that checks code for style issues, such as indentation, line length, and naming conventions.
 
 2. **Debugging**: Debugging is the process of identifying and fixing errors in your code. Some popular tools for debugging Python code include:
 
    - PDB: The Python debugger is a built-in tool that allows you to step through your code, inspect variables, and set breakpoints.
    - IPython: An interactive Python shell that provides additional debugging features, such as tab completion, object introspection, and history.
-   - PyCharm: An integrated development environment (IDE) that includes a powerful debugger and other debugging tools.
+   - PyCharm: An integrated development environment (IDE) with a powerful debugger and other tools.
 
-3. **Profiling**: ling is the process of measuring the performance of your code and identifying bottlenecks. Some popular tools for profiling Python code include:
+3. **Profiling**: is the process of measuring the performance of your code and identifying bottlenecks. Some popular tools for profiling Python code include:
    - cProfile: A built-in module that provides a simple interface for profiling Python code.
    - perf: A command-line tool that provides detailed performance information about Python programs.
    - Pyflame: A tool that generates a flame graph of Python program execution, showing where time is being spent.
@@ -158,14 +158,14 @@ In this example, we define a list of numbers and use the `filter` function to se
 
 We then use the `reduce` function from the `functools` module to compute the product of all the even numbers in the `list`. The `reduce` function takes a function and an iterable as arguments and applies the function to the elements of the iterable in a cumulative manner, returning a single result. In this case, we pass a lambda function that multiplies its arguments and passes the iterator returned by `filter` as the iterable.
 
-Both `filter` and `reduce` are higher-order functions, meaning that they take a function as an `argument` and return a new function as a result. They are useful for concisely expressing complex operations on iterable objects in Python.
+Both `filter` and `reduce` are higher-order functions, meaning they take a function as an `argument` and return a new function. They are helpful for concisely expressing complex operations on iterable objects in Python.
 
-## 8- What are list and dict comprehensions?
+## 8- What are `list` and `dict` comprehensions?
 
-List comprehensions and dictionary comprehensions are concise ways to create new lists and dictionaries, respectively, from existing iterable objects. They are a way to transform one list (or dictionary) into another list (or dictionary) by applying a certain operation to each element in the original list.  
-A list comprehension consists of square brackets containing an expression followed by a `for` clause, then zero or more `for` or `if` clauses. The result is a new list that is computed by evaluating the expression in the context of the `for` and `if` clauses.
+List comprehensions and dictionary comprehensions are concise ways to create new lists and dictionaries, respectively, from existing iterable objects. They are a way to transform one list (or dictionary) into another list (or dictionary) by applying a specific operation to each element in the original list.  
+A list comprehension consists of square brackets containing an expression followed by a `for` clause, then zero or more `for` or `if` clauses. The result is a new list computed by evaluating the expression in the context of the `for` and `if` clauses.
 
-For example, suppose we have a list of numbers and we want to create a new list that contains only the even numbers from the original list. We could do this using a list comprehension as follows:
+For example, suppose we have a list of numbers, and we want to create a new list that contains only the even numbers from the original list. We could do this using a list comprehension as follows:
 
 ```Python
 numbers = [1, 2, 3, 4, 5, 6]
@@ -174,9 +174,9 @@ even_numbers = [x for x in numbers if x % 2 == 0]
 
 This would create a new list `even_numbers` containing only the even numbers from the original list `numbers`.
 
-A dictionary comprehension is similar to list comprehension, but it creates a new dictionary instead of a list. It consists of a dictionary key expression followed by a `for` clause, then zero or more `for` or `if` clauses. The result is a new dictionary that is computed by evaluating the key and value expressions in the context of the `for` and `if` clauses.
+A dictionary comprehension is similar to list comprehension, but it creates a new dictionary instead of a list. It consists of a dictionary key expression followed by a `for` clause, then zero or more `for` or `if` clauses. The result is a new dictionary computed by evaluating the key and value expressions in the context of the `for` and `if` clauses.
 
-For example, suppose we have a list of strings and we want to create a new dictionary that maps each string to its length. We could do this using a dictionary comprehension as follows:
+For example, suppose we have a list of strings, and we want to create a new dictionary that maps each string to its length. We could do this using a dictionary comprehension as follows:
 
 ```Python
 strings = ['cat', 'dog', 'bird']
@@ -185,9 +185,9 @@ lengths = {s: len(s) for s in strings}
 
 This would create a new dictionary `lengths` that maps each string to its length.
 
-## 9- What do we mean when we say that a certain Lambda expression forms a closure?
+## 9- What do we mean when we say that a specific Lambda expression forms a closure?
 
-A closure is a function that retains access to the variables in the environment in which it was defined, even after the code that defined the function has finished executing. This means that the function can still reference and modify the variables even if the function is called in a different context, such as in a different function or in a different part of the program.
+A closure is a function that retains access to the variables in the environment it was defined, even after the code that defined the function has finished executing. This means that the function can still reference and modify the variables even if the function is called in a different context, such as in a different function or a different part of the program.
 
 In the context of lambda expressions, a lambda expression forms a closure if it references variables from the environment in which it was defined. For example, consider the following code:
 
@@ -270,13 +270,13 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
 
 ## 11- How is memory managed in Python?
 
-In Python, memory management is handled by the Python interpreter itself. When a Python program runs, the interpreter creates and manages a number of objects in memory to store the data used by the program. The interpreter also tracks the objects that are no longer being used and reclaims their memory, a process known as garbage collection.
+In Python, memory management is handled by the Python interpreter itself. When a Python program runs, the interpreter creates and manages several objects in memory to store the data used by the program. The interpreter also tracks the objects that are no longer being used and reclaims their memory, a process known as garbage collection.
 
-One of the key features of Python's memory management is its use of reference counting to keep track of the objects that are being used by the program. When an object is created, the interpreter increments a reference count for that object. When the object is no longer needed, the reference count is decremented. When the reference count reaches zero, the interpreter knows that the object is no longer being used and can reclaim its memory.
+One of the critical features of Python's memory management is its use of reference counting to keep track of the objects the program uses. When an object is created, the interpreter increments a reference count for that object. When the object is no longer needed, the reference count is decremented. When the reference count reaches zero, the interpreter knows the object is no longer being used and can reclaim its memory.
 
-Python also uses a technique called "generational garbage collection" to improve the efficiency of its garbage collection process. This involves dividing objects into different generations based on how long they have been in use. Newer objects are placed in a "young generation," while older objects are placed in an "old generation." The garbage collector focuses on the young generation first, since it is more likely to contain objects that are no longer being used. This helps to reduce the overall time required for garbage collection.
+Python also uses a technique called "generational garbage collection" to improve the efficiency of its garbage collection process. This involves dividing objects into different generations based on how long they have been in use. Newer objects are placed in a "young generation," while older objects are placed in an "old generation." The garbage collector focuses on the young generation first since it is more likely to contain objects no longer being used. This helps to reduce the overall time required for garbage collection.
 
-In addition to these techniques, Python also provides tools for controlling and monitoring the use of memory in a program. For example, the `sys.getsizeof()` function can be used to determine the size of an object in memory, and the `gc` module can be used to manually trigger garbage collection or to tune the garbage collection parameters.
+In addition to these techniques, Python also provides tools for controlling and monitoring the use of memory in a program. For example, the `sys.getsizeof()` function can be used to determine the size of an object in memory, and the `gc` module can be used to trigger garbage collection manually or to tune the garbage collection parameters.
 
 ## 12- What will be the output of the following code?
 
@@ -288,9 +288,9 @@ print _list[10:]
 _The output:_
 the output will be an empty list `[]`.
 
-The slicing syntax `list[start: end]` is used to retrieve a subset of the elements in a list. The `start` index specifies the index of the first element to retrieve, and the `end` index specifies the index of the element after the last element to retrieve. If you omit the `end` index, the slicing syntax will return all elements of the list starting from the `start` index until the end of the list.
+The slicing syntax `list[start: end]` retrieves a subset of the elements in a list. The `start` index specifies the index of the first element to retrieve, and the `end` index specifies the element's index after the last element to retrieve. If you omit the `end` index, the slicing syntax will return all elements of the list, starting from the `start` index until the end of the list.
 
-In this case, the list `_list` has only five elements, so the valid indices are `0` through `4`. The index `10` is out of bounds for the list, so the slicing syntax \_list`[10:]` will return an empty list.
+In this case, the list `_list` has only five elements, so the valid indices are `0` through `4`. The index `10` is out of bounds for the list, so the slicing syntax `_list[10:]` will return an empty list.
 
 ## 13- A palindromic number reads the same both ways. The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99. Find the largest palindrome made from the product of two 3-digit numbers
 
@@ -312,9 +312,9 @@ for i in range(100, 1000):
 print(largest_palindrome)
 ```
 
-This code defines a function `is_palindrome` that takes a number and returns `True` if the number is a palindrome, and `False` otherwise. It does this by converting the number to a string and checking if the string is equal to its reverse.
+This code defines a function `is_palindrome` that takes a number and returns `True` if the number is a palindrome and `False` otherwise. It does this by converting the number to a string and checking if the string is equal to its reverse.
 
-The main part of the code then iterates over all pairs of 3-digit numbers and checks the product of each pair. If the product is a palindrome and is larger than the current largest palindrome, it updates the largest palindrome.
+The central part of the code then iterates over all pairs of 3-digit numbers and checks the product of each pair. If the product is a palindrome and is larger than the current largest palindrome, it updates the largest palindrome.
 
 Finally, the code prints the largest palindrome.
 
@@ -322,7 +322,7 @@ This code should find the largest palindrome made from the product of two 3-digi
 
 ## 14- What is skeleton code in Python?
 
-Skeleton code in Python is a basic set of code that provides a starting point for a new project. It typically includes a directory structure, basic configuration files, and a set of basic functions and structures that can be used as a foundation for building out the project.
+Skeleton code in Python is a basic set of code that provides a starting point for a new project. It typically includes a directory structure, basic configuration files, and a set of essential functions and structures that can be used as a foundation for building out the project.
 
 Skeleton code is often used to provide a consistent structure and set of best practices for projects, making it easier to get started and avoid common pitfalls. It can also be used to demonstrate how to set up a basic project or to provide a starting point for learning a new programming concept or framework.
 
@@ -336,9 +336,9 @@ For example, a Python skeleton code might include:
 
 Skeleton code is often created for specific types of projects, such as web applications, command-line tools, or data science projects. There are many open-source skeleton code examples available online that you can use as a starting point for your projects.
 
-Using skeleton code can help you get started with a new project more quickly, and can provide a set of established best practices to follow as you develop your project. However, it's important to understand that skeleton code is only a starting point, and you will need to customize and adapt it to your specific needs as you develop your project.
+Using skeleton code can help you get started with a new project more quickly and can provide a set of established best practices to follow as you develop your project. However, it's important to understand that skeleton code is only a starting point, and you will need to customize and adapt it to your specific needs as you develop your project.
 
-## 15- In Python classes, what is the difference between class methods and static methods? and when to use them?
+## 15- In Python classes, what is the difference between class methods and static methods? and when to use them.
 
 In Python, a class method is a method that is bound to the class and not the instance of the class. A class method can be called on the class itself, as well as on any instance of the class. A class method is defined using the `@classmethod` decorator, and it takes the class as its first argument, conventionally named `cls`.
 
@@ -375,7 +375,7 @@ result = obj.class_method(arg)
 result = obj.static_method(arg)
 ```
 
-In general, you should use **_class methods_** when you need to define a method that operates on the class itself, rather than on an instance of the class. An example of this might be a factory method that creates a new instance of the class with some default values. You should use **_static methods_** when you need to define a method that operates on an argument or variables that are independent of the class and its instances. An example of this might be a utility function that performs some computation or transformation on its arguments but does not need to access any class or instance attributes.
+In general, you should use **_class methods_** when defining a method that operates on the class itself rather than on an instance of the class. An example of this might be a factory method that creates a new class instance with some default values. You should use **_static methods_** when you need to define a method that operates on an argument or variables that are independent of the class and its instances. An example of this might be a utility function that performs some computation or transformation on its arguments but does not need to access any class or instance attributes.
 
 ## 16- Please explain the following results of the code executed on a Python shell interpreter
 
@@ -399,7 +399,7 @@ Therefore, all the integers in [-5, 256] have been already saved in the memory. 
 Therefore, the explanations of the results are:
 
 - When the variables `a` and `b` were assigned to 256, they were referenced to the same memory location where the 256 was stored. They pointed to the same object.
-- When the variables `x` and `y` were assigned to 257, they were two different objects in different memory locations because the 257 is not on the small integers caching range.
+- When the variables `x` and `y` were assigned to 257, they were two different objects in different memory locations because 257 is not on the small integers caching range.
 
 Since the `is` operator is to compare the memory locations of two variables, the `a is b` should output `True`, and the `x is y` should output `False`.
 
@@ -470,7 +470,7 @@ my_function(arg1=1, arg2=2, arg3=3)
 
 Both `*args` and `**kwargs` are commonly used in Python to allow a function to accept a variable number of arguments. They can be useful when you want to write a function that can be flexible and handle a wide range of input parameters.
 
-## 19- What is the difference between tuples, sets and lists in Python?
+## 19- What is the difference between tuples, sets, and lists in Python?
 
 In Python, tuples, sets, and lists are all data types that can be used to store collections of items. Here are the main differences between them:
 
@@ -499,7 +499,7 @@ l.append(5)
 
 Tuples and sets are generally used when you want to store a collection of items that should not be modified, while lists are used when you need to store a collection of items that you want to be able to modify.
 
-## 20- What are pickling and unpickling in python?
+## 20- What are pickling and unpickling in Python?
 
 In Python, "pickling" refers to the process of converting an object hierarchy (e.g., a list, dictionary, or a user-defined object) into a byte stream, and "unpickling" refers to the process of reconstructing the object hierarchy from the byte stream.
 
@@ -577,7 +577,7 @@ Python offers a multi-threading package but it is not good for speeding up the c
 
 In Python, the with statement is used to wrap the execution of a block of code with methods defined by a context manager. A context manager is an object that defines the methods `__enter__` and `__exit__`, which are called before and after the execution of the block of code, respectively.
 
-The `with` statement is used to manage resources that need to be acquired and released, such as file handles or network connections. It is particularly useful when working with resources that need to be closed or released after they are no longer needed, because it ensures that the resources are properly cleaned up even if an exception is raised during the execution of the block of code.
+The `with` statement is used to manage resources that need to be acquired and released, such as file handles or network connections. It is particularly useful when working with resources that need to be closed or released after they are no longer needed because it ensures that the resources are properly cleaned up even if an exception is raised during the execution of the block of code.
 
 Here is an example of how to use the `with` statement to open and read a file in Python:
 
@@ -595,7 +595,7 @@ In Python, there are several different file types that you may encounter when wo
 
 1. **`.py`** files are Python source files that contain the code written in the Python language. These files can be executed by the Python interpreter, and they can be imported as modules in other Python programs.
 
-2. **`.pyi`** files are Python interface files that contain type hints for Python programs. These files are used to provide type information for static type checkers, such as mypy, and they are not intended to be executed by the Python interpreter.
+2. **`.pyi`** files are Python interface files that contain type hints for Python programs. These files are used to provide type information for static type checkers, such as `mypy`, and they are not intended to be executed by the Python interpreter.
 
 3. **`.pyd`** files (also known as Python dynamic libraries) are compiled binary files that contain compiled code written in C, C++, or other languages that can be imported and used by Python programs. These files are typically used to extend the functionality of Python by providing access to compiled code that is not written in Python.
 
@@ -715,7 +715,7 @@ There are different types of PEPs, including:
 
 PEPs are written in a standard format and are reviewed by the Python community through a process called the PEP process. The PEP process is designed to ensure that proposed changes to Python are well-documented, well-reasoned, and discussed by the community before being accepted and implemented.
 
-## 29- What are dunder methods in python?
+## 29- What are dunder methods in Python?
 
 In Python, dunder methods (also known as "magic methods") are methods that are defined with double underscores (e.g., `__init__`, `__len__`) and are used to implement special behavior for objects. These methods are called "dunder" because they are surrounded by double underscores (i.e., "double underscore" or "dunder").
 
@@ -784,7 +784,7 @@ In this case, the `__init__` method of the `Animal` class is called using the ex
 
 Both `super().__init__()` and `SomeParentClass.__init__(self)` are used to call the `__init__` method of the parent class from within a child class. The main difference is that `super().__init__()` does not require you to explicitly specify the name of the parent class, while `SomeParentClass.__init__(self)` does.
 
-## 31- What is property decorator in python?
+## 31- What is a property decorator in Python?
 
 In Python, the `property` decorator is a built-in function that is used to create a special kind of attribute called a "property." A property is a special kind of attribute that is defined as a method, but it is accessed like a regular attribute.
 
@@ -860,7 +860,7 @@ In this example, `x` is a global variable because it is defined outside of any f
 
 It is important to note that local variables take precedence over global variables with the same name. For example:
 
-```Pythn
+```Python
 x = 10
 
 def some_function():
@@ -924,7 +924,7 @@ my_list = [1, 2, 3, 4]
 # Create an iterator object
 it = iter(my_list)
 
-# Iterate over the elements of the list using a for loop
+# Iterate over the elements of the list using a for-loop
 for i in it:
     print(i) # prints 1, 2, 3, 4
 ```
@@ -1067,7 +1067,7 @@ def some_function(arg1, arg2):
 
 ```
 
-In this example, the docstring for the `some_function` function is a multi-line string that is placed at the beginning of the function definition. It provides a brief description of what the function does and lists the parameters and return value of the function.
+In this example, the docstring for the `some_function` function is a multi-line string that is placed at the beginning of the function definition. It provides a brief description of what the function does and lists the parameters and return values of the function.
 
 Docstrings can be accessed at runtime using the `__doc__` attribute of the object. For example:
 
@@ -1141,7 +1141,7 @@ There are several key differences between wheels and eggs:
 
 - Compatibility: Wheels are compatible with _Python 2.7_ and later versions, while eggs are only compatible with _Python 2.4_ and later versions.
 
-- Efficieny: Wheels are generally more efficient and faster to install than eggs because they do not need to be built from source code.
+- Efficiency: Wheels are generally more efficient and faster to install than eggs because they do not need to be built from source code.
 
 In summary, wheels are the recommended distribution format for Python packages, while eggs are deprecated and should not be used. If you are installing a Python package, you should look for a wheel package if possible.
 
@@ -1222,13 +1222,13 @@ Here are some key differences between functional programming and object-oriented
 
 1. **Data model**: In functional programming, data is treated as immutable and functions are used to transform data. In object-oriented programming, data is encapsulated in objects and accessed through methods.
 
-2. **State**: In functional programming, state is typically avoided or minimized, and functions are designed to be pure and side-effect free. In object-oriented programming, objects have internal state that can be modified through methods.
+2. **State**: In functional programming, the state is typically avoided or minimized, and functions are designed to be pure and side-effect-free. In object-oriented programming, objects have an internal state that can be modified through methods.
 
 3. **Inheritance**: In object-oriented programming, inheritance is used to create a hierarchy of classes and reuse code between classes. In functional programming, inheritance is not typically used, and functions are composed and combined to create new functionality.
 
-4. **Polymorphism**: In object-oriented programming, polymorphism allows a method or function to behave differently depending on the type of the arguments passed to it. In functional programming, polymorphism is typically achieved through function overloading or currying.
+4. **Polymorphism**: In object-oriented programming, polymorphism allows a method or function to behave differently depending on the type of arguments passed to it. In functional programming, polymorphism is typically achieved through function overloading or currying.
 
-5. **Concurrency**: In functional programming, concurrency is typically easier to achieve because functions are pure and do not depend on state. In object-oriented programming, concurrency can be more challenging because objects have internal state that can be modified concurrently.
+5. **Concurrency**: In functional programming, concurrency is typically easier to achieve because functions are pure and do not depend on state. In object-oriented programming, concurrency can be more challenging because objects have an internal state that can be modified concurrently.
 
 ## 44- What does the `PYTHONOPTIMIZE` flag do?
 
@@ -1237,13 +1237,13 @@ The `PYTHONOPTIMIZE` flag is a command-line option for the Python interpreter th
 The optimization techniques that are applied when `PYTHONOPTIMIZE` is set depend on the specific version of Python that you are using. In general, the optimization techniques that may be applied include:
 
 - Inlining of simple functions
-  \*Removal of dead code
+- Removal of dead code
 - Specialization of function calls
 - Early binding of global names
 - Constant folding and propagation
 - Peephole optimization of bytecode
 
-It's important to note that the `PYTHONOPTIMIZE` flag is intended to be used for debugging and profiling purposes, and is not recommended for use in production environments. This is because the optimizations applied by the flag may change the behavior of the program in ways that are difficult to predict, and may even make the program slower in some cases.
+It's important to note that the `PYTHONOPTIMIZE` flag is intended to be used for debugging and profiling purposes, and is not recommended for use in production environments. This is because the optimizations applied by the flag may change the behavior of the program in ways that are difficult to predict and may even make the program slower in some cases.
 
 To use the `PYTHONOPTIMIZE` flag, you can specify it as an option when running the Python interpreter from the command line, like this:
 
@@ -1257,16 +1257,16 @@ This will run the Python interpreter with the `PYTHONOPTIMIZE` flag set to 1. Yo
 python -OO script.py
 ```
 
-It's worth noting that the optimization techniques applied by the PYTHONOPTIMIZE flag are not as effective as those used by modern just-in-time (JIT) compilers, such as PyPy or Numba. These tools are generally more effective at optimizing Python code, and are typically recommended for use in production environments where performance is critical.
+It's worth noting that the optimization techniques applied by the PYTHONOPTIMIZE flag are not as effective as those used by modern just-in-time (JIT) compilers, such as PyPy or Numba. These tools are generally more effective at optimizing Python code and are typically recommended for use in production environments where performance is critical.
 
 ## 45- What are descriptors? Is there a difference between a descriptor and a decorator?
 
 In Python, a descriptor is an object attribute with "binding behavior", which means that it has the ability to define how it is accessed and set. Descriptors are implemented using a set of special methods, known as the descriptor protocol, which consists of the `__get__`, `__set__`, and `__delete__` methods.
 
-Descriptors are a way to define custom attribute access behavior in Python. They can be used to implement properties, methods, or any other attribute type with custom behavior. For example, you might use a descriptor to implement lazy evaluation of an attribute, or to provide read-only access to an attribute.
+Descriptors are a way to define custom attribute access behavior in Python. They can be used to implement properties, methods, or any other attribute type with custom behavior. For example, you might use a descriptor to implement a lazy evaluation of an attribute or to provide read-only access to an attribute.
 
 The descriptor protocol defines how the descriptor's methods are called when the attribute is accessed on an object. When an attribute is accessed on an object, Python first checks to see if the attribute is defined on the object itself. If it is, the attribute is accessed directly. If the attribute is not defined on the object, Python looks for a descriptor with the same name on the object's class or any of its base classes. If a descriptor is found, Python calls the descriptor's `__get__`, `__set__`, or `__delete__` method, depending on the type of attribute access that is being performed.
-A decorator is a function that takes another function and extends the behavior of the latter function without explicitly modifying its code. Decorators are implemented using the `@` syntax in Python, and are used to modify the behavior of a function or method.
+A decorator is a function that takes another function and extends the behavior of the latter function without explicitly modifying its code. Decorators are implemented using the `@` syntax in Python and are used to modify the behavior of a function or method.
 
 There is a difference between a descriptor and a decorator in Python. A descriptor is an object attribute with binding behavior, whereas a decorator is a function that takes another function and extends its behavior. Descriptors are implemented using the descriptor protocol, which consists of the `__get__`, `__set__`, and `__delete__` methods, whereas decorators are implemented as functions that take a function as an argument and return a modified version of the function.
 
@@ -1334,7 +1334,7 @@ for number in evens:
 1 3 5 7 9
 ```
 
-You can also use `itertools.islice` to slice the input iterator at a specific starting and ending position, and with a specific step size. For example, you could use `itertools.islice(numbers, 2, 6, 1)` to return an iterator that produces the elements at index `2` through `5` (inclusive) of the numbers list, with a step size of `1`. below is an example of output based on various input:
+You can also use `itertools.islice` to slice the input iterator at a specific starting and ending position, and with a specific step size. For example, you could use `itertools.islice(numbers, 2, 6, 1)` to return an iterator that produces the elements at index `2` through `5` (inclusive) of the numbers list, with a step size of `1`. below is an example of output based on various inputs:
 
 ```Python
 # itertools.islice(iterable, stop)
@@ -1359,7 +1359,7 @@ This code will never stop because the condition `i != 1` will never be satisfied
 
 As a result, the value of `i` will get closer and closer to `1`, but it will never be equal to `1` exactly. This means that the loop will run indefinitely.
 
-## 49 - What is the ouput of this code, and why?
+## 49 - What is the output of this code, and why?
 
 ```Python
 import datetime
@@ -1393,7 +1393,7 @@ print(my_time())
 
 ## 50 - Can we chain Multiple Decorators in Python?
 
-Yes, you can chain multiple decorators in Python. Decorators are functions that are used to modify the behavior of another function. They are applied using the `@` symbol, and can be used to add additional functionality to a function without modifying the function's source code.
+Yes, you can chain multiple decorators in Python. Decorators are functions that are used to modify the behavior of another function. They are applied using the `@` symbol and can be used to add additional functionality to a function without modifying the function's source code.
 
 To chain multiple decorators, you can simply apply them one after the other, using the `@` symbol, like this:
 
@@ -1434,7 +1434,7 @@ function()
 # Function
 ```
 
-As you can see, the decorators are applied in the order that they are listed, with `decorator1` being applied first, followed by `decorator2`. The function itself is called last, after the decorators have been applied.
+As you can see, the decorators are applied in the order that they are listed, with `decorator1` being applied first, followed by `decorator2`. The function itself is called last after the decorators have been applied.
 
 ## 51 - Build a recursive function using python
 
@@ -1466,7 +1466,7 @@ In this example, the `factorial` function is defined to take a single argument `
 # 1st call: 5 * 24 = 120 (5! -> 120)
 ```
 
-## 52 - How to implement a binary search tree using python?
+## 52 - How to implement a binary search tree using Python?
 
 To implement a binary search tree (BST) in Python, you will need to create a `Node` class to represent the nodes of the tree, and a `BST` class to represent the `BST` itself.
 
@@ -1525,7 +1525,7 @@ The `BST` class has a `root` variable to store the `root` node of the `tree`, an
 
 To use these classes, you can create a new `BST` object and use the `insert` method to add nodes to the tree. You can then use the search method to search for a particular value in the tree. If a node with the specified `value` is found, the method returns `True`, otherwise it returns `False`.
 
-## 53 - How to implement a binary search using python?
+## 53 - How to implement a binary search using Python?
 
 ```Python
 # Returns index of x in arr if present, else -1
@@ -1566,7 +1566,7 @@ else:
     print("Element is not present in array")
 ```
 
-## 54 - How to implement a Linked list using python?
+## 54 - How to implement a Linked list using Python?
 
 You will need to define a `Node` class to represent the nodes of the linked list, and a `LinkedList` class to represent the linked list itself.
 
@@ -1617,7 +1617,7 @@ my_list.traverse()  # Output: 1 2 3
 
 ## 55 - what is `collections.OrderedDict`?
 
-it is a class in the Python `collections` module that provides an ordered dictionary implementation. Like a regular dictionary, an `OrderedDict` stores key-value pairs, but it remembers the order that the keys were added.
+it is a class in the Python `collections` module that provides an ordered dictionary implementation. Like a regular dictionary, an `OrderedDict` stores key-value pairs, but it remembers the order which the keys were added.
 
 Here's an example of how you can use an `OrderedDict`:
 
@@ -1736,7 +1736,7 @@ Traceback (most recent call last):
 TypeError: must be real number, not str
 ```
 
-## 58- What is `bytes` type?
+## 58- What is the `bytes` type?
 
 The `bytes` type is an immutable sequence of _bytes_. It is similar to the _str_ type, but it is meant to hold raw binary data rather than Unicode text.
 
@@ -1752,7 +1752,7 @@ You can also create a `bytes` object from a list of integers using the `bytes` f
 b = bytes([104, 101, 108, 108, 111])  # b'hello'
 ```
 
-You can access the individual bytes of a `bytes` object using indices, like you would with a string:
+You can access the individual bytes of a `bytes` object using indices like you would with a string:
 
 ```Python
 b = b'Hello, world!'
@@ -1824,7 +1824,7 @@ list1.extend(list2)
 print(list1)  # prints [1, 2, 3, 4, 5, 6, 7]
 ```
 
-In general, `append` is faster than `extend` because it does not have to create a new list and copy over all the elements of the iterable. However, `extend` is more convenient to use if you have an iterable that you want to add to the list, because you don't have to use a loop to add the elements one at a time.
+In general, `append` is faster than `extend` because it does not have to create a new list and copy over all the elements of the iterable. However, `extend` is more convenient to use if you have an iterable that you want to add to the list because you don't have to use a loop to add the elements one at a time.
 
 ## 62- How to implement bubble sort in Python?
 
@@ -2023,7 +2023,7 @@ print(sorted_list)  # [1, 2, 5, 8, 9]
 - Average case: **O(n log(n))**
 - Worst case: **O(n log(n))**
 
-## 66- How to implement Quick sort in Python?
+## 66- How to implement Quick Sort in Python?
 
 ```Python
 def quick_sort(lst):
@@ -2150,7 +2150,7 @@ There are several ways to copy an object in Python. Here are some of the most co
 - Shallow copy is used to copy the reference pointers just like it copies the values. These references point to the original objects and the changes made in any member of the class will also affect the original copy of it. Whereas, deep copy doesn’t copy the reference pointers to the objects. Deep copy makes the reference to an object and the new object that is pointed by some other object gets stored. The changes made in the original copy won’t affect any other copy that uses the object.
 - Shallow copy allows faster execution of the program and it depends on the size of the data that is used. Whereas, deep copy makes it slower due to making certain copies for each object that is been called.
 
-## 72- How can the ternary operators be used in python?
+## 72- How can the ternary operators be used in Python?
 
 In Python, the ternary operator is known as the conditional operator or ternary conditional operator. It is an operator that takes three arguments: a condition, a result for the condition being true, and a result for the condition being false.
 
@@ -2209,11 +2209,11 @@ list2 = [123]
 list3 = [10, 'a']
 ```
 
-- In the first call to `extendList()`, the default value of list is used, which is an empty list `[]`. The value `10` is appended to this list, and the modified list is returned. This list is assigned to `list1`.
+- In the first call to `extendList()`, the default value of the list is used, which is an empty list `[]`. The value `10` is appended to this list, and the modified list is returned. This list is assigned to `list1`.
 
 - In the second call to `extendList()`, a new list `[123]` is passed as the value for the list parameter, so the default value is not used. The value `123` is appended to this list, and the modified list is returned and assigned to `list2`.
 
-- In the third call to `extendList()`, the default value of list is used again. This time, the default value is the list that was modified in the first call to the function, which contains the value `10`. The value `'a'` is appended to this list, and the modified list is returned and assigned to `list3`.
+- In the third call to `extendList()`, the default value of the list is used again. This time, the default value is the list that was modified in the first call to the function, which contains the value `10`. The value `'a'` is appended to this list, and the modified list is returned and assigned to `list3`.
   This behavior occurs because default values are evaluated when the function is defined, not when it is called. In this case, the default value of the list parameter is an empty list `[]`, which is evaluated when the `extendList()` function is defined. This means that the same `list` object is used as the default value for the `list` parameter every time the `extendList()` function is called, unless a different value is provided for the list parameter in the function call.
 
 The definition of the `extendList` function could be modified as follows, though, to always begin a new list when no `list` argument is specified, which is more likely to have been the desired behavior:
@@ -2237,7 +2237,7 @@ print [m(2) for m in multipliers()]
 
 The output of the above code will be `[6, 6, 6, 6]`.
 
-The reason for this is that Python’s closures are late binding. This means that the values of variables used in closures are looked up at the time the inner function is called. So as a result, when any of the functions returned by `multipliers()` are called, the value of `i` is looked up in the surrounding scope at that time. By then, regardless of which of the returned functions is called, the `for` loop has completed and `i` is left with its final value of 3. Therefore, every returned function multiplies the value it is passed by `3`, so since a value of `2` is passed in the above code, they all return a value of `6` (i.e., 3 x 2).
+The reason for this is that Python’s closures are late binding. This means that the values of variables used in closures are looked up at the time the inner function is called. So as a result, when any of the functions returned by `multipliers()` are called, the value of `i` is looked up in the surrounding scope at that time. By then, regardless of which of the returned functions is called, the `for` loop has been completed, and `i` is left with its final value of 3. Therefore, every returned function multiplies the value it is passed by `3`, so since a value of `2` is passed in the above code, they all return a value of `6` (i.e., 3 x 2).
 
 ## 75- What will be the output of the code below?
 
@@ -2266,7 +2266,7 @@ print(Parent.x, Child1.x, Child2.x)
 3 2 3
 ```
 
-In Python, class variables are internally handled as dictionaries. If a variable name is not found in the dictionary of the current class, the class hierarchy (i.e., its parent classes) are searched until the referenced variable name is found (if the referenced variable name is not found in the class itself or anywhere in its hierarchy, an `AttributeError` occurs).
+In Python, class variables are internally handled as dictionaries. If a variable name is not found in the dictionary of the current class, the class hierarchy (i.e., its parent classes) is searched until the referenced variable name is found (if the referenced variable name is not found in the class itself or anywhere in its hierarchy, an `AttributeError` occurs).
 
 Therefore, setting `x = 1` in the `Parent` class makes the class variable `x` (with a value of 1) referenceable in that class and any of its children. That’s why the first `print` statement outputs `1 1 1`.
 
@@ -2328,7 +2328,7 @@ It's important to note that the `__contains__` method is not the same as the `__
 
 ## 78- What is a "callable"?
 
-A callable is an object we can call - function or an object implementing the `__call__` special method. Any object can be made callable.
+A callable is an object we can call - a function or an object implementing the `__call__` special method. Any object can be made callable.
 
 Here are a few examples of callables in Python:
 
@@ -2384,14 +2384,14 @@ print(callable(1))  # prints False
 
 ## 80- What is introspection/reflection and does Python support it?
 
-Introspection is the ability to examine an object at runtime. Python has a `dir()` function that supports examining the attributes of an object, `type()` to check the object type, `isinstance()`, etc. While introspection is passive examination of the objects, reflection is a more powerful tool where we could modify objects at runtime and access them dynamically. E.g.
+Introspection is the ability to examine an object at runtime. Python has a `dir()` function that supports examining the attributes of an object, `type()` to check the object type, `isinstance()`, etc. While introspection is a passive examination of the objects, reflection is a more powerful tool where we can modify objects at runtime and access them dynamically. E.g.
 
 - `setattr()` adds or modifies an object's attribute;
 - `getattr()` gets the value of an attribute of an object.
 
 It can even invoke functions dynamically - `getattr(my_obj, "my_func_name")()`
 
-## 81- What will be the ouput of lines 2, 4, 6, and 8 from the following code, and why?
+## 81- What will be the output of lines 2, 4, 6, and 8 from the following code, and why?
 
 ```Python
 list = [ [ ] ] * 5
@@ -2404,7 +2404,7 @@ list.append(30)
 list  # output?
 ```
 
-**The ouput:**
+**The output:**
 
 ```Python
 list = [ [ ] ] * 5
@@ -2552,7 +2552,7 @@ The `range` function generates a sequence of numbers by creating a list object t
 
 The `range` function is useful when you need to generate a sequence of numbers and you need to access the numbers multiple times or perform operations on them. However, it can be inefficient when generating large sequences of numbers, as it creates a new list object in memory to hold the numbers.
 
-The `xrange` function generates a sequence of numbers in a similar way to range, but it returns a `generator` object rather than a `list`. A generator is an object that produces a sequence of values one at a time, rather than generating the entire sequence at once. This means that `xrange` is more memory-efficient than range when generating large sequences of numbers.
+The `xrange` function generates a sequence of numbers in a similar way to `range`, but it returns a `generator` object rather than a `list`. A generator is an object that produces a sequence of values one at a time, rather than generating the entire sequence at once. This means that `xrange` is more memory-efficient than range when generating large sequences of numbers.
 
 For example:
 
@@ -2571,7 +2571,7 @@ xrange(2, 10, 2)
 [2, 4, 6, 8]
 ```
 
-The `xrange` function was introduced in **`Python 2`** as a more efficient alternative to range. In **`Python 3`**, the `range` function was redesigned to behave more like `xrange`, and `xrange` was removed from the language.
+The `xrange` function was introduced in **`Python 2`** as a more efficient alternative to the `range`. In **`Python 3`**, the `range` function was redesigned to behave more like `xrange`, and `xrange` was removed from the language.
 
 ## 88- What is the use of `//` operator in Python?
 
@@ -2590,7 +2590,7 @@ For example:
 
 In the first example, the `/` operator is used to perform division, and it returns a floating-point number. In the second and third examples, the `//` operator is used to perform floor division, and it returns an integer.
 
-The `//` operator is useful when you want to divide two numbers and you only care about the integer part of the result, rather than the fractional part. For example, you might use the `//` operator to calculate the number of times one number can be divided by another, or to calculate the number of times one number goes into another.
+The `//` operator is useful when you want to divide two numbers and you only care about the integer part of the result, rather than the fractional part. For example, you might use the `//` operator to calculate the number of times one number can be divided by another or to calculate the number of times one number goes into another.
 
 Here are a few more examples of the `//` operator in action:
 
@@ -2611,7 +2611,7 @@ In Python, both dictionaries (called `dict`) and `sets` are implemented using ha
 
 In the case of `dict`, each key-value pair is stored in the hash table. The keys are used to calculate a hash value, which is used to determine the index in the array where the key-value pair should be stored. The value is then stored at that index. To retrieve a value from the `dict`, the hash function is used to calculate the index of the key-value pair, and the value is retrieved from that index.
 
-The complexity of retrieving an item from a `dict` or a `set` is typically `O(1)` on average, meaning that it takes a constant amount of time to retrieve an item, regardless of the size of the `dict` or `set`. However, in the worst case, the complexity can be `O(n)`, meaning that it takes linear time to retrieve an item, if the hash function is poorly designed and causes many keys to hash to the same index.
+The complexity of retrieving an item from a `dict` or a `set` is typical `O(1)` on average, meaning that it takes a constant amount of time to retrieve an item, regardless of the size of the `dict` or `set`. However, in the worst case, the complexity can be `O(n)`, meaning that it takes linear time to retrieve an item if the hash function is poorly designed and causes many keys to hash to the same index.
 
 As for memory consumption, the amount of memory that a `dict` or `set` consumes depends on the number of keys it contains and the size of the keys and values. In general, `dict` and `set` objects use more memory than other data structures, such as lists and tuples, because they store the keys and values in addition to the overhead of the hash table data structure. However, the exact amount of memory consumed will depend on the specific keys and values being stored and on the implementation of the Python interpreter.
 
@@ -2664,7 +2664,7 @@ There are several ways to distribute Python code, depending on the specific need
 
 ## 92- How to work with Python transitive dependencies?
 
-Transitive dependencies are dependencies that are required by a package that your code depends on. For example, if your code depends on package `A`, and package `A` depends on package `B`, then package `B` is a transitive dependency of your code.
+Transitive dependencies are dependencies that are required by a package that your code depends on. For example, if your code depends on the package `A`, and package `A` depends on package `B`, then package `B` is a transitive dependency of your code.
 
 To work with transitive dependencies in Python, you typically use a package manager like `pip` to install and manage your dependencies. When you install a package using `pip`, it will automatically install any transitive dependencies that the package requires.
 
@@ -2674,7 +2674,7 @@ For example, suppose you have a Python project that depends on package `A`, whic
 pip install A
 ```
 
-This will install both package `A` and its transitive dependency, package `B`.
+This will install both packages `A` and its transitive dependency, package `B`.
 
 If you want to specify the exact version of a package and its transitive dependencies that you want to install, you can use the `-r` flag to specify a requirements file. A `requirements` file is a text file that lists the packages and their versions that your project depends on. For example:
 
@@ -2719,7 +2719,7 @@ class MangledGlobal:
 
 The `MangledGlobal` class contains a reference to a global variable with a name that has been "`mangled`" to avoid name conflicts with other variables in the global namespace.
 
-In Python, name `mangling` is a technique that is used to protect instance variables in a class from being accidentally overwritten by derived classes. Name `mangling` works by adding a double underscore prefix to the name of an instance variable, which causes the interpreter to automatically rename the variable in a way that is unique to the class.
+In Python, the name `mangling` is a technique that is used to protect instance variables in a class from being accidentally overwritten by derived classes. Name `mangling` works by adding a double underscore prefix to the name of an instance variable, which causes the interpreter to automatically rename the variable in a way that is unique to the class.
 
 For example, the instance variable `__mangled` in the `MangledGlobal` class would actually be stored as `_MangledGlobal__mangled` in memory, to avoid conflicts with other variables in the global namespace.
 
@@ -2739,9 +2739,9 @@ print(mg.test())  # Output: 23
 print(_MangledGlobal__mangled)  # Output: 23
 ```
 
-Note that while name `mangling` is intended to protect instance variables from being overwritten by derived classes, it is not a security feature and should not be relied upon to protect sensitive data. Name `mangling` can be easily bypassed by using the mangled name directly, as shown in the example above.
+Note that while the name `mangling` is intended to protect instance variables from being overwritten by derived classes, it is not a security feature and should not be relied upon to protect sensitive data. The name `mangling` can be easily bypassed by using the mangled name directly, as shown in the example above.
 
-## 95- What is packing and unpacking in python?
+## 95- What is packing and unpacking in Python?
 
 In Python, packing and unpacking refer to two related concepts involving the conversion of data between different structures.
 
@@ -2782,7 +2782,7 @@ The asterisk can be used in several ways:
    my_function(*my_list)
    ```
 
-this example, the elements of `my_list` are unpacked and passed as arguments to the function `my_function`.
+In this example, the elements of `my_list` are unpacked and passed as arguments to the function `my_function`.
 
 ## 96- What's the difference between `globals()`, `locals()`, and `vars()`?
 
@@ -2890,7 +2890,7 @@ This would output the following list:
 ['my_method']
 ```
 
-## 99- Which is a better practice - global import or local import in python
+## 99- Which is a better practice - global import or local import in Python
 
 Local imports are generally considered to be better practice than global imports in Python for a few reasons:
 
@@ -2906,7 +2906,7 @@ In general, it is recommended to use local imports whenever possible, and only u
 
 In a `requirements` file for Python packages, the tilde symbol `(~)` is used to specify a version constraint. For example, if a package `foo` requires version `bar` equal to or greater than `1.2.3` but less than `1.3.0`, the constraint could be specified as `foo~=1.2.3`.
 
-This syntax is used to specify a minimum version of the package, as well as allowing for updates that might be made to the package that are compatible with the project's requirements. It allows for patch-level updates (e.g. `1.2.3` to `1.2.4`) but not for updates that might introduce backwards-incompatible changes (e.g. `1.2.3` to `1.3.0`).
+This syntax is used to specify a minimum version of the package, as well as allow for updates that might be made to the package that is compatible with the project's requirements. It allows for patch-level updates (e.g. `1.2.3` to `1.2.4`) but not for updates that might introduce backward-incompatible changes (e.g. `1.2.3` to `1.3.0`).
 
 For example, a `requirements` file might contain the following line:
 
@@ -2997,7 +2997,7 @@ __all__ = ['foo']
 
 In this example, `my_module` defines two functions foo and `_bar`. `_bar` is intended to be used only within the module and is not meant to be part of the module's public API. By setting `__all__` to `['foo']`, we tell Python to only export the foo function when other modules import `my_module` using the `from my_module import *` syntax.
 
-## 104- List some of dunder methods?
+## 104- List some of the dunder methods.
 
 1. `__init__`: Constructor method, called when an object is created
 2. `__repr__`: Method that returns a printable representation of an object
@@ -3018,7 +3018,7 @@ In this example, `my_module` defines two functions foo and `_bar`. `_bar` is int
 17. `__bool__`: Method that defines the boolean value of an object
 18. `__format__`: Method that returns a formatted string representation of an object
 
-## 105- List some of dunder methods used in Mathematical operations?
+## 105- List some of the dunder methods used in Mathematical operations.
 
 - `__add__`: Method that defines the behavior of the + operator
 - `__sub__`: Method that defines the behavior of the - operator
@@ -3032,7 +3032,7 @@ In this example, `my_module` defines two functions foo and `_bar`. `_bar` is int
 - `__gt__`: Method that defines the behavior of the > operator
 - `__ge__`: Method that defines the behavior of the >= operator
 
-## 105- List some of Dunder variables?
+## 105- List some of the Dunder variables.
 
 - `__name__`: The name of the current module
 - `__file__`: The path to the file that the module was loaded from
