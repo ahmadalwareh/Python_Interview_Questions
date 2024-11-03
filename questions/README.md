@@ -3138,3 +3138,43 @@ class MyObjListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     serializer_class = MyObjSerializer
 ```
+
+## 109- Create a `LRU Caching` using OrderedDict class:
+
+```Python
+from collections import OrderedDict
+
+class LRUCache:
+    def __init__(self, capacity: int):
+        self.cache = OrderedDict()
+        self.capacity = capacity
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+        # Move the accessed key to the end to show that it was recently used
+        self.cache.move_to_end(key)
+        return self.cache[key]
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            # Update the value and move to the end to mark as recently used
+            self.cache.move_to_end(key)
+        elif len(self.cache) >= self.capacity:
+            # Pop the first item from the OrderedDict (the least recently used item)
+            self.cache.popitem(last=False)
+        # Insert the item as the most recently used
+        self.cache[key] = value
+
+# Example usage
+lru_cache = LRUCache(2)  # capacity of 2
+lru_cache.put(1, 1)
+lru_cache.put(2, 2)
+print(lru_cache.get(1))  # Returns 1
+lru_cache.put(3, 3)      # Evicts key 2
+print(lru_cache.get(2))  # Returns -1 (not found)
+lru_cache.put(4, 4)      # Evicts key 1
+print(lru_cache.get(1))  # Returns -1 (not found)
+print(lru_cache.get(3))  # Returns 3
+print(lru_cache.get(4))  # Returns 4
+```
