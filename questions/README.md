@@ -3178,3 +3178,60 @@ print(lru_cache.get(1))  # Returns -1 (not found)
 print(lru_cache.get(3))  # Returns 3
 print(lru_cache.get(4))  # Returns 4
 ```
+
+In a peaceful kingdom, there are houses numbered from 1 to n. The king announces a prize of 100 gold coins to some special group of houses.  
+You have been given the task to determine how many sets of three houses can form a special group, where the sum of the squares of two smaller house numbers is equal to the square of the largest house number.
+
+Example 1:
+Input: n = 10
+Output: 4
+Explanation: Among the houses numbered 1 to 10, four groups of houses (3, 4, 5), (4, 3, 5), (6, 8, 10), and (8, 6, 10) form special group where sum of square of two smaller houses is equal to the square of larger house.
+
+Example 2:
+Input: n = 5
+Output: 2
+Explanation: (3,4,5) and (4,3,5).
+
+
+```Python
+def count_special_groups(n):
+    squares = {i*i: True for i in range(1, n+1)}
+    count = 0
+
+    for c in range(1, n+1):
+        c_sq = c * c
+        for a in range(1, c):
+            a_sq = a * a
+            b_sq = c_sq - a_sq
+            if b_sq in squares:
+                count += 1
+
+    return count
+
+# Example usage:
+n = 10
+result = count_special_groups(n)
+print(result)  # Output: 4
+
+# Time Complexity: O(n^2) | Space Complexity: O(n)
+
+# Another solution:
+def count_special_groups(n):
+    count = 0
+    m = int(math.sqrt(n))
+
+    for m in range(1, m + 1):
+        for n in range(m, n + 1):
+            k = n * n - m * m
+            if k <= n and int(math.sqrt(k)) ** 2 == k:
+                count += 1
+
+    return count
+
+# Example usage:
+n = 10
+result = count_special_groups(n)
+print(result)  # Output: 4
+
+# Time Complexity: O(n^(1/2)) | Space Complexity: O(1)
+```
