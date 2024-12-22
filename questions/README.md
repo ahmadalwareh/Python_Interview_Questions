@@ -338,7 +338,7 @@ Skeleton code is often created for specific types of projects, such as web appli
 
 Using skeleton code can help you get started with a new project more quickly and can provide a set of established best practices to follow as you develop your project. However, it's important to understand that skeleton code is only a starting point, and you will need to customize and adapt it to your specific needs as you develop your project.
 
-## 15- In Python classes, what is the difference between class methods and static methods? and when to use them.
+## 15- In Python classes, what is the difference between class methods and static methods? and when to use them
 
 In Python, a class method is a method that is bound to the class and not the instance of the class. A class method can be called on the class itself, as well as on any instance of the class. A class method is defined using the `@classmethod` decorator, and it takes the class as its first argument, conventionally named `cls`.
 
@@ -2997,7 +2997,7 @@ __all__ = ['foo']
 
 In this example, `my_module` defines two functions foo and `_bar`. `_bar` is intended to be used only within the module and is not meant to be part of the module's public API. By setting `__all__` to `['foo']`, we tell Python to only export the foo function when other modules import `my_module` using the `from my_module import *` syntax.
 
-## 104- List some of the dunder methods.
+## 104- List some of the dunder methods
 
 1. `__init__`: Constructor method, called when an object is created
 2. `__repr__`: Method that returns a printable representation of an object
@@ -3018,7 +3018,7 @@ In this example, `my_module` defines two functions foo and `_bar`. `_bar` is int
 17. `__bool__`: Method that defines the boolean value of an object
 18. `__format__`: Method that returns a formatted string representation of an object
 
-## 105- List some of the dunder methods used in Mathematical operations.
+## 105- List some of the dunder methods used in Mathematical operations
 
 - `__add__`: Method that defines the behavior of the + operator
 - `__sub__`: Method that defines the behavior of the - operator
@@ -3032,7 +3032,7 @@ In this example, `my_module` defines two functions foo and `_bar`. `_bar` is int
 - `__gt__`: Method that defines the behavior of the > operator
 - `__ge__`: Method that defines the behavior of the >= operator
 
-## 105- List some of the Dunder variables.
+## 105- List some of the Dunder variables
 
 - `__name__`: The name of the current module
 - `__file__`: The path to the file that the module was loaded from
@@ -3139,7 +3139,7 @@ class MyObjListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = MyObjSerializer
 ```
 
-## 109- Create a `LRU Caching` using OrderedDict class:
+## 109- Create a `LRU Caching` using OrderedDict class
 
 ```Python
 from collections import OrderedDict
@@ -3179,21 +3179,20 @@ print(lru_cache.get(3))  # Returns 3
 print(lru_cache.get(4))  # Returns 4
 ```
 
-In a peaceful kingdom, there are houses numbered from 1 to n. The king announces a prize of 100 gold coins to some special group of houses.  
-You have been given the task to determine how many sets of three houses can form a special group, where the sum of the squares of two smaller house numbers is equal to the square of the largest house number.
-
-Example 1:
-Input: n = 10
-Output: 4
-Explanation: Among the houses numbered 1 to 10, four groups of houses (3, 4, 5), (4, 3, 5), (6, 8, 10), and (8, 6, 10) form special group where sum of square of two smaller houses is equal to the square of larger house.
-
-Example 2:
-Input: n = 5
-Output: 2
-Explanation: (3,4,5) and (4,3,5).
-
+## 110- In a peaceful kingdom, there are houses numbered from 1 to n. The king announces a prize of 100 gold coins to some special group of houses. You have been given the task to determine how many sets of three houses can form a special group, where the sum of the squares of two smaller house numbers is equal to the square of the largest house number
 
 ```Python
+#Example 1:
+#Input: n = 10
+#Output: 4
+#Explanation: Among the houses numbered 1 to 10, four groups of houses (3, 4, 5), (4, 3, 5), (6, 8, 10), and (8, 6, 10) form special group where sum of square of two smaller houses is equal to the square of larger house.
+
+#Example 2:
+#Input: n = 5
+#Output: 2
+#Explanation: (3,4,5) and (4,3,5).
+
+
 def count_special_groups(n):
     squares = {i*i: True for i in range(1, n+1)}
     count = 0
@@ -3235,3 +3234,37 @@ print(result)  # Output: 4
 
 # Time Complexity: O(n^(1/2)) | Space Complexity: O(1)
 ```
+
+## 111- Write a solution for the Max Pairwise Product Problem
+
+```Python
+def max_pairwise_product(arr):
+    if len(arr) < 2:
+        raise ValueError("Array must have at least two elements.")
+    
+    # Track two largest positive and two smallest negative numbers
+    max1 = max2 = float('-inf')
+    min1 = min2 = float('inf')
+    
+    for num in arr:
+        if num > max1:
+            max2 = max1
+            max1 = num
+        elif num > max2:
+            max2 = num
+        
+        if num < min1:
+            min2 = min1
+            min1 = num
+        elif num < min2:
+            min2 = num
+    
+    return max(max1 * max2, min1 * min2)
+    # Time Complexity: O(n) | Space Complexity: O(1)
+```
+
+This code handles primary case and edge cases like:
+
+- Array with less than two elements.
+- Array with negative numbers (e.g., −10, −20, −30 → product of two smallest negatives is the largest positive).
+- Array with duplicates (e.g., 5, 5, 5 → product of two largest is 25).
