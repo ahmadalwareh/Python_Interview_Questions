@@ -83,9 +83,9 @@ In this code, we define a function called `apply_twice` that takes another funct
 
 ## 5- Do arguments in Python get passed by reference or value?
 
-In Python, arguments are passed by assignment. This means that when you pass an object to a function as an argument, a reference to the object is passed rather than a copy of the object itself.
+In Python, arguments are passed by object reference. This means that when you pass an object to a function, a reference to the object is passed rather than a copy of the object. The behavior depends on whether the object is mutable or immutable.
 
-For immutable objects, such as numbers, strings, and tuples, this has the same behavior as passing by value. For example, consider the following code:
+The function cannot modify the original object for immutable objects (e.g., numbers, strings, and tuples) because such objects cannot be changed. Instead, any operation that seems to "modify" the object creates a new object, leaving the original one unaffected. For example:
 
 ```Python
 def increment(x):
@@ -96,9 +96,9 @@ increment(a)
 print(a)  # prints 10
 ```
 
-In this code, the `increment` function takes an argument `x` and increments it by `1`. However, when we pass the value `10` to the function as an argument and then print the value of `a`, it is still `10`. This is because the `increment` function operates on a copy of the value of `a` rather than modifying the value of `a` itself.
+Here, the variable `a` remains unchanged because the function increment works with a new reference to the value `11`, leaving the original value of `a` intact.
 
-For mutable objects, such as lists and dictionaries, passing by assignment has the same behavior as passing by reference. For example, consider the following code:
+For mutable objects (e.g., lists and dictionaries), the function operates on the original object because the reference to the same object is passed. For example:
 
 ```Python
 def append_one(lst):
