@@ -121,7 +121,7 @@ Several tools are available for linting, debugging, and profiling in Python. Her
 
    - Pylint: A widely-used linting tool that can detect various issues in Python code, including syntax errors, style issues, and potential bugs.
    - Flake8: A popular linting tool that combines several other tools, including `PyFlakes`, `pycodestyle`, and `McCabe`.
-   - PyCodeStyle (formerly known as `pycodestyle`): A linting tool that checks code for style issues, such as indentation, line length, and naming conventions.
+   - pycodestyle (formerly known as `pep8`): A linting tool that checks code for style issues, such as indentation, line length, and naming conventions.
 
 2. **Debugging**: Debugging is the process of identifying and fixing errors in your code. Some popular tools for debugging Python code include:
 
@@ -145,20 +145,22 @@ from functools import reduce
 numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 # Use filter to select only even numbers
-even_numbers = filter(lambda x: x % 2 == 0, numbers)
-print(list(even_numbers))  # prints [2, 4, 6, 8, 10]
+# filter returns a lazy iterator, so wrap it in list() to be able to reuse it below
+even_numbers = list(filter(lambda x: x % 2 == 0, numbers))
+print(even_numbers)  # prints [2, 4, 6, 8, 10]
 
 # Use reduce to compute the product of all even numbers
 product = reduce(lambda x, y: x * y, even_numbers)
 print(product)  # prints 3840
-
 ```
 
 In this example, we define a list of numbers and use the `filter` function to select only the even numbers from the list. The `filter` function takes a function and an iterable as arguments and returns an iterator that yields the elements of the iterable for which the function returns `True`. In this case, we pass a `lambda` function that returns `True` if its argument is even and `False` otherwise, and we pass the list of numbers as the iterable.
 
-We then use the `reduce` function from the `functools` module to compute the product of all the even numbers in the `list`. The `reduce` function takes a function and an iterable as arguments and applies the function to the elements of the iterable in a cumulative manner, returning a single result. In this case, we pass a lambda function that multiplies its arguments and passes the iterator returned by `filter` as the iterable.
+We then use the `reduce` function from the `functools` module to compute the product of all the even numbers in the `list`. The `reduce` function takes a function and an iterable as arguments and applies the function to the elements of the iterable in a cumulative manner, returning a single result. In this case, we pass a lambda function that multiplies its arguments and pass the list of even numbers as the iterable.
 
-Both `filter` and `reduce` are higher-order functions, meaning they take a function as an `argument` and return a new function. They are helpful for concisely expressing complex operations on iterable objects in Python.
+Note the `list()` call around `filter`. In Python 3 `filter` returns a lazy iterator that can only be consumed once. Had we kept the raw iterator and printed it with `print(list(even_numbers))` first, that call would have exhausted it, and the later `reduce` would raise `TypeError: reduce() of empty iterable with no initial value` instead of returning `3840`. This one-shot behaviour of iterators is a common interview gotcha.
+
+Both `filter` and `reduce` are higher-order functions, meaning they take another function as an argument. (A higher-order function is one that takes a function as an argument, returns a function, or both — `filter` returns an iterator and `reduce` returns a single accumulated value, so neither returns a new function here.) They are helpful for concisely expressing complex operations on iterable objects in Python.
 
 ## 8- What are `list` and `dict` comprehensions?
 
@@ -236,20 +238,20 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
    print(10 / 3.0)  # Output: 3.3333333333333335
    ```
 
-3. _Exception handling_: In Python 2.x, the `except` statement can be used to catch exceptions of any type, while in Python 3.x, the `except` statement must specify the type of exception being caught.
+3. _Exception handling_: In Python 2.x, the exception instance is bound with a comma (`except ValueError, e:`), while Python 3.x requires the `as` keyword (`except ValueError as e:`). A bare `except:` that catches every exception type remains valid in both versions, although catching a specific type is the recommended practice.
 
    ```Python
    # Python 2.x
    try:
        x = 1 / 0
-   except:
-       print("An exception occurred")
+   except ZeroDivisionError, e:
+       print("An exception occurred: %s" % e)
 
    # Python 3.x
    try:
        x = 1 / 0
-   except Exception:
-       print("An exception occurred")
+   except ZeroDivisionError as e:
+       print("An exception occurred: {}".format(e))
    ```
 
 4. _Iterators_: In Python 2.x, the `iteritems` method is used to iterate over the keys and values of a dictionary, while in Python 3.x, the `items` method is used.
@@ -282,7 +284,7 @@ In addition to these techniques, Python also provides tools for controlling and 
 
 ```Python
 _list = ['a', 'b', 'c', 'd', 'e']
-print _list[10:]
+print(_list[10:])
 ```
 
 _The output:_
@@ -342,7 +344,7 @@ Using skeleton code can help you get started with a new project more quickly and
 
 In Python, a class method is a method that is bound to the class and not the instance of the class. A class method can be called on the class itself, as well as on any instance of the class. A class method is defined using the `@classmethod` decorator, and it takes the class as its first argument, conventionally named `cls`.
 
-A static method is a method that is bound to a class and not the instance of the class, but it does not receive any additional arguments beyond the self parameter. A static method is defined using the `@staticmethod` decorator.
+A static method is also bound to the class rather than to an instance, but unlike a class method it receives no implicit first argument at all — neither `self` nor `cls`. It behaves like a plain function that happens to live in the class namespace. A static method is defined using the `@staticmethod` decorator.
 
 Here's an example of how to define and use class methods and static methods in Python:
 
@@ -362,17 +364,17 @@ class MyClass:
         return arg
 
 # Call a class method
-result = MyClass.class_method(arg)
+result = MyClass.class_method("hello")
 
 # Call a static method
-result = MyClass.static_method(arg)
+result = MyClass.static_method("hello")
 
 # Call a class method on an instance of the class
-obj = MyClass(value)
-result = obj.class_method(arg)
+obj = MyClass(42)
+result = obj.class_method("hello")
 
 # Call a static method on an instance of the class
-result = obj.static_method(arg)
+result = obj.static_method("hello")
 ```
 
 In general, you should use **_class methods_** when defining a method that operates on the class itself rather than on an instance of the class. An example of this might be a factory method that creates a new class instance with some default values. You should use **_static methods_** when you need to define a method that operates on an argument or variables that are independent of the class and its instances. An example of this might be a utility function that performs some computation or transformation on its arguments but does not need to access any class or instance attributes.
@@ -476,7 +478,7 @@ In Python, tuples, sets, and lists are all data types that can be used to store 
 
 1. **Tuples** are immutable, which means that you cannot modify the values of the items in a tuple once it has been created. They are defined using parentheses `()` and their items are separated by commas. also, tuples are generally faster and use less memory than lists, because they do not have the overhead of the extra methods and behaviors that are associated with lists. However, the difference in performance between tuples and lists is usually small and may not be noticeable in most cases.
 
-2. **Sets** are also immutable, but unlike tuples, they do not have a specific order and do not allow duplicate items. Sets are defined using curly braces `{}` and their items are separated by commas. also, sets are generally faster and use less memory than lists, because they are implemented using a hash table data structure, which allows for efficient insertion, deletion, and lookup of items. However, sets do not maintain the order of their items, which can be a drawback if you need to preserve the order of the items in your collection.
+2. **Sets** are mutable, but unlike lists they do not have a specific order and do not allow duplicate items. Sets are defined using curly braces `{}` and their items are separated by commas — note that `{}` on its own creates an empty dictionary, so use `set()` for an empty set. You can add and remove items after creation with `add()`, `remove()`, and `discard()`. Sets provide much faster membership tests (`x in s`) than lists, because they are implemented using a hash table data structure, which allows for efficient insertion, deletion, and lookup of items. Their items must be hashable, which means a set can hold tuples but not lists or other sets. If you need an immutable, hashable set, use `frozenset` instead. However, sets do not maintain the order of their items, which can be a drawback if you need to preserve the order of the items in your collection.
 
 3. **Lists** are mutable, which means that you can change the values of their items after the list has been created. They are defined using square brackets `[]` and their items are separated by commas. also, Lists are generally slower and use more memory than tuples, because they are mutable and have the overhead of the extra methods and behaviors that are associated with them. However, lists are more flexible than tuples because you can modify their items after the list has been created.
 
@@ -490,14 +492,22 @@ s = {3, 6, 9}
 # Create a list
 l = [1, 2, 3]
 
-# Modify a value in a list (this is not possible for tuples or sets)
+# Modify a value at an index in a list (not possible for tuples, which are
+# immutable, nor for sets, which are unordered and cannot be indexed)
 l[1] = 4
 
-# Add an item to a list (this is not possible for tuples or sets)
+# Add an item to a list (not possible for tuples, which are immutable)
 l.append(5)
+
+# Sets are mutable too, but they are unordered, so items are added with add()
+s.add(12)
+s.discard(3)
+
+# A frozenset is the immutable counterpart of a set
+fs = frozenset([3, 6, 9])
 ```
 
-Tuples and sets are generally used when you want to store a collection of items that should not be modified, while lists are used when you need to store a collection of items that you want to be able to modify.
+Tuples are generally used when you want to store a collection of items that should not be modified, lists when you need an ordered collection that you want to be able to modify, and sets when you need fast membership tests and automatic removal of duplicates and do not care about order.
 
 ## 20- What are pickling and unpickling in Python?
 
@@ -535,17 +545,34 @@ To use multiple inheritance in Python, you can specify multiple superclasses in 
 ```Python
 class Base1:
     # Base1 class definition
+    pass
 
 class Base2:
     # Base2 class definition
+    pass
 
 class Derived(Base1, Base2):
     # Derived class definition
+    pass
 ```
 
 In this example, the `Derived` class inherits from both the `Base1` and `Base2` classes.
 
-It is important to note that Python uses a method resolution order (MRO) to determine which method should be called when a method with the same name is inherited from multiple superclasses. The MRO is based on the order in which the superclasses are specified in the class definition, and it is used to resolve conflicts when a method is defined in multiple superclasses.
+Note that a class body cannot be empty in Python, which is why each class above uses `pass`; a comment alone is not enough and raises an `IndentationError`.
+
+It is important to note that Python uses a method resolution order (MRO) to determine which method should be called when a method with the same name is inherited from multiple superclasses. The MRO is computed with the C3 linearisation algorithm. It respects the order in which the superclasses are listed, but it also guarantees that a class always appears before its own parents, so it is not a simple left-to-right search. You can inspect it at any time with `ClassName.__mro__` or `ClassName.mro()`:
+
+```Python
+class A: pass
+class B(A): pass
+class C(A): pass
+class D(B, C): pass
+
+print([cls.__name__ for cls in D.__mro__])
+# Output: ['D', 'B', 'C', 'A', 'object']
+```
+
+Here `A` comes after both `B` and `C`, even though `B` inherits from `A`, because C3 places every class ahead of its ancestors.
 
 For more information about multiple inheritance in Python, you can refer to the documentation on class inheritance in the Python tutorial.
 
@@ -571,7 +598,35 @@ To avoid these and other issues related to performance and concurrency in Python
 
 ## 23- How to achieve multithreading in Python?
 
-Python offers a multi-threading package but it is not good for speeding up the code. The GIL is a great way though it is not multithreading. It executes one at a time but takes turns for different threads fast which makes it seem like processes are running simultaneously.
+Multithreading in Python is achieved with the built-in `threading` module, either by instantiating `threading.Thread` with a target callable or by using `concurrent.futures.ThreadPoolExecutor` for a higher-level pool interface.
+
+```Python
+import threading
+
+def worker(name):
+    print(f"worker {name} running")
+
+threads = [threading.Thread(target=worker, args=(i,)) for i in range(3)]
+
+for t in threads:
+    t.start()   # begin execution
+
+for t in threads:
+    t.join()    # wait for completion
+```
+
+The same thing with a pool, which handles starting and joining for you:
+
+```Python
+from concurrent.futures import ThreadPoolExecutor
+
+with ThreadPoolExecutor(max_workers=3) as executor:
+    results = list(executor.map(worker, range(3)))
+```
+
+It is important to understand what this does and does not buy you. Because of the Global Interpreter Lock, only one thread executes Python bytecode at a time, so threads take rapid turns rather than truly running Python code in parallel on multiple cores. This means threading does **not** speed up CPU-bound work such as number crunching, and may even slow it down slightly because of the switching overhead.
+
+Threads are still very effective for I/O-bound work — reading from the network, querying a database, or writing files — because a thread releases the GIL while it waits on I/O, allowing other threads to run. For CPU-bound work, use the `multiprocessing` module or `ProcessPoolExecutor` instead, which run separate processes each with their own interpreter and GIL.
 
 ## 24- What is the use of `with` in Python?
 
@@ -582,11 +637,38 @@ The `with` statement is used to manage resources that need to be acquired and re
 Here is an example of how to use the `with` statement to open and read a file in Python:
 
 ```Python
+with open('filename.txt', 'r') as f:
+    contents = f.read()
+
+# the file is closed automatically here, even if f.read() raised an exception
+```
+
+Without the `with` statement you would have to release the resource yourself in a `try`/`finally` block. The following code is equivalent to the example above, which shows what `with` saves you from writing:
+
+```Python
 f = open('filename.txt', 'r')
 try:
     contents = f.read()
 finally:
     f.close()
+```
+
+You can also write your own context manager, either by implementing `__enter__` and `__exit__` on a class or by using the `@contextlib.contextmanager` decorator:
+
+```Python
+from contextlib import contextmanager
+
+@contextmanager
+def managed_resource(name):
+    print(f"acquiring {name}")
+    resource = {"name": name}
+    try:
+        yield resource          # the value bound by "as"
+    finally:
+        print(f"releasing {name}")
+
+with managed_resource("db connection") as res:
+    print(f"using {res['name']}")
 ```
 
 ## 25- How are `.py`, `.pyi`, `.pyd`, and `.pyc` files different?
@@ -613,7 +695,7 @@ import foo
 foo.foo()
 ```
 
-In this example, `foo.py` is a Python source file that defines a function called `foo`. `bar.py` is another Python source file that imports the `foo` module and calls the `foo` function. When `bar.py` is executed, the Python interpreter will create a compiled `foo.pyc` file (if it doesn't already exist) and use it to execute the code in `foo.py`.
+In this example, `foo.py` is a Python source file that defines a function called `foo`. `bar.py` is another Python source file that imports the `foo` module and calls the `foo` function. When `bar.py` is executed, the Python interpreter compiles the imported module to bytecode and caches it (if a current cached copy does not already exist), then executes that bytecode. In Python 3 this cache is not written next to the source as `foo.pyc`; it goes into a `__pycache__` directory with the interpreter version in the name, for example `__pycache__/foo.cpython-312.pyc`. Note that only imported modules are cached this way — the script you run directly is not.
 
 ## 26- What are decorators in Python?
 
