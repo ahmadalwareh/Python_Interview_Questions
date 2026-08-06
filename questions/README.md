@@ -1,10 +1,21 @@
-# 100+ Python Interview Questions
+# 130+ Python Interview Questions
 
 ## 1- Python uses a Global Interpreter Lock. Does that mean it doesn’t use actual threads?
 
-No, Python uses actual threads, but the Global Interpreter Lock (GIL) is a mechanism that prevents multiple native threads from executing Python bytecodes at once. This lock is necessary because CPython, the reference implementation of Python, is not thread-safe, meaning that multiple threads can potentially interfere with each other and compromise the integrity of an application.
+No — Python threads are **real OS threads**. `threading.Thread` maps to a genuine kernel-scheduled thread (a POSIX `pthread` or a Windows thread), not a green/user-space thread. What the Global Interpreter Lock (GIL) does is narrower than "no threads": it is a single mutex that ensures only **one thread executes Python bytecode at any given moment**. The threads are real; their execution of _Python_ code is serialised.
 
-The GIL makes it easy to write simple, thread-safe Python programs. Still, it can also limit the performance of multithreaded programs, especially ones that rely heavily on CPU-bound operations. In these cases, Python's threading module may need to provide a different level of parallelism. In such cases, consider using an alternative implementation of Python that does not have a GIL, such as PyPy or Jython, or using a different parallel approach, such as the multiprocessing module or subprocesses.
+The reason the GIL exists is CPython's memory management. Every object carries a reference count that is mutated constantly (on nearly every assignment, argument pass, and scope exit). Making each of those increments and decrements individually atomic — with fine-grained locks or atomic instructions — would be slow and deadlock-prone. A single interpreter-wide lock sidesteps all of that: it keeps refcounting correct, keeps single-threaded code fast, and makes writing C extensions dramatically simpler because extension authors can assume no other Python code runs concurrently unless they explicitly release the lock.
+
+The practical consequence a senior engineer needs to internalise:
+
+- **CPU-bound work does not scale across threads.** Ten threads doing heavy computation take turns on one core and finish no faster than one — often slightly slower, because of the lock-handoff overhead. The GIL is released roughly every 5 ms (tunable via `sys.setswitchinterval`) to let another thread take a turn.
+- **I/O-bound work scales fine**, because a thread **releases the GIL while it waits** on a socket, disk, or subprocess. This is why threading is still the right tool for concurrent network calls or file operations.
+- To get true CPU parallelism, sidestep the GIL: use `multiprocessing`/`ProcessPoolExecutor` (separate processes, each with its own interpreter and GIL), or push the hot loop into a C extension that releases the GIL (NumPy, Cython with `nogil`).
+
+Two clarifications that come up constantly:
+
+- **The GIL is a CPython implementation detail, not a language feature.** Jython (JVM) and IronPython (.NET) have no GIL. A very common mistake is to lump PyPy in with them — **PyPy has a GIL too.**
+- **The GIL is on its way out (optionally).** PEP 703 introduced a **free-threaded build** of CPython (experimental in 3.13, `python3.13t`), which removes the GIL in favour of fine-grained locking and lets threads run Python code truly in parallel. PEP 684 added per-interpreter GILs so sub-interpreters can run concurrently. These are opt-in and still maturing; the default CPython build you deploy today still has one global GIL.
 
 ## 2- Is it possible to have a producer thread reading from the network and a consumer thread writing to a file work in parallel? What about the GIL?
 
@@ -111,28 +122,57 @@ print(a)  # prints [1, 2, 3, 1]
 
 In this code, the `append_one` function takes an argument `lst` and appends the value `1` to the end of the list. When we pass the list `[1, 2, 3]` to the function as an argument and then print the value of `a`, the list has been modified to include the value `1` at the end. This is because the `append_one` function operates on the original list rather than a copy of the list.
 
+The precise term for this model is **"call by object reference"** (sometimes "call by sharing"): the parameter name inside the function is bound to the _same object_ the caller passed. This is neither C's pass-by-value (which would copy the object) nor C++'s pass-by-reference (which would let you rebind the caller's variable). The single most important distinction to be able to state is **mutation versus rebinding**:
+
+- **Mutating** the object through the parameter (`lst.append(1)`, `d["k"] = 1`) is visible to the caller, because both names point at the one shared object.
+- **Rebinding** the parameter (`lst = [99]`, `x = x + 1`) is _not_ visible to the caller. Assignment binds the local name to a brand-new object; the caller's variable still points at the original.
+
+```Python
+def mutate(lst):
+    lst.append(99)      # mutates the shared object -> caller sees it
+
+def rebind(lst):
+    lst = [99]          # rebinds the LOCAL name only -> caller unaffected
+
+a = [1, 2, 3]
+mutate(a)
+print(a)                # [1, 2, 3, 99]
+
+b = [1, 2, 3]
+rebind(b)
+print(b)                # [1, 2, 3]  <- unchanged
+```
+
+You can see the mechanism with `id()`: inside `mutate`, `id(lst)` equals `id(a)` (same object); inside `rebind`, the assignment makes `id(lst)` change while `id(b)` stays put. Immutable objects behave "like pass-by-value" only because you can never mutate them — you can only rebind — so there is no shared mutation to observe.
+
 It is crucial to understand how Python passes arguments when writing functions, as it can affect the behavior of your code. If you want to modify an object that you pass to a function and have the changes persist outside the function, you must use a mutable object such as a list or a dictionary. If you want to pass an object to a function and ensure that it is not modified, you should use an immutable object such as a number, string, or tuple.
 
 ## 6- What tools to use for linting, debugging, and profiling?
 
-Several tools are available for linting, debugging, and profiling in Python. Here are a few popular options:
+**Linting and formatting** (catch problems and enforce style before the code runs):
 
-1. **Linting**: Linting checks code for syntax and style errors. A linting tool can help you identify and fix issues with your code before you run it. Some popular linting tools for Python include:
+- **Ruff** — the modern default: an extremely fast (Rust-based) linter that consolidates and replaces Flake8, isort, pydocstyle, pyupgrade, and dozens of plugins, and also ships a formatter (`ruff format`) that is a drop-in for Black. One tool, one config in `pyproject.toml`.
+- **Black** — the opinionated, near-zero-config formatter that ended most style debates; Ruff's formatter is compatible with it.
+- **Flake8 / Pylint** — the previous generation. Pylint is still valued for its deeper, more opinionated analysis (design smells, refactor hints); Flake8 (PyFlakes + pycodestyle + McCabe) is largely superseded by Ruff.
+- **Type checkers** are a distinct and essential category: **mypy** (the reference checker) and **Pyright** (fast, powers Pylance in VS Code) verify type annotations statically and catch a whole class of bugs before runtime.
+- In practice these run automatically via **pre-commit** hooks and in CI, so nothing unformatted or unlinted lands on the main branch.
 
-   - Pylint: A widely-used linting tool that can detect various issues in Python code, including syntax errors, style issues, and potential bugs.
-   - Flake8: A popular linting tool that combines several other tools, including `PyFlakes`, `pycodestyle`, and `McCabe`.
-   - pycodestyle (formerly known as `pep8`): A linting tool that checks code for style issues, such as indentation, line length, and naming conventions.
+**Debugging:**
 
-2. **Debugging**: Debugging is the process of identifying and fixing errors in your code. Some popular tools for debugging Python code include:
+- **`breakpoint()`** — the built-in (Python 3.7+) that drops into the debugger at that line; it honours the `PYTHONBREAKPOINT` env var so you can redirect it to another debugger or disable it globally. This has replaced the old `import pdb; pdb.set_trace()`.
+- **pdb / ipdb** — the standard library debugger (step, inspect, set breakpoints, post-mortem with `pdb.pm()`); `ipdb` adds IPython's niceties.
+- **IDE debuggers** — PyCharm and VS Code offer graphical breakpoints, conditional breakpoints, watch expressions, and remote debugging (`debugpy`).
+- Humble but effective: `logging` at DEBUG level, and `rich`/`icecream` for readable inspection output.
 
-   - PDB: The Python debugger is a built-in tool that allows you to step through your code, inspect variables, and set breakpoints.
-   - IPython: An interactive Python shell that provides additional debugging features, such as tab completion, object introspection, and history.
-   - PyCharm: An integrated development environment (IDE) with a powerful debugger and other tools.
+**Profiling** (measure before you optimise — never guess):
 
-3. **Profiling**: is the process of measuring the performance of your code and identifying bottlenecks. Some popular tools for profiling Python code include:
-   - cProfile: A built-in module that provides a simple interface for profiling Python code.
-   - perf: A command-line tool that provides detailed performance information about Python programs.
-   - Pyflame: A tool that generates a flame graph of Python program execution, showing where time is being spent.
+- **cProfile** (+ `pstats`, or the `snakeviz` visualiser) — the built-in deterministic profiler for _where CPU time goes_ by function.
+- **timeit** — for micro-benchmarks of small snippets, handling warm-up and repetition correctly.
+- **py-spy** — a sampling profiler that attaches to a _running_ process without modifying or restarting it and emits flame graphs; the go-to for profiling production services (it replaces the abandoned Pyflame).
+- **line_profiler** (`@profile`) — line-by-line timing when you need to know which _line_ in a hot function is the cost.
+- **Memory profiling** is a separate concern: **tracemalloc** (standard library, snapshots and diffs allocations by line), **memory_profiler** (per-line memory), and **Scalene** (profiles CPU, GPU, and memory together, and separates Python time from native/C time — often the single most informative tool).
+
+The senior mindset behind all this: formatting and linting are automated and non-negotiable (pre-commit + CI), and optimisation is always driven by a profiler on representative data, not by intuition about what is "probably slow".
 
 ## 7- Give an example of filter and reduce over an iterable object
 
@@ -272,13 +312,42 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
 
 ## 11- How is memory managed in Python?
 
-In Python, memory management is handled by the Python interpreter itself. When a Python program runs, the interpreter creates and manages several objects in memory to store the data used by the program. The interpreter also tracks the objects that are no longer being used and reclaims their memory, a process known as garbage collection.
+CPython manages memory automatically through **two cooperating mechanisms**: reference counting (the primary, always-on system) and a cyclic garbage collector (a backup for reference cycles). Understanding that split is the core of a senior-level answer.
 
-One of the critical features of Python's memory management is its use of reference counting to keep track of the objects the program uses. When an object is created, the interpreter increments a reference count for that object. When the object is no longer needed, the reference count is decremented. When the reference count reaches zero, the interpreter knows the object is no longer being used and can reclaim its memory.
+**1. Reference counting — the primary mechanism.** Every object carries a counter of how many references point to it (visible, with caveats, via `sys.getrefcount(obj)`). The count is incremented when a new name binds to the object and decremented when a reference goes away (rebinding, `del`, scope exit). The instant it hits **zero**, the object is deallocated immediately and deterministically — memory is reclaimed the moment the last reference disappears, not at some later sweep.
 
-Python also uses a technique called "generational garbage collection" to improve the efficiency of its garbage collection process. This involves dividing objects into different generations based on how long they have been in use. Newer objects are placed in a "young generation," while older objects are placed in an "old generation." The garbage collector focuses on the young generation first since it is more likely to contain objects no longer being used. This helps to reduce the overall time required for garbage collection.
+```Python
+import sys
+a = []
+b = a
+print(sys.getrefcount(a))   # 3: a, b, and the temporary arg to getrefcount itself
+del b
+print(sys.getrefcount(a))   # 2
+```
 
-In addition to these techniques, Python also provides tools for controlling and monitoring the use of memory in a program. For example, the `sys.getsizeof()` function can be used to determine the size of an object in memory, and the `gc` module can be used to trigger garbage collection manually or to tune the garbage collection parameters.
+Reference counting is simple and prompt, but it has one fatal blind spot: **reference cycles.** Two objects that refer to each other keep each other's count above zero even when nothing else can reach them.
+
+**2. The cyclic garbage collector — the backup.** To reclaim those cycles, CPython adds a second collector (the `gc` module) that periodically finds groups of container objects reachable only through cycles and frees them. Key facts:
+
+- It only tracks **container types** (lists, dicts, sets, class instances) — the only objects that can _form_ cycles. Atomic objects like `int` and `str` are managed by refcounting alone and are never touched by the cyclic collector.
+- It is **generational**: objects are grouped into three generations (0, 1, 2). New objects start in generation 0, which is collected most often; survivors are promoted to older generations that are scanned progressively less frequently. This exploits the "most objects die young" observation to keep collection cheap.
+- It runs based on allocation-count thresholds (`gc.get_threshold()`), not a timer. You can trigger it (`gc.collect()`), disable it (`gc.disable()` — sometimes done in latency-sensitive or short-lived batch processes), and inspect it.
+
+**3. The allocator layers — where the memory actually comes from.** CPython does not call `malloc` for every object. All Python objects live in a **private heap**, fronted by a layered allocator:
+
+- **pymalloc** is the object allocator for small objects (≤ 512 bytes — the overwhelming majority). It requests big chunks from the OS called **arenas** (256 KB), carves each arena into 4 KB **pools**, and each pool into fixed-size **blocks**. Same-sized small objects are served from the same pool, which cuts fragmentation and avoids constant OS calls.
+- Larger allocations bypass pymalloc and go to the system allocator.
+- A crucial consequence: **freeing Python objects does not necessarily return memory to the OS.** Freed blocks go back to pymalloc's free lists for reuse; an arena is only released when _entirely_ empty. This is why a process's resident memory often stays high after a big data structure is discarded — the memory is free for reuse by Python, just not handed back.
+
+**4. Caches that reuse objects.** CPython pre-creates and reuses certain immutable objects, so they are never really "allocated" in hot paths: **small integers −5 to 256** are singletons, and many **strings are interned** (identifiers, and short compile-time literals). This is why `256 is 256` is `True` but `257 is 257` may be `False` (see the integer-caching question).
+
+**5. Tools and hooks worth naming:**
+
+- `sys.getsizeof(obj)` — shallow size of one object in bytes (does not follow references).
+- `tracemalloc` — the standard-library way to trace allocations by line and diff snapshots; the right tool for finding a memory leak.
+- `gc.get_objects()`, `gc.get_referrers()`, and libraries like `objgraph` — for hunting down what is keeping an object alive.
+- `weakref` — references that _don't_ increment the count, so they don't keep an object alive (used for caches and to break cycles).
+- `__del__` — a finaliser run at deallocation; unreliable for cleanup (timing isn't guaranteed, and it can even resurrect objects), so prefer context managers for releasing resources.
 
 ## 12- What will be the output of the following code?
 
@@ -441,6 +510,22 @@ To create an abstract class in Python, you need to do the following:
 
 In this example, the `Animal` class is an abstract class because it has an abstract method called `make_sound()`. The `Dog` and `Cat` classes are concrete classes because they provide an implementation for the `make_sound()` method. The `dog` and `cat` objects are instances of the `Dog` and `Cat` classes, respectively, and they can be used to call the `make_sound()` method.
 
+The points that separate a textbook answer from a senior one:
+
+- **The real enforcement is at instantiation, and it is a hard failure.** `Animal()` raises `TypeError: Can't instantiate abstract class Animal with abstract method make_sound` — and so does any subclass that _forgets_ to implement every abstract method. That is the whole value: the failure happens loudly at object-creation time, not later as a mysterious `AttributeError` at first call.
+- **`@abstractmethod` composes with other decorators**, so you can require an abstract `property`, `classmethod`, or `staticmethod` — always with `@abstractmethod` **innermost** (closest to the method):
+
+  ```Python
+  class Shape(abc.ABC):
+      @property
+      @abstractmethod
+      def area(self): ...
+  ```
+
+- **`register()` creates _virtual_ subclasses.** You can declare that an unrelated existing class satisfies an ABC without editing it or inheriting from it — `MyABC.register(SomeClass)` makes `issubclass`/`isinstance` return `True`. This is exactly how the `collections.abc` hierarchy (`Iterable`, `Sequence`, `Mapping`, …) recognises built-in and third-party types.
+- **Prefer inheriting `abc.ABC` over setting `metaclass=abc.ABCMeta`.** `ABC` is just a convenience base class that already uses that metaclass; you only reach for the explicit metaclass form when combining with another metaclass.
+- **ABCs are nominal; `typing.Protocol` is structural.** An ABC requires you to explicitly subclass (or `register`). A `Protocol` (PEP 544) matches any object that merely _has_ the right methods — duck typing that a static type checker can verify — with no inheritance required. Reach for an ABC when you want to _share implementation_ and enforce a contract by inheritance; reach for a Protocol when you only want to describe a shape that arbitrary types can satisfy.
+
 ## 18- What are `*args` and `**kwargs` in Python
 
 In Python, the `*args` and `**kwargs` syntax is used to pass a variable number of arguments to a function.
@@ -471,6 +556,30 @@ my_function(arg1=1, arg2=2, arg3=3)
 ```
 
 Both `*args` and `**kwargs` are commonly used in Python to allow a function to accept a variable number of arguments. They can be useful when you want to write a function that can be flexible and handle a wide range of input parameters.
+
+The senior-level details:
+
+- **The names are convention, not syntax.** It is the `*` and `**` that matter; `*args`/`**kwargs` are just the customary names. `*` collects extra positionals into a **tuple**, `**` collects extra keywords into a **dict**.
+- **There is a fixed parameter order**, and getting it wrong is a `SyntaxError`: standard/positional parameters, then `*args`, then **keyword-only** parameters, then `**kwargs`. Anything after `*args` (or a bare `*`) can _only_ be passed by keyword:
+
+  ```Python
+  def f(a, b, *args, key, **kwargs): ...
+  #     └ positional ┘ └ variadic ┘ └ keyword-only ┘ └ variadic kw ┘
+
+  def g(a, b, *, verbose=False):     # bare * -> verbose is keyword-only
+      ...
+  g(1, 2, verbose=True)              # OK
+  # g(1, 2, True)                    # TypeError: too many positional arguments
+  ```
+
+- **Positional-only parameters** use a `/` marker (Python 3.8+): everything _before_ the `/` cannot be passed by keyword. The built-ins are written this way (`len(obj, /)`), and it lets you rename a parameter later without breaking callers:
+
+  ```Python
+  def h(x, y, /, z):     # x, y positional-only; z either way
+      ...
+  ```
+
+- **`*` and `**` also work at the _call_ site to unpack**, which is the mirror image of collecting them in the signature: `f(*my_list, **my_dict)` spreads a list into positional args and a dict into keyword args. This is why `*args`/`**kwargs` is the standard way to write a **transparent wrapper** (e.g. a decorator) that forwards whatever it received: `def wrapper(*args, **kwargs): return func(*args, **kwargs)`.
 
 ## 19- What is the difference between tuples, sets, and lists in Python?
 
@@ -578,23 +687,29 @@ For more information about multiple inheritance in Python, you can refer to the 
 
 ## 22- What are the pitfalls and problems of Python language?
 
-Performance and concurrency are two common areas where Python programmers may encounter pitfalls and problems. Here are some specific issues to consider in these areas:
+Python's pitfalls fall into two buckets: **language-level footguns** (surprising semantics that bite everyone eventually) and **platform-level limitations** (structural properties of the runtime). A senior engineer should be able to reel off both.
 
-1. **_Performance issues_**: Python is generally slower than compiled languages like C or C++, which means that you may encounter performance issues when running computationally intensive tasks in Python. There are ways to improve the performance of Python code (e.g., using optimized libraries or writing code in Cython), but it is important to be aware of the performance limitations of the language.
+**Language-level gotchas** (most have a dedicated question elsewhere in this file):
 
-2. **_Concurrency issues_**: Python has a global interpreter lock (GIL) that prevents multiple threads from executing Python bytecodes at the same time, which can lead to concurrency issues when running multithreaded programs. There are ways to work around the GIL (e.g., using the `multiprocessing` module), but it is important to be aware of this limitation when writing concurrent programs in Python.
+- **Mutable default arguments.** `def f(x, items=[])` shares _one_ list across all calls, because defaults are evaluated once at definition time. Use `items=None` + `if items is None: items = []`.
+- **Late-binding closures.** `[lambda: i for i in range(3)]` all capture the _variable_ `i`, not its value, so they all return `2`. Bind with a default arg (`lambda i=i: i`).
+- **`is` vs `==`.** `is` compares identity, `==` compares value. Small-int and string caching makes `is` _appear_ to work on values (`256 is 256`) until it suddenly doesn't (`257 is 257`). Only use `is` for `None`/`True`/`False`/sentinels.
+- **Floating-point equality.** `0.1 + 0.2 != 0.3`. Never test floats for exact equality; use `math.isclose`.
+- **Shared references and aliasing.** `[[0] * 3] * 2` makes two references to one inner list; `b = a` does not copy. Know shallow vs deep copy.
+- **Integer division and modulo sign.** `//` floors toward negative infinity, and `%` takes the sign of the divisor — different from C.
+- **Truthiness surprises.** Empty containers, `0`, and `""` are falsy; `if my_list:` tests emptiness, not existence. `if x == None` should be `if x is None`.
+- **Catch-all `except:`** silently swallows bugs and even `KeyboardInterrupt`. Catch specific exceptions.
 
-Here are some specific issues that you may encounter when dealing with performance and concurrency in Python:
+**Platform-level limitations:**
 
-- **Bottlenecks**: It can be difficult to identify which parts of your code are causing performance issues, especially if you are working with large datasets or complex algorithms. You may need to use profiling tools to identify bottlenecks in your code and optimize the most critical parts.
+- **The GIL** serialises Python bytecode execution, so threads don't give CPU-bound parallelism (use `multiprocessing` or C extensions; see the GIL questions).
+- **Raw execution speed.** As a dynamically typed, interpreted language, pure-Python numeric loops are far slower than C — which is why the ecosystem pushes hot paths into NumPy/Cython/native extensions.
+- **Memory footprint.** Every value is a full heap object with refcount and type-pointer overhead; a `list` of a million ints costs far more than a C array (mitigate with `array`, `__slots__`, NumPy, or generators).
+- **Dynamic typing defers errors to runtime.** A typo or type mismatch may only surface on the code path that hits it — the reason type hints + mypy/Pyright and good test coverage matter so much on large codebases.
+- **Packaging and dependency management** are historically painful (multiple competing tools, environment isolation, transitive-dependency conflicts), though `pyproject.toml`, lock files, and tools like uv/Poetry have improved it a lot.
+- **Startup time and distribution.** Shipping Python to machines without an interpreter needs PyInstaller/containers; interpreter start-up is non-trivial for short-lived CLIs.
 
-- **Memory usage**: Memory usage can also be a problem when working with large datasets or complex algorithms in Python. You may need to use memory-efficient data structures and algorithms, or write code in a memory-efficient way, to avoid running out of memory.
-
-- **Lack of parallelism**: Because of the GIL, Python threads are not always able to run in parallel on multiple CPU cores. This can limit the scalability of multithreaded Python programs, especially on systems with many CPU cores.
-
-- **Synchronization issues**: When working with concurrent programs, you may need to synchronize access to shared resources to avoid race conditions and other synchronization issues. This can be challenging in Python, especially if you are not familiar with the tools and techniques available for concurrency control.
-
-To avoid these and other issues related to performance and concurrency in Python, it is important to be aware of the limitations of the language and to plan accordingly when writing and testing your code. You may need to use specialized tools and techniques, such as profiling and optimization tools, to improve the performance and scalability of your Python programs.
+The balanced senior take: none of these make Python a poor choice — its readability, ecosystem, and development speed usually dominate. The skill is knowing _when_ a limitation actually bites (a tight CPU-bound inner loop, a memory-constrained service) and reaching for the right escape hatch, rather than avoiding Python or fighting it prematurely.
 
 ## 23- How to achieve multithreading in Python?
 
@@ -2827,7 +2942,7 @@ print(sorted_list)  # [1, 2, 3, 4, 5, 6]
 - Average case: depends on the gap sequence; roughly **O(n<sup>3/2</sup>)** for this one
 - Worst case: **O(n<sup>2</sup>)**
 
-Shell sort is insertion sort performed over progressively smaller gaps, so far-apart elements move long distances early. Its complexity is governed entirely by the gap sequence — better sequences (Knuth's `3k+1`, Ciura's empirical sequence) improve the worst case to below O(n²) — and no gap sequence makes it beat O(n log n) sorts asymptotically. It is unstable, in place, and mostly of historical/embedded interest.
+The shell sort is insertion sort performed over progressively smaller gaps, so far-apart elements move long distances early. Its complexity is governed entirely by the gap sequence — better sequences (Knuth's `3k+1`, Ciura's empirical sequence) improve the worst case to below O(n²) — and no gap sequence makes it beat O(n log n) sorts asymptotically. It is unstable, in place, and mostly of historical/embedded interest.
 
 ## 71- What are the commands that are used to copy an object in Python?
 
@@ -4271,3 +4386,610 @@ This code handles primary case and edge cases like:
 - Array with duplicates (e.g., 5, 5, 5 → product of two largest is 25).
 
 The reasoning behind `max(max1 * max2, min1 * min2)`: the maximum pairwise product comes either from the two largest values or — when large-magnitude negatives exist — from the two smallest, whose product is positive. A single O(n) pass tracking those four values beats the two obvious alternatives: the brute-force double loop, O(n²), and sorting first, O(n log n) — though the sorted version `max(a[0] * a[1], a[-1] * a[-2])` (or `heapq.nlargest(2, ...)`/`nsmallest(2, ...)`) is a fine first answer before optimising. In the classic statement of this problem the inputs are non-negative, where the two largest alone suffice; the negative-number handling here generalises it.
+
+## 114- What is the difference between `__new__` and `__init__`? And how does object construction work?
+
+They are two distinct steps of a two-phase construction protocol, and conflating them is a common source of confusion.
+
+- **`__new__(cls, ...)` is the actual constructor**: a static method that **allocates and returns** the new instance. It runs _first_, and its job is to produce the object.
+- **`__init__(self, ...)` is the initialiser**: it receives the _already-created_ instance as `self`, configures its attributes, and **returns `None`**. It never creates anything.
+
+When you call `MyClass(args)`, it is the metaclass's `type.__call__` that orchestrates the sequence: it calls `__new__` to get the instance, and then — **only if `__new__` returned an instance of `cls`** — calls `__init__` on it.
+
+```Python
+class Demo:
+    def __new__(cls, *args, **kwargs):
+        print("1. __new__ - creating the instance")
+        instance = super().__new__(cls)     # object.__new__ does the allocation
+        return instance
+
+    def __init__(self, value):
+        print("2. __init__ - initialising the instance")
+        self.value = value
+
+d = Demo(42)
+# 1. __new__ - creating the instance
+# 2. __init__ - initialising the instance
+```
+
+The subtle rule to state explicitly: **if `__new__` returns an object that is not an instance of `cls`, `__init__` is skipped entirely.** This is the mechanism behind returning a cached or different object.
+
+You rarely override `__new__` — `__init__` covers almost every case. The legitimate reasons to reach for it:
+
+- **Subclassing an immutable type** (`int`, `str`, `tuple`, `bytes`, `frozenset`). Because the value is fixed at creation, there is no way for `__init__` to set it — it runs too late. You must intercept `__new__`:
+
+  ```Python
+  class PositiveInt(int):
+      def __new__(cls, value):
+          if value <= 0:
+              raise ValueError("must be positive")
+          return super().__new__(cls, value)   # value must be baked in here
+
+  print(PositiveInt(5) + 10)   # 15  - behaves as an int
+  ```
+
+- **Singletons / instance caching / object pools** — return an existing instance instead of a fresh one (note the caveat that `__init__` still re-runs on the returned instance if it _is_ a `cls` instance, so guard against re-initialising):
+
+  ```Python
+  class Singleton:
+      _instance = None
+      def __new__(cls):
+          if cls._instance is None:
+              cls._instance = super().__new__(cls)
+          return cls._instance
+
+  print(Singleton() is Singleton())   # True
+  ```
+
+- **Metaclasses** (`type.__new__` customises class creation), and factory patterns that return a subclass chosen at runtime.
+
+Two footnotes worth mentioning: `dataclasses`, `NamedTuple`, and most everyday classes never touch `__new__`; and `__new__` is implicitly a static method even though you don't decorate it, which is why it takes `cls` explicitly rather than receiving it like a classmethod.
+
+## 115- How is memory allocated for `list`, `tuple`, and `set`?
+
+The unifying idea first: **all three store _references_ (pointers) to objects, never the objects inline.** `sys.getsizeof(container)` therefore measures the container's own bookkeeping and pointer array, not the elements it points at — a list of a million ints and a list of a million huge strings have the _same_ `getsizeof`.
+
+**`list` — a dynamic array with a separately-allocated buffer.** A `PyListObject` is a small fixed header holding: a pointer to a heap-allocated **array of `PyObject*`**, `ob_size` (the number of elements in use), and `allocated` (the array's current capacity). Because the buffer is separate and resizable, a list can grow and shrink; it **over-allocates** spare capacity so appends are amortised O(1) (see the next question). Indexing is O(1) pointer arithmetic; inserting/deleting at the front is O(n) because everything shifts.
+
+**`tuple` — a fixed array stored inline.** A `PyTupleObject` stores its pointer array **in the same single allocation** as the header (a variable-length object), with no separate buffer and, crucially, **no `allocated` slack** — an immutable tuple is sized exactly once at creation and never grows. That makes a tuple **smaller and slightly faster to build and access** than an equivalent list. CPython goes further: it keeps **free lists** of small tuples for fast reuse, and tuples of constants are cached/interned in compiled code.
+
+```Python
+import sys
+print(sys.getsizeof([1, 2, 3]))    # e.g. 88  - header + pointer buffer + slack
+print(sys.getsizeof((1, 2, 3)))    # e.g. 64  - header + inline pointers, no slack
+```
+
+**`set` — a hash table without values.** A `set` is essentially a `dict` that stores only keys: an open-addressing hash table of slots, each holding a reference and the element's cached hash. It resizes when it passes a load-factor threshold (roughly 3/5 full), trading memory for O(1) membership. Consequences: elements must be **hashable**, there is **no order** guarantee, and a set uses **more** memory than a list of the same elements because most slots sit empty to keep collisions rare. That empty space is exactly what buys O(1) `in` versus a list's O(n).
+
+The practical takeaway for a senior engineer: reach for a **tuple** for fixed, immutable records (smaller, hashable, usable as dict keys), a **list** when you need to grow/mutate an ordered sequence, and a **set** the moment you do repeated membership tests or need de-duplication. For large homogeneous numeric data, none of these are ideal — `array.array` (inline C values, no per-element object) or NumPy (contiguous typed buffer) avoid the per-element pointer-and-object overhead entirely.
+
+## 116- When a list grows beyond its allocated capacity, what happens to the underlying array allocation? And how are the existing elements handled?
+
+This is the mechanism that makes `list.append` **amortised O(1)**, and it is worth being precise about.
+
+A list keeps two numbers: `ob_size` (elements currently used) and `allocated` (slots the backing buffer can hold). As long as `ob_size < allocated`, an append just writes into the next free slot — genuinely O(1). The interesting case is when `ob_size == allocated` and you append again:
+
+1. CPython computes a **new, larger capacity** — it does _not_ grow by one. The growth formula (`list_resize` in CPython) is roughly:
+
+   ```
+   new_allocated = new_size + (new_size >> 3) + 6   # then rounded
+   ```
+
+   i.e. about **12.5% headroom** on top of what's needed, plus a small constant, with the result rounded to a multiple of 4. The resulting capacity progression is 0, 4, 8, 16, 24, 32, 40, 52, 64, 76, 92, 108, … — geometric-ish growth, not linear.
+
+2. It calls **`realloc`** on the pointer buffer to that new capacity. Two things can happen under the hood: the allocator may **extend the block in place** (no copy needed), or, if the adjacent memory is taken, it **allocates a fresh, larger block, copies the existing pointers over, and frees the old block.**
+
+3. **What gets copied is only the array of pointers — never the elements themselves.** The objects the list points to are untouched: same objects, same memory, same `id()`. So a resize is a shallow O(n) copy of _N machine-word pointers_, which is cheap and does not deep-copy or re-create any element.
+
+```Python
+import sys
+lst = []
+prev = None
+for i in range(20):
+    cap = sys.getsizeof(lst)
+    if cap != prev:
+        print(f"len={len(lst):2d}  getsizeof={cap}")   # buffer grows: cap 0,4,8,16,24...
+        prev = cap
+    lst.append(i)
+```
+
+**Why this gives amortised O(1):** because capacity grows geometrically, the total cost of the occasional O(n) copies across `n` appends sums to O(n), so the _average_ cost per append is O(1). Any single append that triggers a resize is O(n), but those are rare and get rarer as the list grows — the classic amortised-analysis result.
+
+Senior-level corollaries:
+
+- **Identity is preserved for elements, not for the buffer.** After a resize, `lst[0] is original_first_element` is still `True`, but the internal buffer address changed — which is why holding a raw pointer into a list from a C extension across an append is a bug.
+- **Pre-size when you know the length.** Building `[None] * n` and assigning by index, or using a list comprehension, avoids repeated regrowth. `list.extend(iterable)` also grows once (using the iterable's length hint) rather than reallocating per element.
+- **Lists also shrink**: deletions that drop usage well below capacity trigger a realloc to a smaller buffer, so a list that was huge and is now small releases most of its buffer.
+- **This is why front operations are the wrong tool.** `insert(0, x)` and `pop(0)` are O(n) regardless of capacity because they shift every pointer. For a queue, use `collections.deque`, which is a linked list of fixed-size blocks with O(1) appends/pops at both ends and never does this whole-array copy.
+
+## 117- What hashing is used for `dict` keys, and how do `__hash__` and `__eq__` interact?
+
+A `dict` (and `set`) is a **hash table**, so every key must be **hashable**: it must implement `__hash__()` returning an int, and `__eq__()` for comparison. The two are a contract, not independent methods.
+
+**How a lookup actually works.** For `d[key]`, CPython:
+
+1. Computes `hash(key)` and uses the low bits to pick a slot in the table.
+2. If the slot is occupied, it compares the stored key to `key` — first with an `is` **identity** short-circuit (fast path: the same object is trivially equal), then with `==`. This comparison is what resolves **collisions**: two different keys can land in the same slot, and `__eq__` decides whether you found your key or a colliding neighbour.
+3. On a collision-and-mismatch, it **probes** further slots (CPython perturbs the probe sequence with more hash bits, an open-addressing scheme) until it finds the key or an empty slot.
+
+So both methods are used on every lookup: `__hash__` to _locate_ the bucket, `__eq__` to _confirm_ the match.
+
+**The invariant you must not break:**
+
+> If `a == b`, then `hash(a) == hash(b)`.
+
+The converse is _not_ required — unequal objects may share a hash (that's just a collision, handled by probing). But if two "equal" objects hash differently, one becomes invisible: it gets stored in one bucket and searched for in another, so `d[a] = 1; d[b]` raises `KeyError` even though `a == b`.
+
+**The consequence for custom classes.** If you override `__eq__`, Python **sets `__hash__` to `None`**, making instances unhashable — a deliberate safeguard, because a custom equality almost always needs a matching hash. You must define both together, typically over the same fields:
+
+```Python
+class Point:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+    def __eq__(self, other):
+        return isinstance(other, Point) and (self.x, self.y) == (other.x, other.y)
+    def __hash__(self):
+        return hash((self.x, self.y))     # hash the same fields eq compares
+
+pts = {Point(1, 2): "a"}
+print(pts[Point(1, 2)])   # 'a' - a different object, equal value, found correctly
+```
+
+`@dataclass(frozen=True)` and `typing.NamedTuple` generate this consistent pair for you, which is the idiomatic way to make a value object usable as a key.
+
+**Why mutable objects are unhashable.** `list`, `dict`, and `set` deliberately have no `__hash__`. If a key could mutate after insertion, its hash would change and it could never be found again — so Python forbids them as keys. The immutable counterparts (`tuple` of hashables, `frozenset`) _are_ hashable, which is exactly how you build **composite keys**.
+
+**Two facts a senior is expected to know:**
+
+- **String and bytes hashing is randomised per process** (SipHash, since Python 3.3, controlled by `PYTHONHASHSEED`). This defends against algorithmic-complexity (hash-flooding) DoS attacks, where an attacker sends keys engineered to collide and degrade a dict to O(n). It also means `hash("x")` differs between runs — never persist or depend on raw hash values across processes. (Dict _insertion order_ is still preserved regardless; that's unrelated to hashing.)
+- **Average lookup is O(1); worst case is O(n)** if hashing degenerates and everything collides. Small integers hash to themselves (`hash(5) == 5`), and `hash(-1)` is special-cased to `-2` because `-1` signals an error in the C API.
+
+## 118- What is `asyncio`, and how do `async`/`await` and the event loop actually work?
+
+`asyncio` is Python's framework for **single-threaded concurrency via cooperative multitasking**. The whole model turns on one distinction: it gives you concurrency _without_ threads by letting one thread juggle thousands of tasks, switching between them only at explicit `await` points.
+
+- An **`async def`** function is a **coroutine function**; calling it does _not_ run it — it returns a **coroutine object**, much as calling a generator function returns a generator. Nothing executes until the coroutine is driven by an event loop.
+- **`await`** suspends the current coroutine until the awaited awaitable completes, and — this is the key part — **hands control back to the event loop** so it can run other ready tasks meanwhile. `await` is a cooperative yield point, not a blocking wait.
+- The **event loop** is the scheduler: a single-threaded loop that keeps a queue of ready tasks, runs each until it hits an `await` that isn't ready, parks it, and (typically via an OS `select`/`epoll`/`kqueue` call) waits for I/O readiness before resuming whichever task's I/O completed.
+
+```Python
+import asyncio
+
+async def fetch(name, delay):
+    print(f"{name} start")
+    await asyncio.sleep(delay)     # yields to the loop; does NOT block the thread
+    print(f"{name} done")
+    return name
+
+async def main():
+    # gather runs them concurrently on ONE thread
+    results = await asyncio.gather(fetch("A", 2), fetch("B", 1), fetch("C", 3))
+    print(results)
+
+asyncio.run(main())   # ~3s total, not 6 - the sleeps overlap
+```
+
+The three `sleep`s overlap because each `await asyncio.sleep` yields control, so the loop starts the next task instead of waiting. Total time is the _longest_ task, not the sum — that's the payoff.
+
+**The non-negotiable rule:** the event loop runs on one thread, so **a blocking call blocks everything.** A plain `time.sleep(2)`, a synchronous `requests.get`, or a CPU-heavy loop inside a coroutine freezes _all_ tasks, because nothing yields back to the loop. You must use async-aware equivalents (`asyncio.sleep`, `aiohttp`/`httpx`, async database drivers), or offload blocking work with `await asyncio.to_thread(func)` (thread pool) or a process pool for CPU-bound work.
+
+Where it fits:
+
+- **Ideal for high-concurrency I/O-bound workloads** — thousands of simultaneous network connections, API calls, or socket clients — where threads would waste memory (each thread has a full stack) and the GIL makes their parallelism moot anyway. One event-loop thread handling 10,000 sockets is the canonical win.
+- **Useless for CPU-bound work.** Coroutines don't sidestep the GIL and there's only one thread; heavy computation needs `multiprocessing`.
+- **`await` composes; `create_task` fans out.** `await coro` runs sequentially; `asyncio.create_task(coro)` schedules it to run concurrently and returns a `Task` you can await later; `asyncio.gather`/`asyncio.TaskGroup` (3.11+) run many concurrently and collect results.
+
+Mental model to close on: `asyncio` is **not parallelism** — it's one worker interleaving many jobs by never sitting idle during I/O. It trades the OS scheduler's pre-emptive thread switching for explicit, cheap, cooperative switching at `await`, which is why it scales to far more concurrent I/O operations than threads while sidestepping the data races that pre-emptive threading invites.
+
+## 119- Threading, multiprocessing, or asyncio — how do you choose a concurrency model?
+
+The decision reduces to one question first — **is the work I/O-bound or CPU-bound?** — and the GIL is the reason the answer matters.
+
+| Model | Parallelism | Best for | Cost |
+| --- | --- | --- | --- |
+| **`threading`** | No (GIL serialises bytecode) | I/O-bound, moderate concurrency, blocking libraries | Pre-emptive → needs locks; ~MBs per thread stack |
+| **`multiprocessing`** | **Yes** (separate interpreters) | **CPU-bound** work | Process overhead; data must be pickled/IPC'd |
+| **`asyncio`** | No (one thread) | I/O-bound, **very high** concurrency | Needs async-native libraries; one blocking call stalls all |
+
+**CPU-bound work → `multiprocessing` (or a native extension).** Number crunching, image processing, and parsing gain nothing from threads because the GIL lets only one thread run Python bytecode at a time. Separate _processes_ each have their own interpreter and GIL, so they genuinely run in parallel on multiple cores. The price is that they don't share memory — arguments and results are **pickled** and shipped over IPC — so it pays off only when the compute per task dwarfs that transfer cost. (The alternative is to keep threads but do the heavy lifting in a C extension that releases the GIL, which is exactly what NumPy does.)
+
+**I/O-bound work → `threading` or `asyncio`.** While a thread waits on a socket, disk, or subprocess, it releases the GIL, so other threads make progress. Both models overlap I/O effectively; the choice between them is about scale and ecosystem:
+
+- **`threading`** is the pragmatic choice for **moderate** concurrency (tens to low hundreds of tasks) and, decisively, when you must use **blocking libraries** (a synchronous DB driver, `requests`, legacy SDKs). Its downside is pre-emptive switching, which can interrupt between any two bytecodes, so shared mutable state needs `Lock`/`Queue` and invites race conditions.
+- **`asyncio`** wins at **massive** concurrency (thousands of simultaneous connections) because tasks are cheap (no per-thread stack) and switching is explicit at `await`. But it demands an **async-native stack top to bottom** (`aiohttp`/`httpx`, async DB drivers); a single blocking call anywhere stalls the whole event loop.
+
+The high-level interface for the first two is **`concurrent.futures`**, whose `ThreadPoolExecutor` and `ProcessPoolExecutor` share an identical API — so you can write pool code once and switch models by changing one class name:
+
+```Python
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+
+# I/O-bound: threads
+with ThreadPoolExecutor(max_workers=16) as pool:
+    pages = list(pool.map(download, urls))
+
+# CPU-bound: processes - same API, real parallelism
+with ProcessPoolExecutor() as pool:
+    results = list(pool.map(crunch, big_inputs))
+```
+
+A senior would add: these are not mutually exclusive — a real service often combines them (an `asyncio` web layer that offloads CPU work to a `ProcessPoolExecutor` via `loop.run_in_executor`), and the honest first step is always to **measure** whether the bottleneck is I/O wait or CPU before picking a model. And on the horizon, the free-threaded (no-GIL) builds from PEP 703 will eventually let `threading` deliver true CPU parallelism, changing this calculus.
+
+## 120- What is a metaclass, and when would you actually use one?
+
+The one-line definition: **a metaclass is the class of a class.** Just as an object is an instance of a class, a class is an instance of a metaclass. By default every class is an instance of **`type`**, and `type` is the built-in metaclass.
+
+```Python
+class Foo: pass
+print(type(Foo))            # <class 'type'>  - Foo is an instance of type
+print(type(Foo()))          # <class 'Foo'>   - Foo() is an instance of Foo
+print(isinstance(Foo, type))  # True
+```
+
+Because `type` is callable, you can even create classes dynamically without the `class` statement — `type(name, bases, namespace)` is what the `class` block desugars to:
+
+```Python
+Dog = type("Dog", (), {"sound": "woof", "speak": lambda self: self.sound})
+print(Dog().speak())        # 'woof'
+```
+
+**How a custom metaclass hooks in.** You subclass `type` and override `__new__` (to alter the class object as it is built) or `__init__` (to configure it afterward), then attach it with `metaclass=`. The metaclass runs **once, at class-definition time**, letting you inspect or rewrite the class body:
+
+```Python
+class AutoRepr(type):
+    def __new__(mcs, name, bases, namespace):
+        cls = super().__new__(mcs, name, bases, namespace)
+        if "__repr__" not in namespace:            # inject a default repr
+            cls.__repr__ = lambda self: f"{name}({vars(self)})"
+        return cls
+
+class Point(metaclass=AutoRepr):
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+
+print(Point(1, 2))   # Point({'x': 1, 'y': 2})
+```
+
+**When you'd actually use one — and when you wouldn't.** Metaclasses solve exactly one problem: **customising class creation itself** (validating or registering classes, injecting methods, enforcing conventions across a whole class hierarchy). The canonical real-world users are frameworks: Django's and SQLAlchemy's ORMs use metaclasses to turn declarative `class Model` bodies into database-mapped objects, ABCs use `ABCMeta`, and enums use `EnumMeta`.
+
+But for application code the honest senior answer is **"almost never — reach for something simpler first"**:
+
+- **`__init_subclass__`** (Python 3.6+) handles most "do something whenever this class is subclassed" needs (auto-registration, validation) without a metaclass at all.
+- **`__set_name__`** covers descriptor-naming needs.
+- **Class decorators** can rewrite a class after creation and are far easier to read and compose than a metaclass.
+
+The famous Tim Peters line captures the judgement expected of a senior: _"If you wonder whether you need metaclasses, you don't."_ Know what they are and how the `type`/instance chain works — the mechanism underpins ORMs and is a favourite interview probe — but treat writing one in ordinary code as a red flag rather than a flex. One practical gotcha to mention: metaclass conflicts. If two base classes have different (non-subclass-related) metaclasses, Python refuses to create the derived class.
+
+## 121- Do Python's type hints do anything at runtime?
+
+The blunt answer that separates people who've _used_ type hints from people who've only read about them: **by default, no — the interpreter does not enforce them at all.** Annotations are hints for humans and _external_ tools; passing the "wrong" type runs happily until something unrelated breaks.
+
+```Python
+def add(a: int, b: int) -> int:
+    return a + b
+
+print(add("x", "y"))   # 'xy' - no error; the hints are not checked at runtime
+```
+
+What type hints actually give you:
+
+- **Static analysis.** Tools like **mypy** and **Pyright** (which powers Pylance in VS Code) read the annotations _before_ the code runs and flag mismatches, catching a whole class of bugs early. This is where the real value is, and why annotating large codebases pays off.
+- **Editor tooling.** Autocomplete, inline documentation, and safe refactoring all lean on annotations.
+- **Runtime _availability_, if you choose to use it.** The hints _are_ stored — accessible via `__annotations__` or, more robustly, `typing.get_type_hints()` — so libraries can opt in to reading and acting on them. **Pydantic** and **FastAPI** validate and coerce data against annotations at runtime, `dataclasses` uses them to generate `__init__`, and `functools.singledispatch` can dispatch on them. But that enforcement is those libraries' own doing, not the language's.
+
+```Python
+def greet(name: str) -> str:
+    return "hi " + name
+
+print(greet.__annotations__)   # {'name': <class 'str'>, 'return': <class 'str'>}
+```
+
+Details a senior is expected to have hit in practice:
+
+- **Annotations can be strings (lazy evaluation).** `from __future__ import annotations` (PEP 563) makes _all_ annotations strings that aren't evaluated at definition time — which fixes forward references (referring to a class not yet defined) and circular-import issues, but means anything reading them at runtime must use `get_type_hints()` to resolve them. This is a genuine friction point with Pydantic and other introspecting libraries.
+- **Generics and the typing toolkit:** `list[int]`, `dict[str, int]`, `Optional[X]` (= `X | None`), `Union` / the `X | Y` syntax (3.10+), `TypeVar` and `Generic` for parametric code, `Protocol` for structural typing, `Callable`, `Any`, `Literal`, `TypedDict`, and `cast`. `typing.TYPE_CHECKING` guards imports needed only for hints.
+- **`Any` disables checking** for that value — useful as an escape hatch, dangerous as a habit.
+- **Hints don't affect performance** meaningfully; they're metadata, not runtime checks.
+
+The senior framing: type hints are **gradual and optional** — you add them where they earn their keep (public APIs, complex data flows, large teams) and a static checker in CI turns them into a real safety net. But never assume the interpreter is validating them; if you need runtime guarantees, that's a job for Pydantic, explicit checks, or `assert isinstance(...)`.
+
+## 122- What is the walrus operator (`:=`) and when is it useful?
+
+The walrus operator `:=` (named for its resemblance to a walrus's eyes and tusks), introduced in Python 3.8 by PEP 572, performs **assignment inside an expression**. Ordinary `=` is a statement and cannot appear where a value is expected; `:=` both assigns to a name _and_ evaluates to that value, so it can live inside an `if`, `while`, comprehension, or function call.
+
+Its value is eliminating the choice between **computing something twice** and **adding an extra line** — the "assign, then test" and "assign, then use" patterns:
+
+```Python
+# Without walrus: either call len() twice, or add a setup line before the if
+if (n := len(data)) > 10:
+    print(f"too long: {n} items")   # n is available here, computed once
+
+# The classic loop: read-until-sentinel, with no duplicated read
+while (line := file.readline()):
+    process(line)
+
+# In a comprehension: compute an expensive value once, filter and use it
+results = [y for x in data if (y := expensive(x)) is not None]
+```
+
+Where it genuinely shines is **avoiding a redundant expensive call** in a filter-and-use comprehension (the last example — without `:=` you'd call `expensive(x)` twice or fall back to a loop), and **loop conditions that consume input** (reading lines, chunks, or a queue until a sentinel).
+
+The senior perspective is as much about **restraint** as capability:
+
+- Use it when it removes a real duplication or an awkward `while True: ... break`. Don't use it to cram two ideas onto one line where a plain statement reads better — readability wins, and the operator is easy to abuse into dense, clever-looking code.
+- It has **deliberate syntactic limits**: you can't use it as a bare top-level statement (`x := 5` is a `SyntaxError`; that's just `x = 5`), and around some constructs it requires parentheses, which nudges you away from misuse.
+- Scope note: in a comprehension, the walrus target **leaks into the enclosing scope**, unlike the comprehension's own loop variable — occasionally handy, occasionally a surprise.
+
+## 123- What is in `functools` beyond `lru_cache`?
+
+`functools` is the standard library's toolkit for **higher-order functions** — utilities that act on or return other functions. Beyond `lru_cache`/`cache` (covered separately), the pieces a senior reaches for regularly:
+
+- **`functools.wraps`** — the decorator you apply to a wrapper so it copies the wrapped function's `__name__`, `__doc__`, `__qualname__`, etc. Without it, every decorated function reports itself as `wrapper`, breaking introspection, `help()`, and debuggers. Non-optional in real decorators.
+
+- **`functools.partial`** — freezes some arguments of a callable, returning a new callable with fewer parameters. The clean way to pre-configure a function for an API that wants a zero/one-arg callback:
+
+  ```Python
+  from functools import partial
+  int_base2 = partial(int, base=2)
+  print(int_base2("1010"))          # 10
+  ```
+
+- **`functools.reduce`** — folds an iterable into a single value by repeatedly applying a binary function (`reduce(operator.mul, nums, 1)` for a product). Powerful but often less readable than a loop or `sum`/`math.prod`; use it when the fold is genuinely the clearest expression.
+
+- **`functools.singledispatch`** — turns a function into one that dispatches on the **type of its first argument**, giving you clean type-based overloading without an `if/elif isinstance` ladder. This is Python's answer to "function overloading" (which the language otherwise lacks):
+
+  ```Python
+  from functools import singledispatch
+
+  @singledispatch
+  def describe(x): return f"generic: {x}"
+
+  @describe.register
+  def _(x: list): return f"a list of {len(x)}"
+
+  @describe.register
+  def _(x: int): return f"the integer {x}"
+
+  print(describe(5), "|", describe([1, 2]))   # the integer 5 | a list of 2
+  ```
+
+  (`singledispatchmethod` does the same for methods.)
+
+- **`functools.cached_property`** — computes a property **once per instance** and caches the result in the instance `__dict__`, so subsequent accesses are free. The right tool for a derived value that's expensive but stable for the object's lifetime — and it avoids the `lru_cache`-on-a-method leak of keeping `self` alive in a global cache.
+
+- **`functools.total_ordering`** — a class decorator: define `__eq__` plus **any one** of `__lt__`/`__le__`/`__gt__`/`__ge__`, and it fills in the rest. Saves writing all six rich-comparison methods.
+
+- **`functools.cmp_to_key`** — adapts an old-style two-argument comparison function into a `key=` function for `sorted`/`min`/`max`, the bridge from Python 2's `cmp` sorting to Python 3's key-based sorting.
+
+The through-line: `functools` is where Python's functional-programming and metaprogramming conveniences live, and `wraps` + `partial` + `singledispatch` + `cached_property` in particular show up constantly in production library and framework code.
+
+## 124- What are `dataclasses`, and how do they compare to `NamedTuple`, `TypedDict`, and `attrs`?
+
+`@dataclass` (Python 3.7+, PEP 557) is a decorator that **generates boilerplate methods from class-level annotated fields** — `__init__`, `__repr__`, and `__eq__` by default, and optionally more. It's the idiomatic modern way to write a class whose purpose is to _hold data_:
+
+```Python
+from dataclasses import dataclass, field
+
+@dataclass
+class Point:
+    x: int
+    y: int = 0                       # default value
+    tags: list = field(default_factory=list)   # mutable default done safely
+
+p = Point(1, 2)
+print(p)                 # Point(x=1, y=2, tags=[])  <- generated __repr__
+print(p == Point(1, 2))  # True                       <- generated __eq__
+```
+
+The features worth knowing, because they map straight to real needs:
+
+- **`field(default_factory=...)`** is the sanctioned fix for the mutable-default trap — dataclasses actively **reject** a bare mutable default (`tags: list = []` raises `ValueError`), which is a nice guardrail.
+- **`frozen=True`** makes instances immutable and hashable — the correct way to build a value object usable as a dict key or set member.
+- **`slots=True`** (3.10+) generates `__slots__`, cutting per-instance memory and speeding attribute access for classes instantiated in bulk.
+- **`order=True`** generates the comparison methods (`<`, `<=`, …) so instances sort by field order.
+- **`__post_init__`** runs after the generated `__init__` for validation or derived fields, and `field(init=False)` / `field(repr=False)` fine-tune per field.
+
+**How it compares to the alternatives** — the senior skill is picking the right one:
+
+| Type | Mutable? | Stored as | Reach for it when… |
+| --- | --- | --- | --- |
+| **`@dataclass`** | Yes (unless `frozen`) | a normal class instance | general-purpose data holder with methods, defaults, validation |
+| **`NamedTuple`** | **No** (immutable tuple) | a `tuple` subclass | a lightweight immutable record that should also behave like a tuple (unpackable, indexable) |
+| **`TypedDict`** | Yes (it _is_ a dict) | a plain `dict` at runtime | annotating the **shape of a dict** (e.g. a JSON payload) for the type checker, with zero runtime class overhead |
+| **`attrs`** | configurable | a normal class instance | you need more power than dataclasses (validators, converters, richer field control) — it's the third-party library dataclasses was inspired by |
+
+Key distinctions to articulate: a **`NamedTuple`** is still a tuple — it's immutable, iterable, and unpackable (`x, y = point`), which dataclasses aren't unless you add it; use it for small fixed records where tuple behaviour is a feature. A **`TypedDict`** creates _no class at all_ at runtime — it's purely a static-typing annotation over an ordinary dict, ideal for typing external JSON without changing how you access it. **`attrs`** predates and outclasses dataclasses in flexibility (field validators, converters, `__slots__` by default), so it's the answer when the stdlib dataclass hits its limits. And when you also need **runtime validation and parsing** of external input, the real production answer is often **Pydantic**, which looks like a dataclass but coerces and validates every field against its annotations.
+
+Rule of thumb: `@dataclass` by default; `NamedTuple` for immutable tuple-like records; `TypedDict` to type a dict's shape; `attrs`/Pydantic when you outgrow the standard library.
+
+## 125- How does the `import` system work, and how do you deal with circular imports?
+
+Importing is not textual inclusion — it **executes a module top to bottom exactly once** and binds the result to a name. Knowing the mechanism is what lets you reason about circular imports and `__pycache__`.
+
+**What `import mymod` does, step by step:**
+
+1. **Check `sys.modules` first** — a process-wide cache (dict) of every already-imported module. If `mymod` is there, the cached module object is returned immediately; the file is **not** re-executed. This is why repeated imports are cheap and why a module's top-level code runs only once per process.
+2. **Find the module.** If it's not cached, the import system walks a chain of **finders** on `sys.meta_path`, which search `sys.path` (and package `__path__`) to locate the source and produce a **loader**.
+3. **Load and execute.** The loader creates a new empty module object, **inserts it into `sys.modules` _before_ executing it** (crucial — see below), then runs the module body, populating its namespace. Compiled bytecode is cached in `__pycache__` to skip recompilation next time.
+4. **Bind the name** in the importing namespace (`import x` binds `x`; `from x import y` binds `y`).
+
+**Why circular imports break — and why they sometimes don't.** Because a module is registered in `sys.modules` _before_ its body finishes running, a cycle (A imports B, B imports A) doesn't infinitely recurse — but it can hand you a **half-initialised module**. If A is mid-execution when it triggers B, and B does `from A import thing`, `thing` may not exist yet, giving `ImportError: cannot import name 'thing'` or an `AttributeError`.
+
+The senior toolkit for circular imports, in order of preference:
+
+- **Restructure** — the cycle usually signals a design problem. Extract the shared piece into a third module both depend on, so the dependency graph becomes acyclic.
+- **Import the _module_, not the name.** `import a` and later reference `a.thing` (resolved at call time) instead of `from a import thing` (resolved at import time). This defers the lookup past initialisation.
+- **Move the import inside the function** that needs it (a deliberate local import — see the local-vs-global-imports question), so it runs after both modules are fully loaded.
+- **For type hints only**, guard the import with `if typing.TYPE_CHECKING:` and use a string annotation — the import never runs at runtime, so it can't cycle.
+
+Two related facts worth mentioning: an implicit **namespace package** (a directory without `__init__.py`, PEP 420) is discovered by a different finder and can span multiple `sys.path` entries; and `importlib` is the programmatic API (`importlib.import_module`, `importlib.reload`) when you need to import by name computed at runtime or force a re-execution.
+
+## 126- What is `weakref` and when do you need it?
+
+A **weak reference** points to an object **without incrementing its reference count**, so it does not, by itself, keep the object alive. If the only remaining references to an object are weak, the object is still collected, and the weak references "die" (start returning `None`). This is the escape hatch for the situations where ordinary strong references cause problems.
+
+```Python
+import weakref
+
+class Resource:
+    pass
+
+r = Resource()
+ref = weakref.ref(r)      # a weak reference
+
+print(ref() is r)         # True  - dereference by CALLING it
+del r                     # drop the only strong reference
+print(ref())              # None  - the object was collected; the weakref is dead
+```
+
+**The two problems weak references solve:**
+
+1. **Caches that shouldn't keep their contents alive.** An ordinary dict used as a cache holds a strong reference to every cached object, so nothing it caches can ever be garbage-collected — a classic memory leak. `weakref.WeakValueDictionary` (values are weak) and `WeakKeyDictionary` (keys are weak) let entries **disappear automatically** once the rest of the program stops using them:
+
+   ```Python
+   import weakref
+   cache = weakref.WeakValueDictionary()
+   def get(key):
+       obj = cache.get(key)
+       if obj is None:
+           obj = expensive_load(key)
+           cache[key] = obj          # cached, but not kept alive by the cache
+       return obj
+   ```
+
+2. **Breaking reference cycles** — parent/child, observer/subject, or doubly-linked back-pointers. If a child holds a strong reference back to its parent, the two form a cycle that reference counting alone can't reclaim (it needs the slower cyclic GC). Making the **back-reference weak** breaks the cycle so plain refcounting collects both promptly, which matters for objects whose cleanup timing you care about.
+
+Details a senior would add:
+
+- You **dereference by calling** the weakref (`ref()`), and it returns the object or `None` — always check for `None`, because the object may have vanished between calls.
+- **`weakref.finalize(obj, callback)`** registers a cleanup to run when the object is collected — a more reliable pattern than `__del__` for "do X when this dies".
+- **Not everything is weak-referenceable.** Common built-ins — `int`, `str`, `tuple`, `list`, and `dict` — **cannot** be weakly referenced (though a _subclass_ of them can, because subclassing adds a `__weakref__` slot). A class using `__slots__` also loses weakref support unless it includes `'__weakref__'` in the slots. Ordinary custom classes support it out of the box.
+
+The mental model: use a weak reference whenever you want to _observe or cache_ an object without _owning_ it — when its lifetime should be decided by someone else, and you want to be notified (via `None`) once it's gone.
+
+## 127- What is structural pattern matching (`match`/`case`)?
+
+`match`/`case` (Python 3.10+, PEP 634) is **structural pattern matching** — and the word "structural" is the whole point. It is emphatically **not** a C-style `switch`: rather than just comparing a value against constants, it **destructures** data by shape and **binds** the pieces to variables in one step.
+
+```Python
+def handle(command):
+    match command.split():
+        case ["go", direction]:                 # matches a 2-element list, binds direction
+            return f"moving {direction}"
+        case ["drop", *items]:                  # binds the rest into a list
+            return f"dropping {items}"
+        case ["quit" | "exit"]:                 # OR pattern
+            return "bye"
+        case _:                                 # wildcard - the default
+            return "unknown"
+
+print(handle("go north"))    # moving north
+print(handle("drop a b c"))  # dropping ['a', 'b', 'c']
+```
+
+The kinds of patterns are what make it powerful:
+
+- **Sequence patterns** destructure lists/tuples, including `*rest` capture.
+- **Mapping patterns** match dict shape: `case {"type": "user", "name": name}:` matches any dict with those keys and binds `name` (extra keys are allowed).
+- **Class patterns** match by type _and_ pull out attributes positionally or by name: `case Point(x=0, y=y):` matches a `Point` on the y-axis and binds `y`. (Positional matching uses the class's `__match_args__`.)
+- **Capture, wildcard, OR, and guards:** a bare name captures; `_` matches anything without binding; `|` combines alternatives; and an `if` **guard** adds a condition — `case Point(x, y) if x == y:`.
+
+Two traps that separate a careful answer from a naïve one:
+
+- **A bare name is a capture, not a comparison.** `case foo:` does **not** test "is the value equal to `foo`?" — it matches _anything_ and rebinds `foo`, shadowing any outer variable. To match against an existing constant you need a **dotted name** (`case Color.RED:`) or a literal; this is why enums and module-qualified constants are the idiom.
+- It's most valuable for **decomposing complex, nested, heterogeneous data** — parsing an AST, dispatching on the shape of a JSON message, handling command objects. For a simple "one of N constants" branch, a plain `if/elif` or a dict dispatch table is clearer, and `match` is overkill.
+
+The honest senior framing: `match`/`case` earns its place when you'd otherwise write a tangle of nested `if isinstance(...)` and index/key checks to pull a structure apart; it turns that into a flat, declarative, readable set of shapes. It doesn't replace `if` for ordinary conditionals.
+
+## 128- What is the difference between `is` and `==`, and when does object identity trip people up?
+
+`==` asks **"are these equal in value?"** (it calls `__eq__`). `is` asks **"are these the exact same object in memory?"** (it compares identity — effectively `id(a) == id(b)` — and can never be overridden). Two distinct objects can be equal; the same object is trivially both.
+
+```Python
+a = [1, 2, 3]
+b = [1, 2, 3]
+print(a == b)   # True  - same contents
+print(a is b)   # False - two separate list objects
+c = a
+print(a is c)   # True  - c is just another name for the same object
+```
+
+**The one rule that matters in practice:** use `is` **only** for comparing against singletons — `None`, `True`, `False`, and sentinel objects. The idiom is `if x is None:`, never `if x == None:`, because a pathological `__eq__` could make `== None` lie, and `is None` is faster and unambiguous. For everything else — numbers, strings, containers — use `==`.
+
+**Where identity trips people up: caching makes `is` _appear_ to work on values, until it doesn't.** CPython pre-allocates and reuses certain immutable objects, so identity accidentally coincides with equality for them:
+
+```Python
+print(256 is 256)     # True  - small ints (-5..256) are cached singletons
+print(257 is 257)     # often False - 257 is outside the cached range
+x = "hello"; y = "hello"
+print(x is y)         # often True - compile-time string interning
+z = "".join(["h", "i"]); print(z is "hi")  # often False - built at runtime, not interned
+```
+
+These results are **implementation details** — they vary by Python version, by whether values are literals in the same code object, and between CPython/PyPy. Relying on `is` for value comparison produces bugs that pass in testing (small numbers, short literals) and fail in production (larger numbers, computed strings). That fragility is precisely _why_ the "`is` only for singletons" rule exists.
+
+Senior-level footnotes:
+
+- **String interning** can be forced with `sys.intern(s)`, occasionally worth it when you compare many long strings repeatedly — interned strings compare by identity first, making `==` short-circuit.
+- `id()` returns an object's identity (its address in CPython); it's unique only among _live_ objects, so a freed object's id can be reused.
+- A subtle gotcha: `float('nan') != float('nan')` is `True` (NaN is not equal to itself), yet `x = float('nan'); x is x` is `True` — a case where `is` and `==` genuinely diverge, and why containers use an identity check _before_ equality when searching.
+
+## 129- What is monkey patching, and when is it appropriate?
+
+**Monkey patching** is replacing or extending code — a method, function, attribute, or whole class — **at runtime**, dynamically, by reassigning it. Python allows it because classes and modules are just mutable objects: you can rebind their attributes after they're defined.
+
+```Python
+import some_library
+
+def patched(self, *args, **kwargs):
+    ...  # your replacement behaviour
+
+some_library.SomeClass.method = patched   # swap the method out at runtime
+```
+
+**Where it's legitimate:**
+
+- **Testing** — the single most defensible use. `unittest.mock.patch` is monkey patching with a safety net: it temporarily swaps a dependency for a mock/stub, then **restores the original automatically** when the test ends. Replacing a network call, a clock (`time.time`), or a database with a fake is standard practice.
+- **Hotfixing a third-party bug** you can't wait for upstream to fix or can't fork — patch the broken method in your own startup code as a stopgap.
+- **Compatibility shims / backporting** — polyfilling a missing method so old and new versions of a library present the same interface.
+- **Framework instrumentation** — some profilers, tracers, and greenlet libraries (e.g. `gevent`'s `monkey.patch_all()`) patch the standard library to inject their behaviour transparently.
+
+**Why it's dangerous, and the senior's caution:**
+
+- It's **action at a distance.** A patch applied in one module silently changes behaviour everywhere that code is used, so a reader of the affected class has no local indication that it was altered — nightmarish to debug.
+- It's **fragile against upgrades.** You're reaching into another library's internals; the next version can rename or restructure what you patched, breaking your code with no warning.
+- **Ordering and global state matter** — two patches of the same target, or a patch applied after the target is already used, produce order-dependent bugs.
+
+The rule a senior applies: **prefer the ordinary extension mechanisms first** — subclassing, composition, dependency injection, decorators, registering a plugin/hook. Those are explicit and local. Treat monkey patching as a last resort for the specific cases above (and always as the _normal_ tool in tests via `mock.patch`, where the patch is scoped and auto-reverted). If you must patch production code, isolate it in one clearly named module, comment _why_, and pin the dependency version you patched against.
+
+## 130- How do operators dispatch to dunder methods, and what is `NotImplemented`?
+
+When you write `a + b`, Python doesn't have a single "add" — it dispatches to **`a.__add__(b)`**, and there's a fallback protocol that senior engineers are expected to understand, centred on the special sentinel **`NotImplemented`**.
+
+**The dispatch sequence for a binary operator `a + b`:**
+
+1. Python calls **`a.__add__(b)`**. If `a`'s type knows how to add a `b`, it returns the result.
+2. If `a.__add__` doesn't know how to handle `b`, it should **`return NotImplemented`** (not raise, not return `None`). This is a signal, not a result.
+3. Python then tries the **reflected** method **`b.__radd__(a)`** — giving the _right_ operand a chance. This is how `2 + my_object` can work even though `int.__add__` has never heard of your class: `int.__add__` returns `NotImplemented`, so Python calls `my_object.__radd__(2)`.
+4. If both return `NotImplemented`, Python raises `TypeError: unsupported operand type(s)`.
+
+```Python
+class Money:
+    def __init__(self, cents): self.cents = cents
+    def __add__(self, other):
+        if isinstance(other, Money):
+            return Money(self.cents + other.cents)
+        return NotImplemented          # let Python try other.__radd__
+    __radd__ = __add__                 # so sum([...]) and int+Money can work
+    def __repr__(self): return f"Money({self.cents})"
+
+print(Money(100) + Money(50))          # Money(150)
+```
+
+**The critical distinctions to get right:**
+
+- **`NotImplemented` is a singleton sentinel; `NotImplementedError` is an exception.** They are unrelated. Operator methods **return** `NotImplemented` to say "I don't handle this — try the other operand." Abstract methods **raise** `NotImplementedError` to say "a subclass must implement this." Confusing them is a classic mistake, and returning `NotImplementedError` (the class) from `__add__` silently breaks the fallback because it's a truthy object, not the sentinel.
+- **Reflected methods** (`__radd__`, `__rmul__`, `__rsub__`, …) exist for every binary operator and are what make your type interoperate with built-in types on the left. `__rsub__` must remember the operands are swapped: `a - b` failing over calls `b.__rsub__(a)`, i.e. "compute a − b" from b's perspective.
+- **In-place operators** (`__iadd__` for `+=`, etc.) let mutable types mutate themselves and return `self`; if absent, `a += b` falls back to `a = a + b`, rebinding the name.
+- **Rich comparisons** (`__eq__`, `__lt__`, …) follow the same `NotImplemented` fallback, and returning `NotImplemented` from `__eq__` lets Python fall back to identity comparison rather than forcing a wrong answer.
+
+The takeaway: implement operators so that they **return `NotImplemented` for types they don't recognise** rather than raising or guessing — that single discipline is what lets Python's reflected-operator machinery compose your types cleanly with each other and with the built-ins.
