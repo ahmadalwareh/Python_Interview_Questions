@@ -1725,7 +1725,7 @@ except InsufficientFundsError as e:
     print(e.balance)      # 50 - custom attributes survive
 ```
 
-Custom exceptions should subclass `Exception` (not `BaseException`, which also covers `KeyboardInterrupt` and `SystemExit` — signals you almost never want to intercept).
+Custom exceptions should subclass `Exception` (not `BaseException`, which also covers `KeyboardInterrupt` and `SystemExit` — signals you almost never want to intercept). By convention (PEP 8) name them with an **`Error` suffix**, not `Exception` — `InsufficientFundsError`, not `InsufficientFundsException` (a habit worth unlearning if you come from Java). Whatever arguments you pass to an exception's constructor are stored on its **`.args`** tuple, so `e.args[0]` retrieves the original message even when you didn't define custom attributes.
 
 **Re-raising and chaining.** A bare `raise` inside a handler re-raises the current exception with its original traceback intact, which is the right way to log and pass along. `raise ... from e` records the original cause:
 
@@ -1736,10 +1736,13 @@ except FileNotFoundError as e:
     raise RuntimeError("Configuration missing") from e   # preserves the cause
 ```
 
-**Anti-patterns to avoid:**
+(For the full mechanics of chaining — `__context__`, `__cause__`, `__suppress_context__`, and `raise ... from None` — see the dedicated exception-chaining question later in this file.)
+
+**Antipatterns to avoid:**
 
 - `except:` or `except Exception:` with an empty or `pass` body — this hides real bugs and makes failures silent. Catch only what you can actually handle.
 - A bare `except:` also catches `KeyboardInterrupt` and `SystemExit`, making a program impossible to interrupt with Ctrl-C. Use `except Exception:` if you really must be broad.
+- **Returning from a `finally` block.** A `return` (or `break`/`continue`) inside `finally` overrides any `return` value — or any in-flight exception — coming from the `try`/`except`, silently swallowing errors. Keep `finally` for cleanup only.
 - Using exceptions for ordinary control flow where a simple conditional is clearer.
 
 That said, Python idiom favours **EAFP** — "easier to ask forgiveness than permission" — over defensive pre-checks. Attempting the operation and handling the exception is usually preferred to checking first, since the check can race or miss cases:
@@ -1778,7 +1781,7 @@ Here are some key differences between functional programming and object-oriented
 
 `PYTHONOPTIMIZE` is an **environment variable**; the equivalent command-line flags are `-O` and `-OO`. Setting `PYTHONOPTIMIZE=1` is the same as passing `-O`, and `PYTHONOPTIMIZE=2` is the same as `-OO`.
 
-Despite the name, it performs very little optimisation. It does exactly three things:
+Despite the name, it performs very little optimization. It does exactly three things:
 
 **At level 1 (`-O` or `PYTHONOPTIMIZE=1`):**
 
@@ -4993,3 +4996,123 @@ print(Money(100) + Money(50))          # Money(150)
 - **Rich comparisons** (`__eq__`, `__lt__`, …) follow the same `NotImplemented` fallback, and returning `NotImplemented` from `__eq__` lets Python fall back to identity comparison rather than forcing a wrong answer.
 
 The takeaway: implement operators so that they **return `NotImplemented` for types they don't recognise** rather than raising or guessing — that single discipline is what lets Python's reflected-operator machinery compose your types cleanly with each other and with the built-ins.
+
+## 131- What is exception chaining, and what are `__context__`, `__cause__`, and `__suppress_context__`?
+
+When a new exception is raised while another is being handled, Python **links the two** so the traceback tells the whole story. Formalised in PEP 3134, every exception carries three attributes that govern this: `__context__`, `__cause__`, and `__suppress_context__`. Understanding them is what lets you read — and control — multi-exception tracebacks.
+
+**Implicit chaining.** Raising inside an `except` (or `finally`, or `with`) automatically sets the new exception's `__context__` to the one being handled:
+
+```Python
+try:
+    open("foo.bar")
+except OSError:
+    raise RuntimeError("oops")
+```
+
+The traceback prints both, joined by **"During handling of the above exception, another exception occurred:"** — Python is telling you the `RuntimeError` surfaced *while* dealing with the `OSError`, without claiming one caused the other.
+
+**Explicit chaining with `raise ... from`.** To state deliberately that one exception *caused* another, use `from`:
+
+```Python
+try:
+    open("foo.bar")
+except OSError as e:
+    raise RuntimeError("oops") from e
+```
+
+`from e` additionally sets `__cause__` to `e` and flips `__suppress_context__` to `True`. The traceback now reads the stronger **"The above exception was the direct cause of the following exception:"**. This is the right tool when translating a low-level error into a domain-specific one.
+
+**Suppressing the chain with `from None`.** What does this print?
+
+```Python
+try:
+    1 / 0
+except ZeroDivisionError:
+    raise RuntimeError("zero!") from None
+```
+
+Only the `RuntimeError`. `from None` sets `__cause__` to `None` and `__suppress_context__` to `True`, and the display rule then hides the context.
+
+**The traceback display rule**, worth memorising:
+
+- If `__cause__` is present, **always** show it ("direct cause").
+- Otherwise, show `__context__` **only if** `__suppress_context__` is `False` ("during handling").
+
+**The crucial subtlety:** `from None` (and `from e`) only change what is *printed*. The original exception is still stored in `__context__` — ignored for display, not discarded. That is the practical lever: if a library swallows a detailed error and re-raises a vague one, you can recover the original from the chain **without touching the library**:
+
+```Python
+try:
+    token = Token(raw)                 # library raises DecodeError("could not decode")
+except DecodeError as e:
+    original = e.__context__           # the detailed TokenError the library hid
+    detail = e.__context__.args[0]     # its original message
+```
+
+Rule of thumb: use `raise ... from e` when the new exception is genuinely caused by the old one, and `raise ... from None` when the original is noise you deliberately want to hide from users.
+
+## 132- What modern exception features did Python 3.11 add (`add_note`, `ExceptionGroup`, `except*`)?
+
+**Exception notes (`add_note`).** Since Python 3.11 you can attach extra context to an existing exception *without* wrapping or re-raising it with a new type. Notes accumulate in the exception's `__notes__` list and are printed beneath the traceback:
+
+```Python
+try:
+    try:
+        raise ValueError
+    except Exception as e:
+        e.add_note("while parsing the config file")
+        raise
+except Exception as e:
+    e.add_note("during application startup")
+    raise
+
+# Traceback (most recent call last):
+#   ...
+# ValueError
+# while parsing the config file
+# during application startup
+```
+
+This is often cleaner than re-raising with a different message: you enrich the *original* exception in place, keeping its type and traceback intact. It shines for adding "which item / which file / which retry" context as an exception bubbles up through layers.
+
+**`ExceptionGroup` and `except*`.** An `ExceptionGroup` packs several exceptions into a single object — essential when concurrent operations can each fail independently. The new `except*` syntax matches and handles **by type across the group**, peeling out the matching sub-exceptions and letting the rest propagate:
+
+```Python
+try:
+    raise ExceptionGroup(
+        "multiple failures",
+        [ValueError("bad value"), KeyError("missing key")],
+    )
+except* ValueError as eg:
+    print("value errors:", eg.exceptions)   # handles only the ValueError branch
+except* KeyError as eg:
+    print("key errors:", eg.exceptions)     # handles only the KeyError branch
+```
+
+Each `except*` clause receives a *sub-group* containing only the matching exceptions, and — unlike plain `except`, where the first match wins and the rest are lost — **multiple `except*` clauses can fire for one group**. The place you'll actually meet this is `asyncio.TaskGroup` (also 3.11+), which collects the failures of several child tasks and raises them together as an `ExceptionGroup`.
+
+## 133- What is the `warnings` module, and how do `UserWarning`/`DeprecationWarning` differ from exceptions?
+
+The built-in `Warning` classes — `UserWarning`, `DeprecationWarning`, `PendingDeprecationWarning`, and others — inherit from `Warning`, which itself inherits from `Exception`. But despite being in the exception hierarchy, they are **not meant to be raised**. They are *categories* for the `warnings` module, which reports non-fatal issues without stopping the program:
+
+```Python
+import warnings
+
+def foo():
+    warnings.warn("Don't use me anymore!", DeprecationWarning)  # explicit category
+    warnings.warn("bar")                                        # defaults to UserWarning
+```
+
+The value is that the *user*, not the library author, controls what gets reported, via the **warning filter**:
+
+```Python
+warnings.simplefilter("ignore")   # silence every warning
+warnings.simplefilter("error")    # promote warnings to exceptions -> foo() now raises
+```
+
+Two behaviours to know:
+
+- By default each distinct warning is shown **once per location** and then suppressed (the `"default"` filter), which is why calling `foo()` a second time prints nothing new.
+- The `"error"` filter turns warnings into real exceptions — and this is *precisely why* the hierarchy roots at `Exception`: promoting a warning to an error is just raising it. Enabling `-W error` (or `filterwarnings = error` in pytest) is the standard way to make `DeprecationWarning`s **fail the build** in CI, catching deprecated usage before it breaks on an upgrade.
+
+When to use which: **raise an exception** for a problem the caller must handle right now; **emit a warning** for something that still works but shouldn't be relied on — deprecations, or suspicious-but-legal usage — leaving the final decision (ignore, show, or escalate to an error) to the user.
