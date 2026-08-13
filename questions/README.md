@@ -4625,9 +4625,9 @@ This is the mechanism that makes `list.append` **amortised O(1)**, and it is wor
 
 A list keeps two numbers: `ob_size` (elements currently used) and `allocated` (slots the backing buffer can hold). As long as `ob_size < allocated`, an append just writes into the next free slot — genuinely O(1). The interesting case is when `ob_size == allocated` and you append again:
 
-1. CPython computes a **new, larger capacity** — it does _not_ grow by one. The growth formula (`list_resize` in CPython) is roughly:
+1. CPython computes a **new, larger capacity** - it does _not_ grow by one. The growth formula (`list_resize` in CPython) is roughly:
 
-   ```
+   ```Python
    new_allocated = new_size + (new_size >> 3) + 6   # then rounded
    ```
 
