@@ -4632,7 +4632,7 @@ A list keeps two numbers: `ob_size` (elements currently used) and `allocated` (s
 
 1. CPython computes a **new, larger capacity** — it does _not_ grow by one. The growth formula (`list_resize` in CPython) is roughly:
 
-   ```
+   ```python
    new_allocated = new_size + (new_size >> 3) + 6   # then rounded
    ```
 
