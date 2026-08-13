@@ -5,7 +5,7 @@ name: README checks
 on:
   push:
     paths:
-      - "Que_README.md"
+      - "questions/.md"
       - ".github/workflows/readme-checks.yml"
       - ".github/scripts/**"
       - ".markdownlint.jsonc"
@@ -13,7 +13,7 @@ on:
       - ".lycheeignore"
   pull_request:
     paths:
-      - "Que_README.md"
+      - "questions/README.md"
       - ".github/workflows/readme-checks.yml"
       - ".github/scripts/**"
       - ".markdownlint.jsonc"
@@ -29,7 +29,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  TARGET: Que_README.md
+  TARGET: questions/README.md
 
 jobs:
   markdownlint:

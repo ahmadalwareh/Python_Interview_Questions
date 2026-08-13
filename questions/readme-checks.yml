@@ -29,7 +29,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  TARGET: Que_README.md
+  TARGET: questions/README.md
 
 jobs:
   markdownlint:

@@ -2,7 +2,7 @@
 """Syntax-check the ```python fenced code blocks in a Markdown file.
 
 Used by the "README checks" GitHub Actions workflow. It only reads the target
-Markdown file (default: Que_README.md) — it imports nothing from the app.
+Markdown file (default: questions/README.md) — it imports nothing from the app.
 
 A block is SKIPPED (not an error) when it is intentionally not valid Python 3:
   * it is tagged with a marker comment: ``# ci-skip``
@@ -57,7 +57,7 @@ def should_skip(body: str) -> bool:
 
 
 def main(argv: list[str]) -> int:
-    path = pathlib.Path(argv[1] if len(argv) > 1 else "Que_README.md")
+    path = pathlib.Path(argv[1] if len(argv) > 1 else "questions/README.md")
     text = path.read_text(encoding="utf-8")
 
     checked = skipped = 0

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Verify the Table of Contents in a Markdown file stays in sync with headings.
 
-Scoped to a single Markdown file (default: Que_README.md). For every
+Scoped to a single Markdown file (default: questions/README.md). For every
 ``## N- ...`` question heading it computes the GitHub heading anchor and checks
 that:
 
@@ -31,7 +31,7 @@ def slugify(text: str) -> str:
 
 
 def main(argv: list[str]) -> int:
-    path = pathlib.Path(argv[1] if len(argv) > 1 else "Que_README.md")
+    path = pathlib.Path(argv[1] if len(argv) > 1 else "questions/README.md")
     lines = path.read_text(encoding="utf-8").splitlines()
 
     # Collect question headings (in order) and their anchors.
