@@ -1,0 +1,84 @@
+name: README checks
+
+# Documentation quality gates for the Python interview Q&A README.
+# Runs on every push / PR that touches the README or these CI files.
+on:
+  push:
+    paths:
+      - "questions/README.md"
+      - ".github/workflows/readme-checks.yml"
+      - ".github/scripts/**"
+      - ".markdownlint.jsonc"
+      - ".codespellrc"
+      - ".lycheeignore"
+  pull_request:
+    paths:
+      - "questions/README.md"
+      - ".github/workflows/readme-checks.yml"
+      - ".github/scripts/**"
+      - ".markdownlint.jsonc"
+      - ".codespellrc"
+      - ".lycheeignore"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: readme-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TARGET: Que_README.md
+
+jobs:
+  markdownlint:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          globs: ${{ env.TARGET }}
+          config: .markdownlint.jsonc
+
+  spelling:
+    name: Spell check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install codespell
+      # Reads .codespellrc (ignore-words-list) from the repo root.
+      - run: codespell "$TARGET"
+
+  structure:
+    name: TOC + Python snippets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Both checks are stdlib-only and read the README only.
+      - name: Table of contents is in sync with headings
+        run: python .github/scripts/check_toc.py "$TARGET"
+      - name: Python code fences are valid Python 3
+        run: python .github/scripts/check_python_snippets.py "$TARGET"
+
+  links:
+    name: Link check (non-blocking)
+    runs-on: ubuntu-latest
+    # External links are informational: a flaky network shouldn't block a push.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lycheeverse/lychee-action@v2
+        with:
+          args: "--no-progress ${{ env.TARGET }}"
+          fail: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
