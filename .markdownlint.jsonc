@@ -1,0 +1,12 @@
+// markdownlint configuration for Que_README.md
+// Docs: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+{
+  "default": true,
+  // MD013 line-length: this is a long-form prose Q&A document.
+  "MD013": false,
+  // MD033 no-inline-html: <sup> is used for exponents/superscripts (e.g. 2^31).
+  "MD033": false,
+  // MD049 emphasis-style: the document intentionally mixes _italic_ and *italic*.
+  "MD049": false
+}
+

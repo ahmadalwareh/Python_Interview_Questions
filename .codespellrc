@@ -1,0 +1,6 @@
+[codespell]
+# Valid (hyphenated) English spellings that codespell flags as typos.
+ignore-words-list = pre-emptive,re-use
+# Never spell-check inside fenced code or the git dir.
+skip = .git
+
