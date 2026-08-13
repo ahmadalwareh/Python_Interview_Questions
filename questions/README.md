@@ -72,7 +72,7 @@
 - [68- How to implement Quick Sort in Python?](#68--how-to-implement-quick-sort-in-python)
 - [69- How to implement Selection sort in Python?](#69--how-to-implement-selection-sort-in-python)
 - [70- How to implement Shell sort in Python?](#70--how-to-implement-shell-sort-in-python)
-- [71- What are the commands that are used to copy an object in Python?](#71--what-are-the-commands-that-are-used-to-copy-an-object-in-python)
+- [71- What are the commands that are used to copy an object in Python?](#71--what-are-the-commands-that-areused-to-copy-an-object-in-python)
 - [72- What is the difference between deep and shallow copy?](#72--what-is-the-difference-between-deep-and-shallow-copy)
 - [73- How can the ternary operators be used in Python?](#73--how-can-the-ternary-operators-be-used-in-python)
 - [74- What will be the output of the code below?](#74--what-will-be-the-output-of-the-code-below)
@@ -4101,7 +4101,7 @@ Other tools for the same job: `help(obj)` renders methods with their signatures 
 
 ## 100- Which is a better practice - global import or local import in Python
 
-The convention — codified in PEP 8 — is the opposite of what this question often tempts people to say: **imports belong at the top of the module** (global imports). Top-level imports make a module's dependencies visible at a glance, fail fast at import time rather than deep inside a call at 3 a.m., and cost nothing on re-use — Python caches every imported module in `sys.modules`, so repeated imports are just a dictionary hit, and a function-local import actually _adds_ a small lookup cost on every call.
+The convention — codified in PEP 8 — is the opposite of what this question often tempts people to say: **imports belong at the top of the module** (global imports). Top-level imports make a module's dependencies visible at a glance, fail fast at import time rather than deep inside a call at 3 a.m., and cost nothing on reuse — Python caches every imported module in `sys.modules`, so repeated imports are just a dictionary hit, and a function-local import actually _adds_ a small lookup cost on every call.
 
 Local (function-level) imports are the exception, justified in a few specific situations:
 
@@ -4735,7 +4735,7 @@ Where it fits:
 - **Useless for CPU-bound work.** Coroutines don't sidestep the GIL and there's only one thread; heavy computation needs `multiprocessing`.
 - **`await` composes; `create_task` fans out.** `await coro` runs sequentially; `asyncio.create_task(coro)` schedules it to run concurrently and returns a `Task` you can await later; `asyncio.gather`/`asyncio.TaskGroup` (3.11+) run many concurrently and collect results.
 
-Mental model to close on: `asyncio` is **not parallelism** — it's one worker interleaving many jobs by never sitting idle during I/O. It trades the OS scheduler's pre-emptive thread switching for explicit, cheap, cooperative switching at `await`, which is why it scales to far more concurrent I/O operations than threads while sidestepping the data races that pre-emptive threading invites.
+Mental model to close on: `asyncio` is **not parallelism** — it's one worker interleaving many jobs by never sitting idle during I/O. It trades the OS scheduler's preemptive thread switching for explicit, cheap, cooperative switching at `await`, which is why it scales to far more concurrent I/O operations than threads while sidestepping the data races that preemptive threading invites.
 
 ## 119- Threading, multiprocessing, or asyncio — how do you choose a concurrency model?
 
@@ -4743,7 +4743,7 @@ The decision reduces to one question first — **is the work I/O-bound or CPU-bo
 
 | Model | Parallelism | Best for | Cost |
 | --- | --- | --- | --- |
-| **`threading`** | No (GIL serialises bytecode) | I/O-bound, moderate concurrency, blocking libraries | Pre-emptive → needs locks; ~MBs per thread stack |
+| **`threading`** | No (GIL serialises bytecode) | I/O-bound, moderate concurrency, blocking libraries | preemptive → needs locks; ~MBs per thread stack |
 | **`multiprocessing`** | **Yes** (separate interpreters) | **CPU-bound** work | Process overhead; data must be pickled/IPC'd |
 | **`asyncio`** | No (one thread) | I/O-bound, **very high** concurrency | Needs async-native libraries; one blocking call stalls all |
 
@@ -4751,7 +4751,7 @@ The decision reduces to one question first — **is the work I/O-bound or CPU-bo
 
 **I/O-bound work → `threading` or `asyncio`.** While a thread waits on a socket, disk, or subprocess, it releases the GIL, so other threads make progress. Both models overlap I/O effectively; the choice between them is about scale and ecosystem:
 
-- **`threading`** is the pragmatic choice for **moderate** concurrency (tens to low hundreds of tasks) and, decisively, when you must use **blocking libraries** (a synchronous DB driver, `requests`, legacy SDKs). Its downside is pre-emptive switching, which can interrupt between any two bytecodes, so shared mutable state needs `Lock`/`Queue` and invites race conditions.
+- **`threading`** is the pragmatic choice for **moderate** concurrency (tens to low hundreds of tasks) and, decisively, when you must use **blocking libraries** (a synchronous DB driver, `requests`, legacy SDKs). Its downside is preemptive switching, which can interrupt between any two bytecodes, so shared mutable state needs `Lock`/`Queue` and invites race conditions.
 - **`asyncio`** wins at **massive** concurrency (thousands of simultaneous connections) because tasks are cheap (no per-thread stack) and switching is explicit at `await`. But it demands an **async-native stack top to bottom** (`aiohttp`/`httpx`, async DB drivers); a single blocking call anywhere stalls the whole event loop.
 
 The high-level interface for the first two is **`concurrent.futures`**, whose `ThreadPoolExecutor` and `ProcessPoolExecutor` share an identical API — so you can write pool code once and switch models by changing one class name:
