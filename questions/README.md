@@ -1,5 +1,158 @@
 # 130+ Python Interview Questions
 
+## Table of Contents
+
+- [1- Python uses a Global Interpreter Lock. Does that mean it doesn’t use actual threads?](#1--python-uses-a-global-interpreter-lock-does-that-mean-it-doesnt-use-actual-threads)
+- [2- Is it possible to have a producer thread reading from the network and a consumer thread writing to a file work in parallel? What about the GIL?](#2--is-it-possible-to-have-a-producer-thread-reading-from-the-network-and-a-consumer-thread-writing-to-a-file-work-in-parallel-what-about-the-gil)
+- [3- What will be the output of the following code in each step?](#3--what-will-be-the-output-of-the-following-code-in-each-step)
+- [4- Why are functions considered first-class objects in Python?](#4--why-are-functions-considered-first-class-objects-in-python)
+- [5- Do arguments in Python get passed by reference or value?](#5--do-arguments-in-python-get-passed-by-reference-or-value)
+- [6- What tools to use for linting, debugging, and profiling?](#6--what-tools-to-use-for-linting-debugging-and-profiling)
+- [7- Give an example of filter and reduce over an iterable object](#7--give-an-example-of-filter-and-reduce-over-an-iterable-object)
+- [8- What are `list` and `dict` comprehensions?](#8--what-are-list-and-dict-comprehensions)
+- [9- What do we mean when we say that a specific Lambda expression forms a closure?](#9--what-do-we-mean-when-we-say-that-a-specific-lambda-expression-forms-a-closure)
+- [10- Name a few differences between Python 2.x and 3.x](#10--name-a-few-differences-between-python-2x-and-3x)
+- [11- How is memory managed in Python?](#11--how-is-memory-managed-in-python)
+- [12- What will be the output of the following code?](#12--what-will-be-the-output-of-the-following-code)
+- [13- A palindromic number reads the same both ways. The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99. Find the largest palindrome made from the product of two 3-digit numbers](#13--a-palindromic-number-reads-the-same-both-ways-the-largest-palindrome-made-from-the-product-of-two-2-digit-numbers-is-9009--91--99-find-the-largest-palindrome-made-from-the-product-of-two-3-digit-numbers)
+- [14- What is skeleton code in Python?](#14--what-is-skeleton-code-in-python)
+- [15- In Python classes, what is the difference between class methods and static methods? and when to use them](#15--in-python-classes-what-is-the-difference-between-class-methods-and-static-methods-and-when-to-use-them)
+- [16- Please explain the following results of the code executed on a Python shell interpreter](#16--please-explain-the-following-results-of-the-code-executed-on-a-python-shell-interpreter)
+- [17- In object-oriented programming, there is a concept called abstract classes. How to implement it?](#17--in-object-oriented-programming-there-is-a-concept-called-abstract-classes-how-to-implement-it)
+- [18- What are `*args` and `**kwargs` in Python](#18--what-are-args-and-kwargs-in-python)
+- [19- What is the difference between tuples, sets, and lists in Python?](#19--what-is-the-difference-between-tuples-sets-and-lists-in-python)
+- [20- What are pickling and unpickling in Python?](#20--what-are-pickling-and-unpickling-in-python)
+- [21- Does Python support multiple inheritance?](#21--does-python-support-multiple-inheritance)
+- [22- What are the pitfalls and problems of Python language?](#22--what-are-the-pitfalls-and-problems-of-python-language)
+- [23- How to achieve multithreading in Python?](#23--how-to-achieve-multithreading-in-python)
+- [24- What is the use of `with` in Python?](#24--what-is-the-use-of-with-in-python)
+- [25- How are `.py`, `.pyi`, `.pyd`, and `.pyc` files different?](#25--how-are-py-pyi-pyd-and-pyc-files-different)
+- [26- What are decorators in Python?](#26--what-are-decorators-in-python)
+- [27- How to use `self` in Python?](#27--how-to-use-self-in-python)
+- [28- What are namespaces in Python?](#28--what-are-namespaces-in-python)
+- [29- What is PEP?](#29--what-is-pep)
+- [30- What are dunder methods in Python?](#30--what-are-dunder-methods-in-python)
+- [31- What does `super` do in Python? and what is the difference between `super().__init__()` and explicit `superclass.__init__()`](#31--what-does-super-do-in-python-and-what-is-the-difference-between-super__init__-and-explicit-superclass__init__)
+- [32- What is a property decorator in Python?](#32--what-is-a-property-decorator-in-python)
+- [33- What is the difference between Cython and CPython?](#33--what-is-the-difference-between-cython-and-cpython)
+- [34- Specify the difference between local and global variables in Python](#34--specify-the-difference-between-local-and-global-variables-in-python)
+- [35- What are Python iterators?](#35--what-are-python-iterators)
+- [36- What are Python generators?](#36--what-are-python-generators)
+- [37- What is the difference between Python's Generators and Iterators?](#37--what-is-the-difference-between-pythons-generators-and-iterators)
+- [38- What are Python documentation strings?](#38--what-are-python-documentation-strings)
+- [39- Explain the use of `subn()`, `sub()`, and `split()` in the `“re”` module](#39--explain-the-use-of-subn-sub-and-split-in-the-re-module)
+- [40- Define polymorphism in Python](#40--define-polymorphism-in-python)
+- [41- What are the differences between Wheels and Eggs?](#41--what-are-the-differences-between-wheels-and-eggs)
+- [42- What is the purpose of Python non-local statements?](#42--what-is-the-purpose-of-python-non-local-statements)
+- [43- How is Python exception is handled?](#43--how-is-python-exception-is-handled)
+- [44- Name the differences between functional and object-oriented programming](#44--name-the-differences-between-functional-and-object-oriented-programming)
+- [45- What does the `PYTHONOPTIMIZE` flag do?](#45--what-does-the-pythonoptimize-flag-do)
+- [46- What are descriptors? Is there a difference between a descriptor and a decorator?](#46--what-are-descriptors-is-there-a-difference-between-a-descriptor-and-a-decorator)
+- [47- Generate random number](#47--generate-random-number)
+- [48- What are itertools in Python?](#48--what-are-itertools-in-python)
+- [49- what does itertools.islice do?](#49--what-does-itertoolsislice-do)
+- [50- Why this code will never stop?](#50--why-this-code-will-never-stop)
+- [51- What is the output of this code, and why?](#51--what-is-the-output-of-this-code-and-why)
+- [52- Can we chain Multiple Decorators in Python?](#52--can-we-chain-multiple-decorators-in-python)
+- [53- Build a recursive function using python](#53--build-a-recursive-function-using-python)
+- [54- How to implement a binary search tree using Python?](#54--how-to-implement-a-binary-search-tree-using-python)
+- [55- How to implement a binary search using Python?](#55--how-to-implement-a-binary-search-using-python)
+- [56- How to implement a Linked list using Python?](#56--how-to-implement-a-linked-list-using-python)
+- [57- what is `collections.OrderedDict`?](#57--what-is-collectionsordereddict)
+- [58- what is `collections.defaultdict`?](#58--what-is-collectionsdefaultdict)
+- [59- Can we implement an `array` using Python?](#59--can-we-implement-an-array-using-python)
+- [60- What is the `bytes` type?](#60--what-is-the-bytes-type)
+- [61- How to concatenate tuples in python?](#61--how-to-concatenate-tuples-in-python)
+- [62- How to join two `sets`?](#62--how-to-join-two-sets)
+- [63- What is the difference between Python's list methods append and extend?](#63--what-is-the-difference-between-pythons-list-methods-append-and-extend)
+- [64- How to implement bubble sort in Python?](#64--how-to-implement-bubble-sort-in-python)
+- [65- How to implement Heap sort in Python?](#65--how-to-implement-heap-sort-in-python)
+- [66- How to implement Insertion sort in Python?](#66--how-to-implement-insertion-sort-in-python)
+- [67- How to implement Merge sort in Python?](#67--how-to-implement-merge-sort-in-python)
+- [68- How to implement Quick Sort in Python?](#68--how-to-implement-quick-sort-in-python)
+- [69- How to implement Selection sort in Python?](#69--how-to-implement-selection-sort-in-python)
+- [70- How to implement Shell sort in Python?](#70--how-to-implement-shell-sort-in-python)
+- [71- What are the commands that are used to copy an object in Python?](#71--what-are-the-commands-that-are-used-to-copy-an-object-in-python)
+- [72- What is the difference between deep and shallow copy?](#72--what-is-the-difference-between-deep-and-shallow-copy)
+- [73- How can the ternary operators be used in Python?](#73--how-can-the-ternary-operators-be-used-in-python)
+- [74- What will be the output of the code below?](#74--what-will-be-the-output-of-the-code-below)
+- [75- What will be the output of the code below?](#75--what-will-be-the-output-of-the-code-below)
+- [76- What will be the output of the code below?](#76--what-will-be-the-output-of-the-code-below)
+- [77- What is `__slots__` in python?](#77--what-is-__slots__-in-python)
+- [78- What is `__contains__` in python?](#78--what-is-__contains__-in-python)
+- [79- What is a "callable"?](#79--what-is-a-callable)
+- [80- How would you `XOR` in Python?](#80--how-would-you-xor-in-python)
+- [81- What is introspection/reflection and does Python support it?](#81--what-is-introspectionreflection-and-does-python-support-it)
+- [82- What will be the output of lines 2, 4, 6, and 8 from the following code, and why?](#82--what-will-be-the-output-of-lines-2-4-6-and-8-from-the-following-code-and-why)
+- [83- Write a function that prints the least integer that is not present in a given list and cannot be represented by the summation of the sub-elements of the list](#83--write-a-function-that-prints-the-least-integer-that-is-not-present-in-a-given-list-and-cannot-be-represented-by-the-summation-of-the-sub-elements-of-the-list)
+- [84- How do you reverse a list? Can you come up with at least three ways?](#84--how-do-you-reverse-a-list-can-you-come-up-with-at-least-three-ways)
+- [85- How does Python execute code?](#85--how-does-python-execute-code)
+- [86- What is `__pycache__`?](#86--what-is-__pycache__)
+- [87- What is the unittest in Python?](#87--what-is-the-unittest-in-python)
+- [88- What is the difference between xrange and range?](#88--what-is-the-difference-between-xrange-and-range)
+- [89- What is the use of `//` operator in Python?](#89--what-is-the-use-of--operator-in-python)
+- [90- How are dict and set implemented internally? What is the complexity of retrieving an item? How much memory do these structures consume?](#90--how-are-dict-and-set-implemented-internally-what-is-the-complexity-of-retrieving-an-item-how-much-memory-do-these-structures-consume)
+- [91- What is MRO in Python? How does it work?](#91--what-is-mro-in-python-how-does-it-work)
+- [92- How to distribute Python code?](#92--how-to-distribute-python-code)
+- [93- How to work with Python transitive dependencies?](#93--how-to-work-with-python-transitive-dependencies)
+- [94- What is the output of this code?](#94--what-is-the-output-of-this-code)
+- [95- What is the output of this code?](#95--what-is-the-output-of-this-code)
+- [96- What is packing and unpacking in Python?](#96--what-is-packing-and-unpacking-in-python)
+- [97- What's the difference between `globals()`, `locals()`, and `vars()`?](#97--whats-the-difference-between-globals-locals-and-vars)
+- [98- What is the `__init__.py` module, and what is it for?](#98--what-is-the-__init__py-module-and-what-is-it-for)
+- [99- How do I view object methods?](#99--how-do-i-view-object-methods)
+- [100- Which is a better practice - global import or local import in Python](#100--which-is-a-better-practice---global-import-or-local-import-in-python)
+- [101- what is tilde symbol `(~)` used for in Python?](#101--what-is-tilde-symbol--used-for-in-python)
+- [102- What is the difference between `__str__` and `__repr__`?](#102--what-is-the-difference-between-__str__-and-__repr__)
+- [103- What is `lru_cache` decorator in Python?](#103--what-is-lru_cache-decorator-in-python)
+- [104- What does `__all__` do?](#104--what-does-__all__-do)
+- [105- List some of the dunder methods](#105--list-some-of-the-dunder-methods)
+- [106- List some of the dunder methods used in Mathematical operations](#106--list-some-of-the-dunder-methods-used-in-mathematical-operations)
+- [107- List some of the Dunder variables](#107--list-some-of-the-dunder-variables)
+- [108- What are python frameworks for web development?](#108--what-are-python-frameworks-for-web-development)
+- [109- Write an API using Django REST](#109--write-an-api-using-django-rest)
+- [110- What are the differences between Django Framework and Django REST Framework?](#110--what-are-the-differences-between-django-framework-and-django-rest-framework)
+- [111- Create a `LRU Caching` using OrderedDict class](#111--create-a-lru-caching-using-ordereddict-class)
+- [112- In a peaceful kingdom, there are houses numbered from 1 to n. The king announces a prize of 100 gold coins to some special group of houses. You have been given the task to determine how many sets of three houses can form a special group, where the sum of the squares of two smaller house numbers is equal to the square of the largest house number](#112--in-a-peaceful-kingdom-there-are-houses-numbered-from-1-to-n-the-king-announces-a-prize-of-100-gold-coins-to-some-special-group-of-houses-you-have-been-given-the-task-to-determine-how-many-sets-of-three-houses-can-form-a-special-group-where-the-sum-of-the-squares-of-two-smaller-house-numbers-is-equal-to-the-square-of-the-largest-house-number)
+- [113- Write a solution for the Max Pairwise Product Problem](#113--write-a-solution-for-the-max-pairwise-product-problem)
+- [114- What is the difference between `__new__` and `__init__`? And how does object construction work?](#114--what-is-the-difference-between-__new__-and-__init__-and-how-does-object-construction-work)
+- [115- How is memory allocated for `list`, `tuple`, and `set`?](#115--how-is-memory-allocated-for-list-tuple-and-set)
+- [116- When a list grows beyond its allocated capacity, what happens to the underlying array allocation? And how are the existing elements handled?](#116--when-a-list-grows-beyond-its-allocated-capacity-what-happens-to-the-underlying-array-allocation-and-how-are-the-existing-elements-handled)
+- [117- What hashing is used for `dict` keys, and how do `__hash__` and `__eq__` interact?](#117--what-hashing-is-used-for-dict-keys-and-how-do-__hash__-and-__eq__-interact)
+- [118- What is `asyncio`, and how do `async`/`await` and the event loop actually work?](#118--what-is-asyncio-and-how-do-asyncawait-and-the-event-loop-actually-work)
+- [119- Threading, multiprocessing, or asyncio — how do you choose a concurrency model?](#119--threading-multiprocessing-or-asyncio--how-do-you-choose-a-concurrency-model)
+- [120- What is a metaclass, and when would you actually use one?](#120--what-is-a-metaclass-and-when-would-you-actually-use-one)
+- [121- Do Python's type hints do anything at runtime?](#121--do-pythons-type-hints-do-anything-at-runtime)
+- [122- What is the walrus operator (`:=`) and when is it useful?](#122--what-is-the-walrus-operator--and-when-is-it-useful)
+- [123- What is in `functools` beyond `lru_cache`?](#123--what-is-in-functools-beyond-lru_cache)
+- [124- What are `dataclasses`, and how do they compare to `NamedTuple`, `TypedDict`, and `attrs`?](#124--what-are-dataclasses-and-how-do-they-compare-to-namedtuple-typeddict-and-attrs)
+- [125- How does the `import` system work, and how do you deal with circular imports?](#125--how-does-the-import-system-work-and-how-do-you-deal-with-circular-imports)
+- [126- What is `weakref` and when do you need it?](#126--what-is-weakref-and-when-do-you-need-it)
+- [127- What is structural pattern matching (`match`/`case`)?](#127--what-is-structural-pattern-matching-matchcase)
+- [128- What is the difference between `is` and `==`, and when does object identity trip people up?](#128--what-is-the-difference-between-is-and--and-when-does-object-identity-trip-people-up)
+- [129- What is monkey patching, and when is it appropriate?](#129--what-is-monkey-patching-and-when-is-it-appropriate)
+- [130- How do operators dispatch to dunder methods, and what is `NotImplemented`?](#130--how-do-operators-dispatch-to-dunder-methods-and-what-is-notimplemented)
+- [131- What is exception chaining, and what are `__context__`, `__cause__`, and `__suppress_context__`?](#131--what-is-exception-chaining-and-what-are-__context__-__cause__-and-__suppress_context__)
+- [132- What modern exception features did Python 3.11 add (`add_note`, `ExceptionGroup`, `except*`)?](#132--what-modern-exception-features-did-python-311-add-add_note-exceptiongroup-except)
+- [133- What is the `warnings` module, and how do `UserWarning`/`DeprecationWarning` differ from exceptions?](#133--what-is-the-warnings-module-and-how-do-userwarningdeprecationwarning-differ-from-exceptions)
+- [134- Walk through the full class-creation protocol: `__prepare__`, the metaclass, and how `__call__` controls instantiation](#134--walk-through-the-full-class-creation-protocol-__prepare__-the-metaclass-and-how-__call__-controls-instantiation)
+- [135- Reference cycles, `__del__`, `weakref`, and `gc.freeze()`: the practical garbage-collection questions](#135--reference-cycles-__del__-weakref-and-gcfreeze-the-practical-garbage-collection-questions)
+- [136- What is `setup.py`, and how has Python packaging changed with `pyproject.toml`?](#136--what-is-setuppy-and-how-has-python-packaging-changed-with-pyprojecttoml)
+- [137- What is GraphQL, how does it differ from REST, and how do you serve it from Python?](#137--what-is-graphql-how-does-it-differ-from-rest-and-how-do-you-serve-it-from-python)
+- [138- How would you integrate an AI/ML model into a Python service, and what are the engineering concerns?](#138--how-would-you-integrate-an-aiml-model-into-a-python-service-and-what-are-the-engineering-concerns)
+- [139- What does a senior engineer need to know about building on LLMs (tokens, context windows, RAG, structured output, hallucination)?](#139--what-does-a-senior-engineer-need-to-know-about-building-on-llms-tokens-context-windows-rag-structured-output-hallucination)
+- [140- How do you actually test Python code — pytest fixtures, parametrization, and mocking?](#140--how-do-you-actually-test-python-code--pytest-fixtures-parametrization-and-mocking)
+- [141- What is Pydantic, and how does it differ from `dataclasses`?](#141--what-is-pydantic-and-how-does-it-differ-from-dataclasses)
+- [142- Beyond basic hints — what are `Protocol`, `TypeVar`/`Generic`, and how do you actually enforce types?](#142--beyond-basic-hints--what-are-protocol-typevargeneric-and-how-do-you-actually-enforce-types)
+- [143- How do you find and fix a performance bottleneck in Python?](#143--how-do-you-find-and-fix-a-performance-bottleneck-in-python)
+- [144- What are the security footguns every Python engineer must know?](#144--what-are-the-security-footguns-every-python-engineer-must-know)
+- [145- How do you write your own context manager, and what's in `contextlib`?](#145--how-do-you-write-your-own-context-manager-and-whats-in-contextlib)
+- [146- What does a senior need to know about talking to a database (ORM vs Core, sessions, pooling, transactions, N+1)?](#146--what-does-a-senior-need-to-know-about-talking-to-a-database-orm-vs-core-sessions-pooling-transactions-n1)
+- [147- How should logging be done in a production Python service?](#147--how-should-logging-be-done-in-a-production-python-service)
+- [148- Concurrency in practice: `concurrent.futures`, thread safety, and synchronization primitives](#148--concurrency-in-practice-concurrentfutures-thread-safety-and-synchronization-primitives)
+- [149- What is ASGI vs WSGI, and how does a framework like FastAPI use dependency injection?](#149--what-is-asgi-vs-wsgi-and-how-does-a-framework-like-fastapi-use-dependency-injection)
+- [150- What are the concrete steps to publish a library to PyPI with pip (build/twine), Poetry, or uv?](#150--what-are-the-concrete-steps-to-publish-a-library-to-pypi-with-pip-buildtwine-poetry-or-uv)
+
 ## 1- Python uses a Global Interpreter Lock. Does that mean it doesn’t use actual threads?
 
 No — Python threads are **real OS threads**. `threading.Thread` maps to a genuine kernel-scheduled thread (a POSIX `pthread` or a Windows thread), not a green/user-space thread. What the Global Interpreter Lock (GIL) does is narrower than "no threads": it is a single mutex that ensures only **one thread executes Python bytecode at any given moment**. The threads are real; their execution of _Python_ code is serialised.
@@ -27,7 +180,7 @@ It is important to note that the GIL can still limit the overall performance of 
 
 ## 3- What will be the output of the following code in each step?
 
-```Python
+```python
 class C:
     dangerous = 2
 c1 = C()
@@ -68,7 +221,7 @@ In Python, functions are considered first-class objects because they have the sa
 
 For example, consider the following code:
 
-```Python
+```python
 def greet(name):
   return "Hello, " + name
 
@@ -80,7 +233,7 @@ In this code, we define a function called `greet` that takes a single argument a
 
 As another example, consider the following code:
 
-```Python
+```python
 def apply_twice(func, arg):
   return func(func(arg))
 
@@ -98,7 +251,7 @@ In Python, arguments are passed by object reference. This means that when you pa
 
 The function cannot modify the original object for immutable objects (e.g., numbers, strings, and tuples) because such objects cannot be changed. Instead, any operation that seems to "modify" the object creates a new object, leaving the original one unaffected. For example:
 
-```Python
+```python
 def increment(x):
   x += 1
 
@@ -111,7 +264,7 @@ Here, the variable `a` remains unchanged because the function increment works wi
 
 For mutable objects (e.g., lists and dictionaries), the function operates on the original object because the reference to the same object is passed. For example:
 
-```Python
+```python
 def append_one(lst):
   lst.append(1)
 
@@ -127,7 +280,7 @@ The precise term for this model is **"call by object reference"** (sometimes "ca
 - **Mutating** the object through the parameter (`lst.append(1)`, `d["k"] = 1`) is visible to the caller, because both names point at the one shared object.
 - **Rebinding** the parameter (`lst = [99]`, `x = x + 1`) is _not_ visible to the caller. Assignment binds the local name to a brand-new object; the caller's variable still points at the original.
 
-```Python
+```python
 def mutate(lst):
     lst.append(99)      # mutates the shared object -> caller sees it
 
@@ -178,7 +331,7 @@ The senior mindset behind all this: formatting and linting are automated and non
 
 Here is an example of using the `filter` and `reduce` functions to process an iterable object in Python:
 
-```Python
+```python
 from functools import reduce
 
 # Define a list of numbers
@@ -209,7 +362,7 @@ A list comprehension consists of square brackets containing an expression follow
 
 For example, suppose we have a list of numbers, and we want to create a new list that contains only the even numbers from the original list. We could do this using a list comprehension as follows:
 
-```Python
+```python
 numbers = [1, 2, 3, 4, 5, 6]
 even_numbers = [x for x in numbers if x % 2 == 0]
 ```
@@ -220,7 +373,7 @@ A dictionary comprehension is similar to list comprehension, but it creates a ne
 
 For example, suppose we have a list of strings, and we want to create a new dictionary that maps each string to its length. We could do this using a dictionary comprehension as follows:
 
-```Python
+```python
 strings = ['cat', 'dog', 'bird']
 lengths = {s: len(s) for s in strings}
 ```
@@ -233,7 +386,7 @@ A closure is a function that retains access to the variables in the environment 
 
 In the context of lambda expressions, a lambda expression forms a closure if it references variables from the environment in which it was defined. For example, consider the following code:
 
-```Python
+```python
 def make_multiplier(n):
     return lambda x: x * n
 
@@ -246,7 +399,7 @@ Here, the `make_multiplier` function returns a lambda expression that takes a si
 
 We can see this in action by calling the `lambda` expressions returned by `make_multiplier`:
 
-```Python
+```python
 print(double(10))  # Output: 20
 print(triple(10))  # Output: 30
 ```
@@ -257,7 +410,7 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
 
 1. _Print statement vs print function_: In Python 2.x, the `print` statement is used to print output, while in Python 3.x, the `print` function is used. For example:
 
-   ```Python
+   ```python
    # Python 2.x
    print "Hello, World!"
 
@@ -268,7 +421,7 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
 
 2. _Division operator_: In Python 2.x, the division operator (`/`) performs floor division for integers and float division for floating-point numbers. In Python 3.x, the division operator always performs float division.
 
-   ```Python
+   ```python
    # Python 2.x
    print(10 / 3)  # Output: 3
    print(10 / 3.0)  # Output: 3.3333333333333335
@@ -280,7 +433,7 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
 
 3. _Exception handling_: In Python 2.x, the exception instance is bound with a comma (`except ValueError, e:`), while Python 3.x requires the `as` keyword (`except ValueError as e:`). A bare `except:` that catches every exception type remains valid in both versions, although catching a specific type is the recommended practice.
 
-   ```Python
+   ```python
    # Python 2.x
    try:
        x = 1 / 0
@@ -296,7 +449,7 @@ The lambda expression returned by `make_multiplier(2)` multiplies its argument b
 
 4. _Iterators_: In Python 2.x, the `iteritems` method is used to iterate over the keys and values of a dictionary, while in Python 3.x, the `items` method is used.
 
-   ```Python
+   ```python
        # Python 2.x
    d = {'a': 1, 'b': 2}
    for key, value in d.iteritems():
@@ -316,7 +469,7 @@ CPython manages memory automatically through **two cooperating mechanisms**: ref
 
 **1. Reference counting — the primary mechanism.** Every object carries a counter of how many references point to it (visible, with caveats, via `sys.getrefcount(obj)`). The count is incremented when a new name binds to the object and decremented when a reference goes away (rebinding, `del`, scope exit). The instant it hits **zero**, the object is deallocated immediately and deterministically — memory is reclaimed the moment the last reference disappears, not at some later sweep.
 
-```Python
+```python
 import sys
 a = []
 b = a
@@ -351,7 +504,7 @@ Reference counting is simple and prompt, but it has one fatal blind spot: **refe
 
 ## 12- What will be the output of the following code?
 
-```Python
+```python
 _list = ['a', 'b', 'c', 'd', 'e']
 print(_list[10:])
 ```
@@ -365,7 +518,7 @@ In this case, the list `_list` has only five elements, so the valid indices are 
 
 ## 13- A palindromic number reads the same both ways. The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99. Find the largest palindrome made from the product of two 3-digit numbers
 
-```Python
+```python
 def is_palindrome(n):
     # Convert the number to a string and check if it is equal to its reverse
     return str(n) == str(n)[::-1]
@@ -417,7 +570,7 @@ A static method is also bound to the class rather than to an instance, but unlik
 
 Here's an example of how to define and use class methods and static methods in Python:
 
-```Python
+```python
 class MyClass:
     def __init__(self, value):
         self.value = value
@@ -450,7 +603,7 @@ In general, you should use **_class methods_** when defining a method that opera
 
 ## 16- Please explain the following results of the code executed on a Python shell interpreter
 
-```Python
+```python
 >>> a=256
 >>> b=256
 >>> a is b
@@ -474,7 +627,7 @@ Therefore, the explanations of the results are:
 
 Since the `is` operator is to compare the memory locations of two variables, the `a is b` should output `True`, and the `x is y` should output `False`.
 
-## 17- In objective-oriented programming, there is a concept called abstract classes. How to implement it?
+## 17- In object-oriented programming, there is a concept called abstract classes. How to implement it?
 
 In Python, an abstract class is a class that has one or more abstract methods. An abstract method is a method that has a declaration, but no implementation. Abstract methods are defined using the `abc` (abstract base class) module, which is part of the Python standard library.
 
@@ -485,7 +638,7 @@ To create an abstract class in Python, you need to do the following:
 3. Declare one or more abstract methods using the `@abc.abstractmethod` decorator.
    Here is an example of an abstract class in Python:
 
-   ```Python
+   ```python
    import abc
 
    class Animal(abc.ABC):
@@ -515,7 +668,7 @@ The points that separate a textbook answer from a senior one:
 - **The real enforcement is at instantiation, and it is a hard failure.** `Animal()` raises `TypeError: Can't instantiate abstract class Animal with abstract method make_sound` — and so does any subclass that _forgets_ to implement every abstract method. That is the whole value: the failure happens loudly at object-creation time, not later as a mysterious `AttributeError` at first call.
 - **`@abstractmethod` composes with other decorators**, so you can require an abstract `property`, `classmethod`, or `staticmethod` — always with `@abstractmethod` **innermost** (closest to the method):
 
-  ```Python
+  ```python
   class Shape(abc.ABC):
       @property
       @abstractmethod
@@ -532,7 +685,7 @@ In Python, the `*args` and `**kwargs` syntax is used to pass a variable number o
 
 `*args` is used to pass a variable number of non-keyworded arguments to a function. It is used to pass a tuple of arguments to the function. For example:
 
-```Python
+```python
 def my_function(arg1, *args):
     print(arg1)
     print(args)
@@ -546,7 +699,7 @@ my_function(1, 2, 3, 4, 5)
 
 `**kwargs` is used to pass a variable number of keyworded arguments to a function. It is used to pass a dictionary of keyword arguments to the function. For example:
 
-```Python
+```python
 def my_function(**kwargs):
     print(kwargs)
 
@@ -562,7 +715,7 @@ The senior-level details:
 - **The names are convention, not syntax.** It is the `*` and `**` that matter; `*args`/`**kwargs` are just the customary names. `*` collects extra positionals into a **tuple**, `**` collects extra keywords into a **dict**.
 - **There is a fixed parameter order**, and getting it wrong is a `SyntaxError`: standard/positional parameters, then `*args`, then **keyword-only** parameters, then `**kwargs`. Anything after `*args` (or a bare `*`) can _only_ be passed by keyword:
 
-  ```Python
+  ```python
   def f(a, b, *args, key, **kwargs): ...
   #     └ positional ┘ └ variadic ┘ └ keyword-only ┘ └ variadic kw ┘
 
@@ -574,7 +727,7 @@ The senior-level details:
 
 - **Positional-only parameters** use a `/` marker (Python 3.8+): everything _before_ the `/` cannot be passed by keyword. The built-ins are written this way (`len(obj, /)`), and it lets you rename a parameter later without breaking callers:
 
-  ```Python
+  ```python
   def h(x, y, /, z):     # x, y positional-only; z either way
       ...
   ```
@@ -591,7 +744,7 @@ In Python, tuples, sets, and lists are all data types that can be used to store 
 
 3. **Lists** are mutable, which means that you can change the values of their items after the list has been created. They are defined using square brackets `[]` and their items are separated by commas. also, Lists are generally slower and use more memory than tuples, because they are mutable and have the overhead of the extra methods and behaviors that are associated with them. However, lists are more flexible than tuples because you can modify their items after the list has been created.
 
-```Python
+```python
 # Create a tuple
 t = (1, 2, 3)
 
@@ -626,7 +779,7 @@ The `pickle` module in Python provides functions for pickling and unpickling obj
 
 Here is an example of how to use the `pickle` module to pickle and unpickle a simple object in Python:
 
-```Python
+```python
 import pickle
 
 # Define a simple object to be pickled
@@ -651,7 +804,7 @@ Yes, Python supports multiple inheritance, which means that a class can inherit 
 
 To use multiple inheritance in Python, you can specify multiple superclasses in the class definition, separated by commas. For example:
 
-```Python
+```python
 class Base1:
     # Base1 class definition
     pass
@@ -671,7 +824,7 @@ Note that a class body cannot be empty in Python, which is why each class above 
 
 It is important to note that Python uses a method resolution order (MRO) to determine which method should be called when a method with the same name is inherited from multiple superclasses. The MRO is computed with the C3 linearisation algorithm. It respects the order in which the superclasses are listed, but it also guarantees that a class always appears before its own parents, so it is not a simple left-to-right search. You can inspect it at any time with `ClassName.__mro__` or `ClassName.mro()`:
 
-```Python
+```python
 class A: pass
 class B(A): pass
 class C(A): pass
@@ -715,7 +868,7 @@ The balanced senior take: none of these make Python a poor choice — its readab
 
 Multithreading in Python is achieved with the built-in `threading` module, either by instantiating `threading.Thread` with a target callable or by using `concurrent.futures.ThreadPoolExecutor` for a higher-level pool interface.
 
-```Python
+```python
 import threading
 
 def worker(name):
@@ -732,7 +885,7 @@ for t in threads:
 
 The same thing with a pool, which handles starting and joining for you:
 
-```Python
+```python
 from concurrent.futures import ThreadPoolExecutor
 
 with ThreadPoolExecutor(max_workers=3) as executor:
@@ -751,7 +904,7 @@ The `with` statement is used to manage resources that need to be acquired and re
 
 Here is an example of how to use the `with` statement to open and read a file in Python:
 
-```Python
+```python
 with open('filename.txt', 'r') as f:
     contents = f.read()
 
@@ -760,7 +913,7 @@ with open('filename.txt', 'r') as f:
 
 Without the `with` statement you would have to release the resource yourself in a `try`/`finally` block. The following code is equivalent to the example above, which shows what `with` saves you from writing:
 
-```Python
+```python
 f = open('filename.txt', 'r')
 try:
     contents = f.read()
@@ -770,7 +923,7 @@ finally:
 
 You can also write your own context manager, either by implementing `__enter__` and `__exit__` on a class or by using the `@contextlib.contextmanager` decorator:
 
-```Python
+```python
 from contextlib import contextmanager
 
 @contextmanager
@@ -800,7 +953,7 @@ In Python, there are several different file types that you may encounter when wo
 
 Here is an example of how these file types may be used in a Python program:
 
-```Python
+```python
 # foo.py
 def foo():
     print("Hello from foo")
@@ -820,7 +973,7 @@ To use a decorator in Python, you define a decorator function and use the `@` sy
 
 Here is an example of how to use a decorator in Python:
 
-```Python
+```python
 import functools
 
 def my_decorator(func):
@@ -857,7 +1010,7 @@ In Python, the `self` keyword is used to refer to the current instance of a clas
 
 Here is an example of how to use `self` in a class definition in Python:
 
-```Python
+```python
 class MyClass:
     def __init__(self, value):
         self.value = value
@@ -895,7 +1048,7 @@ Name lookup follows the **LEGB rule**, searching in this order: **L**ocal, then 
 
 Here is an example of how namespaces are used in Python:
 
-```Python
+```python
 # Define a global variable in the module namespace
 x = 10
 
@@ -955,7 +1108,7 @@ Dunder methods are used to define the behavior of various built-in operations in
 
 Here is an example of how dunder methods are used in Python:
 
-```Python
+```python
 class MyClass:
     def __init__(self, value):
         self.value = value
@@ -985,7 +1138,7 @@ When you use `super().__init__()` in a child class, you are calling the `__init_
 
 For example, consider the following code:
 
-```Python
+```python
 class Animal:
     def __init__(self, name, species):
         self.name = name
@@ -1004,7 +1157,7 @@ In this example, the `Cat` class is a child class of the `Animal` class. The `Ca
 
 You could instead name the parent class explicitly:
 
-```Python
+```python
 class Cat(Animal):
     def __init__(self, name, breed, toy):
         Animal.__init__(self, name, species="Cat")
@@ -1016,7 +1169,7 @@ In this single-inheritance example the two forms happen to produce the same resu
 
 **1. `super()` follows the MRO; an explicit call hard-codes one class.** With multiple inheritance, the next class in the MRO is not necessarily the class you named. Explicit calls can therefore run a shared base class more than once — the classic diamond problem:
 
-```Python
+```python
 class Base:
     def __init__(self):
         print("Base.__init__")
@@ -1060,7 +1213,7 @@ In Python, the `property` decorator is a built-in function that is used to creat
 
 Here is an example of how the `property` decorator is used to define a property in a class:
 
-```Python
+```python
 class Person:
     def __init__(self, first_name, last_name):
         self._first_name = first_name
@@ -1093,7 +1246,7 @@ Properties are useful because they allow you to define methods that are accessed
 
 Note that the setter above is deliberately simple; `name.split(" ")` raises a `ValueError` on a single name or a three-part name. A realistic setter validates its input, and a property can also define a **deleter**:
 
-```Python
+```python
 class Person:
     def __init__(self, first_name, last_name):
         self._first_name = first_name
@@ -1142,7 +1295,7 @@ In Python, a local variable is a variable that is defined within a function or m
 
 Here is an example of how local and global variables work in Python:
 
-```Python
+```python
 # Global variable
 x = 10
 
@@ -1163,7 +1316,7 @@ In this example, `x` is a global variable because it is defined outside of any f
 
 It is important to note that local variables take precedence over global variables with the same name. For example:
 
-```Python
+```python
 x = 10
 
 def some_function():
@@ -1178,7 +1331,7 @@ In this case, the `x` variable within the `some_function` function is a local va
 
 To access the global variable from within a function, you can use the global keyword to specify that you want to access the global variable, like this:
 
-```Python
+```python
 x = 10
 
 def some_function():
@@ -1203,7 +1356,7 @@ It is important to distinguish an **iterable** from an **iterator**, because int
 - An **iterable** is anything you can loop over — a list, tuple, string, or dict. It implements `__iter__`, which returns a **fresh** iterator each time. Iterables can be looped over repeatedly.
 - An **iterator** is the object doing the actual walking. It implements both `__iter__` (returning itself) and `__next__`. An iterator is **one-shot**: once exhausted it stays exhausted, and looping over it again yields nothing.
 
-```Python
+```python
 my_list = [1, 2, 3]          # an ITERABLE, not an iterator
 
 print(list(my_list))         # [1, 2, 3]
@@ -1216,7 +1369,7 @@ print(list(it))              # []  <- exhausted, and it stays that way
 
 Here is an example of how you can use an iterator to iterate over a list in Python:
 
-```Python
+```python
 # Define a list
 my_list = [1, 2, 3, 4]
 
@@ -1236,7 +1389,7 @@ In this example, the `iter` function is used to create an iterator object for th
 
 You can also use a for loop to iterate over an iterator in Python. The for loop will automatically call the `__next__` method of the iterator and will stop when a `StopIteration` exception is raised. For example:
 
-```Python
+```python
 # Define a list
 my_list = [1, 2, 3, 4]
 
@@ -1252,7 +1405,7 @@ Iterators are useful because they allow you to iterate over a sequence of elemen
 
 You can also create your own iterators by defining the `__iter__` and `__next__` methods in a class. For example:
 
-```Python
+```python
 class MyIterator:
     def __init__(self, data):
         self.data = data
@@ -1289,7 +1442,7 @@ To create a generator in Python, you use the `yield` keyword instead of the `ret
 
 Here is an example of a simple generator function in Python:
 
-```Python
+```python
 def my_range(n):
     i = 0
     while i < n:
@@ -1310,7 +1463,7 @@ You can also create a generator using a generator expression, which is a compact
 
 Here is an example of a generator expression:
 
-```Python
+```python
 # Create a generator object using a generator expression
 gen = (i for i in range(5))
 
@@ -1334,7 +1487,7 @@ So a generator is a special case of an iterator, not an alternative to one. The 
 
 Here are the same semantics written both ways:
 
-```Python
+```python
 # As a hand-written iterator: a class with explicit state
 class MyRange:
     def __init__(self, n):
@@ -1369,7 +1522,7 @@ Both produce identical results; the generator just replaces roughly fifteen line
 
 A point that is easy to get wrong: **both are one-shot**. Exhausting either one leaves it exhausted, and calling `iter()` on an already-consumed generator returns that same spent object rather than restarting it:
 
-```Python
+```python
 gen = my_range(5)
 print(list(gen))    # [0, 1, 2, 3, 4]
 print(list(gen))    # []  <- exhausted
@@ -1391,7 +1544,7 @@ In Python, documentation strings (also called docstrings) are strings that are u
 
 In Python, docstrings are written using triple quotes (`'''` or `"""`). For example:
 
-```Python
+```python
 def some_function(arg1, arg2):
     '''
     Add two numbers together.
@@ -1410,7 +1563,7 @@ In this example, the docstring for the `some_function` function is a multi-line 
 
 Docstrings can be accessed at runtime using the `__doc__` attribute of the object. For example:
 
-```Python
+```python
 print(some_function.__doc__)
 # This will print the docstring for the some_function function.
 
@@ -1426,7 +1579,7 @@ A few things worth knowing beyond the basics:
 - Running Python with `-OO` **strips docstrings** from the bytecode, so avoid relying on `__doc__` for program logic.
 - Docstrings in the `>>>` prompt format can be executed as tests by the `doctest` module, which keeps examples honest:
 
-```Python
+```python
 def add(a, b):
     """Return the sum of a and b.
 
@@ -1446,7 +1599,7 @@ def add(a, b):
 2. **`subn(pattern, repl, string)`**: Does exactly the same substitution, but returns a **tuple** of `(new_string, number_of_substitutions)` — not just the count.
 3. **`split(pattern, string)`**: Splits the string at every match of `pattern` and returns a **list** of the pieces.
 
-```Python
+```python
 import re
 
 text = "one1two22three333four"
@@ -1493,7 +1646,7 @@ Python does **not** support method overloading in the C++/Java sense: defining t
 
 Here is an example of polymorphism using method overriding. Note that the point of polymorphism is calling the _same_ method on _different_ types and getting type-appropriate behaviour, so the loop below is the part that matters:
 
-```Python
+```python
 import math
 
 class Shape:
@@ -1525,7 +1678,7 @@ for shape in [Rectangle(10, 20), Circle(5)]:
 
 Duck typing means the shared `Shape` base class is not actually required for that loop to work:
 
-```Python
+```python
 class Triangle:            # note: does NOT inherit from Shape
     def __init__(self, base, height):
         self.base = base
@@ -1572,7 +1725,7 @@ The `nonlocal` statement lets an inner function **rebind** a variable that belon
 
 Reading an enclosing variable never needs `nonlocal` — that works automatically through the LEGB lookup rule. You only need `nonlocal` when you want to **assign** to it.
 
-```Python
+```python
 def counter():
     count = 0                 # belongs to counter's scope
 
@@ -1591,7 +1744,7 @@ print(c())   # 3
 
 Without `nonlocal`, the `count += 1` line reads `count` before assigning to it, and since the assignment makes `count` local to `increment`, the read fails:
 
-```Python
+```python
 def broken_counter():
     count = 0
 
@@ -1616,7 +1769,7 @@ In Python, exceptions are handled using the `try` and except statements.
 
 Here's an example of how you can use the `try` and except statements to handle an exception:
 
-```Python
+```python
 try:
     # Code that might cause an exception goes here
     x = int('foo')
@@ -1629,7 +1782,7 @@ In this example, the `try` block contains code that might cause a _ValueError_ e
 
 You can also specify multiple `except` blocks to handle different types of exceptions:
 
-```Python
+```python
 try:
     # Code that might cause an exception goes here
     x = int('foo')
@@ -1644,7 +1797,7 @@ except TypeError:
 
 You can also use the `else` clause to specify a block of code that should be executed if no exceptions are raised in the try block:
 
-```Python
+```python
 try:
     # Code that might cause an exception goes here
     x = int('3')
@@ -1661,7 +1814,7 @@ In this example, the `else` block will be executed if the `try` block completes 
 
 Finally, you can use the `finally` clause to specify a block of code that should always be executed, regardless of whether an exception is raised or not:
 
-```Python
+```python
 try:
     # Code that might cause an exception goes here
     x = int('foo')
@@ -1677,7 +1830,7 @@ In this example, the `finally` block will be executed after the `try` block, reg
 
 Putting the four clauses together, the full form reads:
 
-```Python
+```python
 try:
     value = int(user_input)      # code that might raise
 except ValueError as e:          # 'as e' binds the exception object
@@ -1692,7 +1845,7 @@ Keep the `try` block as small as possible and put the follow-up work in `else`. 
 
 **Catching several types**, and inspecting the exception:
 
-```Python
+```python
 try:
     result = 10 / 0
 except (ValueError, TypeError) as e:   # one handler for several types
@@ -1705,7 +1858,7 @@ Handlers are checked in order, and the first matching one wins. Because `except`
 
 **Raising exceptions**, including your own:
 
-```Python
+```python
 class InsufficientFundsError(Exception):
     """Raised when an account lacks the funds for a withdrawal."""
     def __init__(self, balance, amount):
@@ -1729,7 +1882,7 @@ Custom exceptions should subclass `Exception` (not `BaseException`, which also c
 
 **Re-raising and chaining.** A bare `raise` inside a handler re-raises the current exception with its original traceback intact, which is the right way to log and pass along. `raise ... from e` records the original cause:
 
-```Python
+```python
 try:
     config = load_config()
 except FileNotFoundError as e:
@@ -1747,7 +1900,7 @@ except FileNotFoundError as e:
 
 That said, Python idiom favours **EAFP** — "easier to ask forgiveness than permission" — over defensive pre-checks. Attempting the operation and handling the exception is usually preferred to checking first, since the check can race or miss cases:
 
-```Python
+```python
 # EAFP - idiomatic Python
 try:
     value = my_dict["key"]
@@ -1806,7 +1959,7 @@ PYTHONOPTIMIZE=1 python script.py    # same effect as -O
 
 You can observe the whole effect directly:
 
-```Python
+```python
 def f():
     """A docstring."""
     return 1
@@ -1841,7 +1994,7 @@ The attribute lookup order for `obj.x` is:
 
 The common misconception is that the instance dictionary always takes priority. It does not: a data descriptor beats the instance `__dict__`, which is precisely what makes `property` able to intercept every read and write even after something has been assigned to the instance. A non-data descriptor, by contrast, _is_ shadowed by an entry in the instance dictionary:
 
-```Python
+```python
 class DataDesc:
     def __get__(self, obj, objtype=None):
         return "from data descriptor"
@@ -1869,7 +2022,7 @@ Descriptors are not an exotic corner of the language — they are the mechanism 
 
 Since Python 3.6, `__set_name__(self, owner, name)` is called automatically when the class body is executed, letting a descriptor learn the attribute name it was assigned to — useful for storing per-instance values without hard-coding a key:
 
-```Python
+```python
 class Positive:
     def __set_name__(self, owner, name):
         self.name = name                    # learns 'width' / 'height' automatically
@@ -1905,7 +2058,7 @@ There is a difference between a descriptor and a decorator in Python. A descript
 
 You can generate a random number using the `random` module.
 
-```Python
+```python
 import random
 
 random.randint(1, 100)      # random integer, 1 and 100 both included
@@ -1919,7 +2072,7 @@ random.shuffle(my_list)     # shuffles a list in place, returns None
 
 You can set a seed with `random.seed(x)`, where `x` is the value used to initialise the generator. Seeding makes the sequence **reproducible**, which is what you want in tests and simulations:
 
-```Python
+```python
 import random
 
 random.seed(42)
@@ -1933,7 +2086,7 @@ Seeding with the current time (`random.seed(time.time())`) is unnecessary — th
 
 One important caveat worth raising in an interview: **`random` is not cryptographically secure.** It uses a Mersenne Twister, which is fast and statistically excellent but fully predictable — an observer who sees enough output can recover the internal state and predict all future values. For passwords, tokens, session IDs, or anything security-related, use the `secrets` module instead:
 
-```Python
+```python
 import secrets
 
 secrets.randbelow(100)        # cryptographically secure integer in [0, 100)
@@ -1949,7 +2102,7 @@ Here are a few examples of functions that are available in the `itertools` modul
 
 Everything in `itertools` returns a **lazy iterator**, so values are produced on demand rather than built up in a list. That is what makes it usable with infinite sequences and large data sets.
 
-```Python
+```python
 import itertools
 
 # count: consecutive values from a start, forever
@@ -1996,7 +2149,7 @@ Note that `count` and `cycle` are **infinite** — never call `list()` on them d
 
 Here's an example of how you can use `itertools.islice`:
 
-```Python
+```python
 import itertools
 
 # Create a list of integers
@@ -2014,7 +2167,7 @@ Note what the output actually shows: `islice` selects by **position**, not by va
 
 The crucial difference from ordinary slicing is that `islice` works on any iterable, including generators and infinite iterators, and consumes it lazily. `numbers[0:10:2]` requires a sequence that supports indexing and builds a new list immediately; `islice` does neither:
 
-```Python
+```python
 import itertools
 
 # Works on an infinite iterator - ordinary slicing cannot do this
@@ -2026,7 +2179,7 @@ Two practical caveats: `islice` does not accept negative indices (it cannot coun
 
 You can also use `itertools.islice` to slice at a specific starting and ending position with a specific step size. For example, `itertools.islice(numbers, 2, 6, 1)` returns an iterator producing the elements at indices `2` through `5`. Below are examples of output based on various inputs:
 
-```Python
+```python
 # itertools.islice(iterable, stop)
 # itertools.islice(iterable, start, stop, step)
 
@@ -2038,7 +2191,7 @@ You can also use `itertools.islice` to slice at a specific starting and ending p
 
 ## 50- Why this code will never stop?
 
-```Python
+```python
 i = 0
 while i != 1:
     i += 0.1
@@ -2047,7 +2200,7 @@ while i != 1:
 
 This code will never stop because the condition `i != 1` is never satisfied. `0.1` cannot be represented exactly in binary floating point — it is stored as a value very slightly different from one tenth — so adding it repeatedly accumulates a small error:
 
-```Python
+```python
 i = 0
 for _ in range(10):
     i += 0.1
@@ -2061,7 +2214,7 @@ It is worth being precise about what happens next: `i` does not converge on `1` 
 
 The general lesson is to **never test floating-point values for exact equality**. Use one of these instead:
 
-```Python
+```python
 # 1. Use an inequality so overshooting still terminates the loop
 i = 0
 while i < 1:
@@ -2087,7 +2240,7 @@ This is not a Python quirk — it is the IEEE 754 standard used by essentially e
 
 ## 51- What is the output of this code, and why?
 
-```Python
+```python
 import datetime
 from time import sleep
 def my_time(time_now = datetime.datetime.now()):
@@ -2104,7 +2257,7 @@ As a result, the value of `time_now` is fixed at the moment the function is defi
 
 To fix this issue, you could remove the default value for the `time_now` parameter, and set it to the current time inside the function using `datetime.datetime.now()`, like this:
 
-```Python
+```python
 import datetime
 from time import sleep
 def my_time(time_now = None):
@@ -2123,7 +2276,7 @@ Yes, you can chain multiple decorators in Python. Decorators are functions that 
 
 To chain multiple decorators, you can simply apply them one after the other, using the `@` symbol, like this:
 
-```Python
+```python
 @decorator1
 @decorator2
 @decorator3
@@ -2133,13 +2286,13 @@ def function():
 
 Stacked decorators are applied **bottom-up**: the decorator closest to the `def` wraps the function first. The stack above is exactly equivalent to:
 
-```Python
+```python
 function = decorator1(decorator2(decorator3(function)))
 ```
 
 So at definition time `decorator3` is applied first and `decorator1` last — `decorator1` ends up as the outermost wrapper. At **call** time the order reverses: the outermost wrapper (`decorator1`) runs first, then delegates inward. Keeping these two orders straight — bottom-up application, top-down execution — is the point interviewers usually probe.
 
-```Python
+```python
 def decorator1(func):
     def wrapper(*args, **kwargs):
         print('Decorator 1')
@@ -2172,7 +2325,7 @@ Here `function = decorator1(decorator2(function))`: `decorator2` wrapped the fun
 
 To build a recursive function in Python, you will need to define a function that calls itself with a modified version of its input. Here's an example of how you can build a recursive function to calculate the factorial of a number:
 
-```Python
+```python
 def factorial(n):
     if n < 0:
         raise ValueError("factorial() not defined for negative values")
@@ -2191,7 +2344,7 @@ Two details matter more than they look:
 - **The base case must cover every terminating input.** With the common `if n == 1` base case, `factorial(0)` never terminates — each call passes a smaller negative number until Python raises `RecursionError: maximum recursion depth exceeded`. `0! == 1` by definition, so the guard should be `n <= 1`, with an explicit `ValueError` for negatives.
 - **Python does not optimise tail calls**, and the default recursion limit is about 1000 frames (`sys.getrecursionlimit()`), so `factorial(3000)` raises `RecursionError` even though the maths is fine. For depths like that, prefer an iterative version — or `math.factorial`, which is what production code should call anyway.
 
-```Python
+```python
 # 1st call: return n * factorial(4) "n = 5"
 # 2nd call: return n * factorial(3) "n = 4"
 # 3rd call: return n * factorial(2) "n = 3"
@@ -2211,7 +2364,7 @@ To implement a binary search tree (BST) in Python, you will need to create a `No
 
 Here is an example of how you could implement a `Node` class in Python:
 
-```Python
+```python
 class Node:
     def __init__(self, value):
         self.value = value
@@ -2223,7 +2376,7 @@ This `Node` class has three instance variables: `value`, `left`, and `right`. Th
 
 To implement the `BST` itself, you will need to create a `BST` class that has methods for inserting and searching for nodes in the `tree`. Here is an example of how you could implement a `BST` class in Python:
 
-```Python
+```python
 class BST:
     def __init__(self):
         self.root = None
@@ -2266,7 +2419,7 @@ To use these classes, you can create a new `BST` object and use the `insert` met
 
 An in-order traversal visits a BST's values in sorted order, which is both the standard way to read the tree back and a quick sanity check of the invariant:
 
-```Python
+```python
 def in_order(node):
     if node is not None:
         yield from in_order(node.left)
@@ -2286,7 +2439,7 @@ Complexity: `insert` and `search` are **O(h)** where `h` is the tree height — 
 
 ## 55- How to implement a binary search using Python?
 
-```Python
+```python
 # Returns index of x in arr if present, else -1
 def binary_search(arr, low, high, x):
 
@@ -2333,7 +2486,7 @@ In production code, reach for the standard library instead of hand-rolling: `bis
 
 You will need to define a `Node` class to represent the nodes of the linked list, and a `LinkedList` class to represent the linked list itself.
 
-```Python
+```python
 class Node:
     def __init__(self, value):
         self.value = value
@@ -2344,7 +2497,7 @@ This `Node` class has two instance variables: `value` and `next`. The `value` va
 
 Next, you can define the `LinkedList` class, which will contain methods for inserting nodes into the linked list and searching for specific values:
 
-```Python
+```python
 class LinkedList:
     def __init__(self):
         self.head = None
@@ -2370,7 +2523,7 @@ The `LinkedList` class has two methods: `append` and `traverse`. The `append` me
 
 You can use these classes to create and manipulate a linked list like this:
 
-```Python
+```python
 my_list = LinkedList()
 my_list.append(1)
 my_list.append(2)
@@ -2386,7 +2539,7 @@ it is a class in the Python `collections` module that provides an ordered dictio
 
 Here's an example of how you can use an `OrderedDict`:
 
-```Python
+```python
 from collections import OrderedDict
 
 # Create an OrderedDict
@@ -2415,7 +2568,7 @@ The senior-level nuance: since **Python 3.7, plain `dict` also preserves inserti
 
 - **Order-sensitive equality.** Two `OrderedDict`s with the same items in different order compare unequal; plain dicts compare equal regardless of order:
 
-  ```Python
+  ```python
   from collections import OrderedDict
 
   OrderedDict(a=1, b=2) == OrderedDict(b=2, a=1)   # False
@@ -2433,7 +2586,7 @@ it is a class in the Python `collections` module — a `dict` subclass that take
 
 Here's an example of how you can use a `defaultdict`:
 
-```Python
+```python
 from collections import defaultdict
 
 # int() -> 0 is the default
@@ -2457,7 +2610,7 @@ The factory is triggered **only by `d[key]` lookups** (the `__missing__` hook). 
 
 The `defaultdict(int)` pattern is a counter (`d[word] += 1` — though `collections.Counter` is more idiomatic for that job), and `defaultdict(list)` is the standard way to group items:
 
-```Python
+```python
 from collections import defaultdict
 
 words = ["apple", "avocado", "banana", "blueberry", "cherry"]
@@ -2484,7 +2637,7 @@ Because of this constraint, `array.array` objects with many elements are more sp
 
 Also, arrays support many of the same methods as regular lists, and you might be able to use them as a drop-in replacement without requiring other changes to your application code.
 
-```Python
+```python
 >>> import array
 >>> arr = array.array("f", (1.0, 1.5, 2.0, 2.5))
 >>> arr[1]
@@ -2520,19 +2673,19 @@ The `bytes` type is an immutable sequence of _bytes_. It is similar to the _str_
 
 You can create a `bytes` object by prefixing a string with the b character and enclosing it in quotes, like this:
 
-```Python
+```python
 b = b'Hello, world!'
 ```
 
 You can also create a `bytes` object from a list of integers using the `bytes` function:
 
-```Python
+```python
 b = bytes([104, 101, 108, 108, 111])  # b'hello'
 ```
 
 You can access the individual bytes of a `bytes` object using indices like you would with a string:
 
-```Python
+```python
 b = b'Hello, world!'
 print(b[0])  # Output: 72
 print(b[1])  # Output: 101
@@ -2540,7 +2693,7 @@ print(b[1])  # Output: 101
 
 You can also use slicing to extract a sub-sequence of bytes from a `bytes` object:
 
-```Python
+```python
 b = b'Hello, world!'
 print(b[6:11])  # Output: b' worl'
 print(b[7:12])  # Output: b'world'
@@ -2559,7 +2712,7 @@ You meet `bytes` at every I/O edge: files opened in `'rb'` mode, sockets, `subpr
 
 You can use the `+` operator. For example:
 
-```Python
+```python
 tuple1 = (1, 2, 3)
 tuple2 = (4, 5, 6)
 
@@ -2569,7 +2722,7 @@ print(tuple3)  # Output: (1, 2, 3, 4, 5, 6)
 
 This will create a new tuple that contains the elements of `tuple1` followed by the elements of `tuple2`. Unpacking gives the same result and generalises to any number of inputs, including other iterables:
 
-```Python
+```python
 tuple3 = (*tuple1, *tuple2)        # (1, 2, 3, 4, 5, 6)
 ```
 
@@ -2579,7 +2732,7 @@ Keep in mind that tuples are **immutable**, which means that you cannot modify a
 
 To join two sets in Python, you can use the `union` method, which returns a new `set` that contains all the elements from both sets.
 
-```Python
+```python
 set1 = {1, 2, 3}
 set2 = {3, 4, 5}
 
@@ -2589,7 +2742,7 @@ print(set3)  # Output: {1, 2, 3, 4, 5}
 
 If you want to modify an existing set in place, you can use the `update` method. This method adds all the elements from one set to another set, without creating a new set:
 
-```Python
+```python
 set1 = {1, 2, 3}
 set2 = {3, 4, 5}
 
@@ -2607,7 +2760,7 @@ The `extend` method adds all the elements of an iterable (such as a list) to the
 
 Here is an example:
 
-```Python
+```python
 list1 = [1, 2, 3]
 list1.append(4)
 print(list1)  # prints [1, 2, 3, 4]
@@ -2621,7 +2774,7 @@ Neither method creates a new list — both mutate the existing list in place and
 
 The gotcha interviewers fish for is what happens when you pass a _list_ to `append`:
 
-```Python
+```python
 lst = [1, 2, 3]
 lst.append([4, 5])
 print(lst)  # [1, 2, 3, [4, 5]]  <- the list goes in as ONE nested element
@@ -2635,7 +2788,7 @@ Also note that `extend` accepts any iterable — a tuple, set, generator, or str
 
 ## 64- How to implement bubble sort in Python?
 
-```Python
+```python
 def bubble_sort(lst):
   # Set swap to True to enter the loop
   swap = True
@@ -2657,7 +2810,7 @@ def bubble_sort(lst):
 
 **Function call:**
 
-```Python
+```python
 sorted_list = bubble_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
@@ -2672,7 +2825,7 @@ Bubble sort is a teaching algorithm; its one redeeming property is the O(n) earl
 
 ## 65- How to implement Heap sort in Python?
 
-```Python
+```python
 def heap_sort(lst):
   # Create an empty list to store the extracted elements
   sorted_list = []
@@ -2732,7 +2885,7 @@ def heappop(lst):
 
 **Function call:**
 
-```Python
+```python
 sorted_list = heap_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
@@ -2741,7 +2894,7 @@ Without the final `reverse()`, a max-heap pops its largest element first, so the
 
 In practice, use the standard library's `heapq`, which implements a **min**-heap, so popping yields ascending order directly:
 
-```Python
+```python
 import heapq
 
 def heap_sort_stdlib(lst):
@@ -2761,7 +2914,7 @@ Building the heap is O(n); each of the n extractions costs O(log n). Heap sort i
 
 ## 66- How to implement Insertion sort in Python?
 
-```Python
+```python
 def insertion_sort(lst):
   # Iterate through the list, starting from the second element
   for i in range(1, len(lst)):
@@ -2783,7 +2936,7 @@ def insertion_sort(lst):
 
 **Function call:**
 
-```Python
+```python
 sorted_list = insertion_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
@@ -2796,7 +2949,7 @@ print(sorted_list)  # [1, 2, 5, 8, 9]
 
 ## 67- How to implement Merge sort in Python?
 
-```Python
+```python
 def merge_sort(lst):
   # If the input list is empty or has only one element, return it
   if len(lst) <= 1:
@@ -2839,7 +2992,7 @@ def merge(left, right):
 
 **Function call:**
 
-```Python
+```python
 sorted_list = merge_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
@@ -2854,7 +3007,7 @@ Merge sort is **stable** (equal elements keep their original relative order — 
 
 ## 68- How to implement Quick Sort in Python?
 
-```Python
+```python
 def quick_sort(lst):
   # If the input list has fewer than 2 elements, return it
   if len(lst) < 2:
@@ -2870,7 +3023,7 @@ def quick_sort(lst):
 
 **Function call:**
 
-```Python
+```python
 sorted_list = quick_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
@@ -2885,7 +3038,7 @@ Two things to say about this elegant version: it is **not in place** (each level
 
 ## 69- How to implement Selection sort in Python?
 
-```Python
+```python
 def selection_sort(lst):
   # Iterate through the list, starting from the first element
   for i in range(len(lst)):
@@ -2904,7 +3057,7 @@ def selection_sort(lst):
 
 **Function call:**
 
-```Python
+```python
 sorted_list = selection_sort([5, 2, 8, 1, 9])
 print(sorted_list)  # [1, 2, 5, 8, 9]
 ```
@@ -2917,7 +3070,7 @@ print(sorted_list)  # [1, 2, 5, 8, 9]
 
 ## 70- How to implement Shell sort in Python?
 
-```Python
+```python
 def shell_sort(arr):
   gap = len(arr) // 2
   while gap > 0:
@@ -2934,7 +3087,7 @@ def shell_sort(arr):
 
 **Function call:**
 
-```Python
+```python
 sorted_list = shell_sort([3, 4, 2, 1, 6, 5])
 print(sorted_list)  # [1, 2, 3, 4, 5, 6]
 ```
@@ -2953,7 +3106,7 @@ There are several ways to copy an object in Python. Here are some of the most co
 
 - Using the `copy` module:
 
-  ```Python
+  ```python
   import copy
   new_object = copy.copy(old_object)
   ```
@@ -2962,7 +3115,7 @@ There are several ways to copy an object in Python. Here are some of the most co
 
 - Using the `deepcopy` function:
 
-  ```Python
+  ```python
   import copy
   new_object = copy.deepcopy(old_object)
   ```
@@ -2971,7 +3124,7 @@ There are several ways to copy an object in Python. Here are some of the most co
 
 - Using the `copy()` method:
 
-  ```Python
+  ```python
   new_object = old_object.copy()
   ```
 
@@ -2988,7 +3141,7 @@ Both produce a new outer object; the difference is what happens to the objects *
 
 The distinction only matters when the container holds **mutable** objects. Watch what happens to a nested list:
 
-```Python
+```python
 import copy
 
 original = [[1, 2], [3, 4]]
@@ -3019,7 +3172,7 @@ In Python, the ternary operator is known as the conditional operator or ternary 
 
 The syntax for the ternary operator is:
 
-```Python
+```python
 result = expression1 if condition else expression2
 ```
 
@@ -3027,7 +3180,7 @@ Here, `expression1` and `expression2` are the results that are returned if the c
 
 Here's an example of how you can use the ternary operator to assign a value to a variable based on a condition:
 
-```Python
+```python
 x = 10
 y = 20
 max_value = x if x > y else y
@@ -3038,7 +3191,7 @@ In this example, the condition `x > y` is false, so `y` is assigned to `max_valu
 
 You can also use the ternary operator to return a value from a function based on a condition:
 
-```Python
+```python
 def get_max_value(x, y):
     return x if x > y else y
 
@@ -3050,7 +3203,7 @@ In this example, the function `get_max_value()` returns `x` if `x` is greater th
 
 ## 74- What will be the output of the code below?
 
-```Python
+```python
 def extendList(val, list=[]):
     list.append(val)
     return list
@@ -3066,7 +3219,7 @@ print("list3 = %s" % list3)
 
 **The output:**
 
-```Python
+```python
 list1 = [10, 'a']
 list2 = [123]
 list3 = [10, 'a']
@@ -3081,7 +3234,7 @@ list3 = [10, 'a']
 
 The definition of the `extendList` function could be modified as follows, though, to always begin a new list when no `list` argument is specified, which is more likely to have been the desired behavior:
 
-```Python
+```python
 def extendList(val, list=None):
     if list is None:
         list = []
@@ -3093,7 +3246,7 @@ The `list=None` / `if list is None` pattern is the standard idiom for mutable de
 
 ## 75- What will be the output of the code below?
 
-```Python
+```python
 def multipliers():
   return [lambda x : i * x for i in range(4)]
 
@@ -3106,7 +3259,7 @@ The reason for this is that Python’s closures are late binding. This means tha
 
 The standard fix exploits the fact that **default arguments are evaluated at definition time** (the very behaviour that causes the previous question's bug is the cure here) — bind the current `i` as a default:
 
-```Python
+```python
 def multipliers():
     return [lambda x, i=i: i * x for i in range(4)]
 
@@ -3117,7 +3270,7 @@ Alternatives that achieve the same early binding: `functools.partial(operator.mu
 
 ## 76- What will be the output of the code below?
 
-```Python
+```python
 class Parent(object):
     x = 1
 
@@ -3158,7 +3311,7 @@ Using `__slots__` can help mitigate this issue by allowing you to specify exactl
 
 Here's an example of how you might use `__slots__` in a Python class:
 
-```Python
+```python
 class Point:
     __slots__ = ['x', 'y']
 
@@ -3185,7 +3338,7 @@ The `__contains__` method is a special method in Python that is used to implemen
 
 Here's an example of how you might use the `__contains__` method in a Python class:
 
-```Python
+```python
 class Color:
     def __init__(self, r, g, b):
         self.r = r
@@ -3213,7 +3366,7 @@ Here are a few examples of callables in Python:
 
 - Functions:
 
-  ```Python
+  ```python
   def greet(name):
       print(f"Hello, {name}!")
 
@@ -3222,7 +3375,7 @@ Here are a few examples of callables in Python:
 
 - Methods:
 
-  ```Python
+  ```python
   class Greeter:
       def __init__(self, name):
           self.name = name
@@ -3238,7 +3391,7 @@ Here are a few examples of callables in Python:
 
 - Objects with the `__call__` method:
 
-  ```Python
+  ```python
   class CallableClass:
       def __call__(self, *args, **kwargs):
           print("Called with arguments:", args, kwargs)
@@ -3249,7 +3402,7 @@ Here are a few examples of callables in Python:
 
 You can check if an object is callable using the `callable()` built-in function:
 
-```Python
+```python
 print(callable(greet))    # prints True
 print(callable(g.greet))  # prints True
 print(callable(Greeter))  # prints True - classes are callable
@@ -3265,7 +3418,7 @@ The answer depends on whether you mean **bitwise** XOR on integers or **logical*
 
 **Bitwise XOR** uses the `^` operator (there is no `^^`):
 
-```Python
+```python
 print(0b1100 ^ 0b1010)   # 6, i.e. 0b0110 - differing bits set
 print(5 ^ 3)             # 6
 x = 12
@@ -3295,7 +3448,7 @@ Rounding out the toolbox: `hasattr()` probes for an attribute, `vars(obj)` retur
 
 ## 82- What will be the output of lines 2, 4, 6, and 8 from the following code, and why?
 
-```Python
+```python
 list = [ [ ] ] * 5
 list  # output?
 list[0].append(10)
@@ -3308,7 +3461,7 @@ list  # output?
 
 **The output:**
 
-```Python
+```python
 list = [ [ ] ] * 5
 list  # output: [[], [], [], [], []]
 list[0].append(10)
@@ -3323,7 +3476,7 @@ In the first line, `list` is initialized with 5 references to the **same** singl
 
 The fix is a comprehension, which evaluates `[]` freshly on every iteration:
 
-```Python
+```python
 grid = [[] for _ in range(5)]
 grid[0].append(10)
 print(grid)   # [[10], [], [], [], []]
@@ -3335,7 +3488,7 @@ The rule of thumb: `[x] * n` is fine when `x` is immutable (numbers, strings), a
 
 This is the classic "smallest unrepresentable sum" problem: given a list of positive integers, find the smallest positive integer that cannot be written as the sum of any subset of the list. There is a beautiful greedy O(n log n) solution:
 
-```Python
+```python
 def find_least_integer(lst):
     # Sort the list in ascending order
     lst = sorted(lst)
@@ -3359,7 +3512,7 @@ Note that a simpler "walk until a number is missing" loop (incrementing only whe
 
 Here is an example of how to use the function:
 
-```Python
+```python
 print(find_least_integer([1, 3, 6, 10, 11, 15]))  # Output: 2  (no way to form 2)
 print(find_least_integer([1, 1, 3]))              # Output: 6
 print(find_least_integer([1, 2, 4, 8]))           # Output: 16 (powers of two cover 1-15)
@@ -3371,7 +3524,7 @@ Here are three ways to reverse a list in Python:
 
 1. Using the `reverse()` method:
 
-   ```Python
+   ```python
    lst = [1, 2, 3, 4, 5]
    lst.reverse()
    print(lst)  # Output: [5, 4, 3, 2, 1]
@@ -3379,7 +3532,7 @@ Here are three ways to reverse a list in Python:
 
 2. Using slicing with a step of -1:
 
-   ```Python
+   ```python
    lst = [1, 2, 3, 4, 5]
    lst = lst[::-1]
    print(lst)  # Output: [5, 4, 3, 2, 1]
@@ -3387,7 +3540,7 @@ Here are three ways to reverse a list in Python:
 
 3. Using a `for` loop:
 
-   ```Python
+   ```python
    lst = [1, 2, 3, 4, 5]
    reversed_lst = []
    for i in range(len(lst)-1, -1, -1):
@@ -3399,7 +3552,7 @@ All three produce the same _ordering_, but they differ in an important way: `rev
 
 A fourth way — often the best — is the built-in `reversed()`:
 
-```Python
+```python
 lst = [1, 2, 3, 4, 5]
 for x in reversed(lst):      # lazy iterator: no copy made at all
     print(x)
@@ -3442,7 +3595,7 @@ To use the `unittest` framework, you define a series of test cases, which are in
 
 Here is a simple example of how to use the `unittest` framework to test a function:
 
-```Python
+```python
 import unittest
 
 def add(x, y):
@@ -3465,7 +3618,7 @@ In this example, the `TestAdd` class defines two test methods, `test_add_two_pos
 
 Beyond `assertEqual`, the pieces used daily are: `setUp`/`tearDown` (fresh fixtures before/after every test method), `assertRaises` as a context manager for expected exceptions, `assertAlmostEqual` for floats, and `unittest.mock` for patching out dependencies:
 
-```Python
+```python
 class TestDivide(unittest.TestCase):
     def test_divide_by_zero_raises(self):
         with self.assertRaises(ZeroDivisionError):
@@ -3480,7 +3633,7 @@ Worth saying in an interview: `unittest` is the standard library's xUnit-style f
 
 The `range` function generates a sequence of numbers by creating a list object that contains all of the numbers in the sequence. For example:
 
-```Python
+```python
 >>> range(5)
 [0, 1, 2, 3, 4]
 >>> range(2, 5)
@@ -3495,7 +3648,7 @@ The `xrange` function generates the numbers lazily instead, returning an `xrange
 
 For example:
 
-```Python
+```python
 >>> xrange(5)
 xrange(5)
 >>> list(xrange(5))
@@ -3514,7 +3667,7 @@ The `xrange` function was introduced in **`Python 2`** as a more efficient alter
 
 Python 3's `range` is in fact better than `xrange` ever was — it is a full lazy, immutable sequence:
 
-```Python
+```python
 r = range(1_000_000_000)   # instant: no billion-element list is built
 print(len(r))              # 1000000000
 print(r[500])              # 500 - O(1) indexing, computed arithmetically
@@ -3530,7 +3683,7 @@ In Python, the `//` operator is the floor division operator: it divides and then
 
 For example:
 
-```Python
+```python
 >>> 5 / 2
 2.5
 >>> 5 // 2
@@ -3544,7 +3697,7 @@ Two precise points that the loose description "returns an integer" gets wrong:
 - **The result type follows the operands, not the operation.** `int // int` gives an `int`, but if either operand is a float the result is a _float_ — `5.0 // 2` is `2.0`, not `2`.
 - **Flooring is not truncation.** For negative results, `//` keeps rounding _down_, which surprises people expecting C-style truncation toward zero:
 
-```Python
+```python
 >>> -7 // 2
 -4          # floor(-3.5) = -4, NOT -3
 >>> 7 // -2
@@ -3555,7 +3708,7 @@ Two precise points that the loose description "returns an integer" gets wrong:
 
 Floor division pairs with the modulo operator through the invariant `a == (a // b) * b + (a % b)`, which is why `%` in Python always returns a result with the sign of the _divisor_ (`-7 % 2` is `1`, handy for wrapping indices). `divmod(a, b)` returns both at once. Typical uses: splitting into whole units and remainder (`minutes, seconds = divmod(total, 60)`), integer midpoints (`mid = (lo + hi) // 2`), and digit extraction (`n // 10`, `n % 10`).
 
-```Python
+```python
 >>> 10 // 3
 3
 >>> divmod(125, 60)
@@ -3594,7 +3747,7 @@ The MRO of a class is the order in which the methods of the class and its base c
 
 Here is an example of a class hierarchy with multiple inheritance in Python:
 
-```Python
+```python
 class A:
     def foo(self):
         print("A.foo")
@@ -3613,7 +3766,7 @@ class D(B, C, A):
 
 In this example, the class `D` is derived from the classes `B`, `C`, and `A`, in that order. The MRO of the `D` class is determined using the C3 linearization algorithm, and it is as follows:
 
-```Python
+```python
 D.__mro__ == (D, B, C, A, object)
 ```
 
@@ -3626,7 +3779,7 @@ Three follow-ups an interviewer is likely to reach for:
 - **C3 is more than left-to-right.** The linearization satisfies two constraints at once: a class always precedes its own bases, and the left-to-right order of the bases listed in every class definition is preserved. In diamond hierarchies this means a shared base appears _after_ all its subclasses, not immediately after the first parent (see the `super` question earlier in this file for a worked diamond).
 - **Not every hierarchy has a valid MRO.** If the constraints contradict each other, Python refuses to create the class at all:
 
-  ```Python
+  ```python
   class X(A, B): pass
   class Y(B, A): pass       # opposite order
   class Z(X, Y): pass       # TypeError: Cannot create a consistent MRO
@@ -3640,7 +3793,7 @@ There are several ways to distribute Python code, depending on the specific need
 
 1. **Packaging for PyPI (the modern workflow)**: Declare the package metadata in a `pyproject.toml` file — this has replaced the old `setup.py`/`distutils` approach (`distutils` was removed from the standard library in Python 3.12). Then build and upload:
 
-   ```Bash
+   ```bash
    python -m build        # produces a source distribution (.tar.gz) and a wheel (.whl)
    python -m twine upload dist/*
    ```
@@ -3661,7 +3814,7 @@ To work with transitive dependencies in Python, you typically use a package mana
 
 For example, suppose you have a Python project that depends on package `A`, which in turn depends on package `B`. To install these dependencies using `pip`, you can use the following command:
 
-```Bash
+```bash
 pip install A
 ```
 
@@ -3669,14 +3822,14 @@ This will install both packages `A` and its transitive dependency, package `B`.
 
 If you want to specify the exact version of a package and its transitive dependencies that you want to install, you can use the `-r` flag to specify a requirements file. A `requirements` file is a text file that lists the packages and their versions that your project depends on. For example:
 
-```Python
+```python
 A==1.0
 B==2.0
 ```
 
 To install the packages and their transitive dependencies from this requirements file, you can use the following command:
 
-```Bash
+```bash
 pip install -r requirements.txt
 ```
 
@@ -3693,7 +3846,7 @@ The senior-level practice is to separate **direct** dependencies from the **full
 
 ## 94- What is the output of this code?
 
-```Python
+```python
 def Foo():
     yield 42;
     return 666
@@ -3705,7 +3858,7 @@ Strictly speaking this code produces **no output** — it only defines a functio
 
 Here is the part worth knowing: `return 666` inside a generator does **not** produce `666` as an iteration value. It terminates the generator by raising `StopIteration`, and the returned value is carried on the exception as its `.value` attribute (PEP 380):
 
-```Python
+```python
 print(list(Foo()))    # [42] - iteration only ever sees yielded values
 
 g = Foo()
@@ -3720,7 +3873,7 @@ A `for` loop swallows the `StopIteration` silently, so the `666` is invisible to
 
 ## 95- What is the output of this code?
 
-```Python
+```python
 _MangledGlobal__mangled = 23
 
 class MangledGlobal:
@@ -3736,7 +3889,7 @@ The detail this puzzle turns on: mangling is applied **at compile time to any id
 
 Here is the example in action:
 
-```Python
+```python
 _MangledGlobal__mangled = 23
 
 class MangledGlobal:
@@ -3760,13 +3913,13 @@ In Python, packing and unpacking refer to two related concepts involving the con
 
 Packing refers to the process of taking multiple values or items and combining them into a single data structure. This is often done using tuples, which are a type of immutable data structure in Python. For example, we can create a tuple that contains three elements like this:
 
-```Python
+```python
 my_tuple = (1, "hello", True)
 ```
 
 Unpacking, on the other hand, refers to the process of taking a data structure and splitting it into multiple values or items. This is often done using tuples, lists, or dictionaries. For example, we can unpack a tuple into multiple variables like this:
 
-```Python
+```python
 my_tuple = (1, "hello", True)
 a, b, c = my_tuple
 ```
@@ -3777,7 +3930,7 @@ The asterisk can be used in several ways:
 
 1. Unpacking into individual variables: If you have a list or tuple with an unknown number of elements, you can use the asterisk to unpack the elements into individual variables. For example:
 
-   ```Python
+   ```python
    my_list = [1, 2, 3, 4, 5]
    a, b, *rest = my_list
    print(a) # 1
@@ -3787,7 +3940,7 @@ The asterisk can be used in several ways:
 
 2. Unpacking in function calls: The asterisk can also be used to unpack arguments in function calls. For example:
 
-   ```Python
+   ```python
    def my_function(a, b, c):
        print(a, b, c)
 
@@ -3801,7 +3954,7 @@ The picture is completed by the double asterisk and the packing side of function
 
 1. **Packing in function signatures**: `*args` packs surplus positional arguments into a tuple and `**kwargs` packs surplus keyword arguments into a dict — packing and unpacking are the same syntax viewed from opposite ends:
 
-   ```Python
+   ```python
    def report(*args, **kwargs):
        print(args, kwargs)
 
@@ -3810,7 +3963,7 @@ The picture is completed by the double asterisk and the packing side of function
 
 2. **`**` unpacking in calls and literals**: a dict can be unpacked into keyword arguments, and both `*` and `**` work inside literals to merge collections:
 
-   ```Python
+   ```python
    def connect(host, port, timeout):
        print(host, port, timeout)
 
@@ -3835,7 +3988,7 @@ The `vars()` function has two distinct behaviours. **Without arguments, `vars()`
 
 Here is an example of how you might use these functions:
 
-```Python
+```python
 x = 10
 y = 20
 
@@ -3870,7 +4023,7 @@ Two cautions that matter in practice:
 - **Writing to `globals()` works but is a design smell; writing to `locals()` inside a function does not work at all.** Function locals are stored in optimised slots, and (in 3.13+, per PEP 667) `locals()` returns a _snapshot_ — mutating the returned dict never changes the actual variables.
 - These tools are for debugging and framework plumbing (e.g. `str.format_map(vars(obj))`); reaching for them in ordinary application logic usually signals that a plain dict should have been used instead.
 
-## 98- What is the `__init__.py` module? What it's for?
+## 98- What is the `__init__.py` module, and what is it for?
 
 The `__init__.py` file is used to mark directories on disk as Python package directories. It is required for Python to treat the directories as containing packages; otherwise, the directories are just treated as directories and are not searched for modules.
 
@@ -3890,7 +4043,7 @@ my_package/
 
 To import `module1` from the `my_package` package, you would use the following import statement:
 
-```Python
+```python
 import my_package.module1
 ```
 
@@ -3906,7 +4059,7 @@ To view the methods of an object in Python, you can use the `dir()` function. Th
 
 For example, consider the following object:
 
-```Python
+```python
 class MyClass:
     def __init__(self):
         self.x = 10
@@ -3917,7 +4070,7 @@ class MyClass:
 
 To view the methods of this object, you could do the following:
 
-```Python
+```python
 obj = MyClass()
 methods = dir(obj)
 print(methods)
@@ -3925,14 +4078,14 @@ print(methods)
 
 This would output the following list:
 
-```Bash
+```bash
 ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__',
 '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'my_method', 'x']
 ```
 
 You can then filter this list to only include methods by using a list comprehension — note that filtering on `callable` alone is not enough, because the dunder methods (`__init__`, `__eq__`, …) are callable too and would flood the result:
 
-```Python
+```python
 obj_methods = [m for m in dir(obj)
                if callable(getattr(obj, m)) and not m.startswith("__")]
 print(obj_methods)
@@ -3940,7 +4093,7 @@ print(obj_methods)
 
 This would output the following list:
 
-```Python
+```python
 ['my_method']
 ```
 
@@ -3975,7 +4128,7 @@ This would install the latest version of `foo` that is equal to or greater than 
 
 Also, the tilde symbol `(~)` is the bitwise `NOT` operator (implemented by the `__invert__` dunder). On an integer it inverts all bits, which under two's-complement arithmetic means **`~x` equals `-x - 1`**:
 
-```Python
+```python
 >>> x = 0b1100      # 12
 >>> y = ~x
 >>> y
@@ -4002,7 +4155,7 @@ In summary, `__str__` is used for display purposes and should be easy to read, w
 
 The fallback is **one-directional**: if `__str__` is missing, `str()` and `print()` fall back to `__repr__` — but if `__repr__` is missing, `repr()` does _not_ use `__str__`; it uses the default `<module.Class object at 0x...>`. That asymmetry is why the standard advice is: **always implement `__repr__` first** (every class benefits), and add `__str__` only when you want a different user-facing form.
 
-```Python
+```python
 import datetime
 
 class Point:
@@ -4039,7 +4192,7 @@ The `lru_cache` decorator has several optional arguments, such as `maxsize` whic
 
 Here's an example of how to use the `lru_cache` decorator in Python:
 
-```Python
+```python
 from functools import lru_cache
 
 @lru_cache
@@ -4072,7 +4225,7 @@ Defining `__all__` can be useful for controlling the public interface of a modul
 
 Here's an example of how `__all__` can be used:
 
-```Python
+```python
 # my_module.py
 
 def foo():
@@ -4164,7 +4317,7 @@ Comparison operators get their own dunders (not strictly "mathematical", but usu
 
 ## 109- Write an API using Django REST
 
-```Python
+```python
 # myapp/models.py
 from django.db import models
 
@@ -4220,7 +4373,7 @@ In practice DRF adds, on top of plain Django: **serializers** (declarative conve
 
 The contrast shows in code. Hand-rolling a JSON endpoint in plain Django (note how serialization, and eventually validation, pagination, and auth, are all yours to write):
 
-```Python
+```python
 from django.core.serializers import serialize
 from django.http import HttpResponse
 from django.views import View
@@ -4237,7 +4390,7 @@ class SerializedListView(View):
 
 The equivalent in Django REST Framework — list **and** create, with validation, auth and pagination hooked in by configuration:
 
-```Python
+```python
 from rest_framework import generics, permissions
 
 from .models import MyObj
@@ -4254,7 +4407,7 @@ The rule of thumb: server-rendered HTML sites need only Django; the moment the d
 
 ## 111- Create a `LRU Caching` using OrderedDict class
 
-```Python
+```python
 from collections import OrderedDict
 
 class LRUCache:
@@ -4296,7 +4449,7 @@ Every operation is O(1): the dict lookup, `move_to_end` (a doubly-linked-list sp
 
 ## 112- In a peaceful kingdom, there are houses numbered from 1 to n. The king announces a prize of 100 gold coins to some special group of houses. You have been given the task to determine how many sets of three houses can form a special group, where the sum of the squares of two smaller house numbers is equal to the square of the largest house number
 
-```Python
+```python
 #Example 1:
 #Input: n = 10
 #Output: 4
@@ -4356,7 +4509,7 @@ Note that each Pythagorean triple is counted twice — `(3, 4, 5)` and `(4, 3, 5
 
 ## 113- Write a solution for the Max Pairwise Product Problem
 
-```Python
+```python
 def max_pairwise_product(arr):
     if len(arr) < 2:
         raise ValueError("Array must have at least two elements.")
@@ -4399,7 +4552,7 @@ They are two distinct steps of a two-phase construction protocol, and conflating
 
 When you call `MyClass(args)`, it is the metaclass's `type.__call__` that orchestrates the sequence: it calls `__new__` to get the instance, and then — **only if `__new__` returned an instance of `cls`** — calls `__init__` on it.
 
-```Python
+```python
 class Demo:
     def __new__(cls, *args, **kwargs):
         print("1. __new__ - creating the instance")
@@ -4421,7 +4574,7 @@ You rarely override `__new__` — `__init__` covers almost every case. The legit
 
 - **Subclassing an immutable type** (`int`, `str`, `tuple`, `bytes`, `frozenset`). Because the value is fixed at creation, there is no way for `__init__` to set it — it runs too late. You must intercept `__new__`:
 
-  ```Python
+  ```python
   class PositiveInt(int):
       def __new__(cls, value):
           if value <= 0:
@@ -4433,7 +4586,7 @@ You rarely override `__new__` — `__init__` covers almost every case. The legit
 
 - **Singletons / instance caching / object pools** — return an existing instance instead of a fresh one (note the caveat that `__init__` still re-runs on the returned instance if it _is_ a `cls` instance, so guard against re-initialising):
 
-  ```Python
+  ```python
   class Singleton:
       _instance = None
       def __new__(cls):
@@ -4456,7 +4609,7 @@ The unifying idea first: **all three store _references_ (pointers) to objects, n
 
 **`tuple` — a fixed array stored inline.** A `PyTupleObject` stores its pointer array **in the same single allocation** as the header (a variable-length object), with no separate buffer and, crucially, **no `allocated` slack** — an immutable tuple is sized exactly once at creation and never grows. That makes a tuple **smaller and slightly faster to build and access** than an equivalent list. CPython goes further: it keeps **free lists** of small tuples for fast reuse, and tuples of constants are cached/interned in compiled code.
 
-```Python
+```python
 import sys
 print(sys.getsizeof([1, 2, 3]))    # e.g. 88  - header + pointer buffer + slack
 print(sys.getsizeof((1, 2, 3)))    # e.g. 64  - header + inline pointers, no slack
@@ -4484,7 +4637,7 @@ A list keeps two numbers: `ob_size` (elements currently used) and `allocated` (s
 
 3. **What gets copied is only the array of pointers — never the elements themselves.** The objects the list points to are untouched: same objects, same memory, same `id()`. So a resize is a shallow O(n) copy of _N machine-word pointers_, which is cheap and does not deep-copy or re-create any element.
 
-```Python
+```python
 import sys
 lst = []
 prev = None
@@ -4525,7 +4678,7 @@ The converse is _not_ required — unequal objects may share a hash (that's just
 
 **The consequence for custom classes.** If you override `__eq__`, Python **sets `__hash__` to `None`**, making instances unhashable — a deliberate safeguard, because a custom equality almost always needs a matching hash. You must define both together, typically over the same fields:
 
-```Python
+```python
 class Point:
     def __init__(self, x, y):
         self.x, self.y = x, y
@@ -4555,7 +4708,7 @@ print(pts[Point(1, 2)])   # 'a' - a different object, equal value, found correct
 - **`await`** suspends the current coroutine until the awaited awaitable completes, and — this is the key part — **hands control back to the event loop** so it can run other ready tasks meanwhile. `await` is a cooperative yield point, not a blocking wait.
 - The **event loop** is the scheduler: a single-threaded loop that keeps a queue of ready tasks, runs each until it hits an `await` that isn't ready, parks it, and (typically via an OS `select`/`epoll`/`kqueue` call) waits for I/O readiness before resuming whichever task's I/O completed.
 
-```Python
+```python
 import asyncio
 
 async def fetch(name, delay):
@@ -4603,7 +4756,7 @@ The decision reduces to one question first — **is the work I/O-bound or CPU-bo
 
 The high-level interface for the first two is **`concurrent.futures`**, whose `ThreadPoolExecutor` and `ProcessPoolExecutor` share an identical API — so you can write pool code once and switch models by changing one class name:
 
-```Python
+```python
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 # I/O-bound: threads
@@ -4621,7 +4774,7 @@ A senior would add: these are not mutually exclusive — a real service often co
 
 The one-line definition: **a metaclass is the class of a class.** Just as an object is an instance of a class, a class is an instance of a metaclass. By default every class is an instance of **`type`**, and `type` is the built-in metaclass.
 
-```Python
+```python
 class Foo: pass
 print(type(Foo))            # <class 'type'>  - Foo is an instance of type
 print(type(Foo()))          # <class 'Foo'>   - Foo() is an instance of Foo
@@ -4630,14 +4783,14 @@ print(isinstance(Foo, type))  # True
 
 Because `type` is callable, you can even create classes dynamically without the `class` statement — `type(name, bases, namespace)` is what the `class` block desugars to:
 
-```Python
+```python
 Dog = type("Dog", (), {"sound": "woof", "speak": lambda self: self.sound})
 print(Dog().speak())        # 'woof'
 ```
 
 **How a custom metaclass hooks in.** You subclass `type` and override `__new__` (to alter the class object as it is built) or `__init__` (to configure it afterward), then attach it with `metaclass=`. The metaclass runs **once, at class-definition time**, letting you inspect or rewrite the class body:
 
-```Python
+```python
 class AutoRepr(type):
     def __new__(mcs, name, bases, namespace):
         cls = super().__new__(mcs, name, bases, namespace)
@@ -4666,7 +4819,7 @@ The famous Tim Peters line captures the judgement expected of a senior: _"If you
 
 The blunt answer that separates people who've _used_ type hints from people who've only read about them: **by default, no — the interpreter does not enforce them at all.** Annotations are hints for humans and _external_ tools; passing the "wrong" type runs happily until something unrelated breaks.
 
-```Python
+```python
 def add(a: int, b: int) -> int:
     return a + b
 
@@ -4679,7 +4832,7 @@ What type hints actually give you:
 - **Editor tooling.** Autocomplete, inline documentation, and safe refactoring all lean on annotations.
 - **Runtime _availability_, if you choose to use it.** The hints _are_ stored — accessible via `__annotations__` or, more robustly, `typing.get_type_hints()` — so libraries can opt in to reading and acting on them. **Pydantic** and **FastAPI** validate and coerce data against annotations at runtime, `dataclasses` uses them to generate `__init__`, and `functools.singledispatch` can dispatch on them. But that enforcement is those libraries' own doing, not the language's.
 
-```Python
+```python
 def greet(name: str) -> str:
     return "hi " + name
 
@@ -4701,7 +4854,7 @@ The walrus operator `:=` (named for its resemblance to a walrus's eyes and tusks
 
 Its value is eliminating the choice between **computing something twice** and **adding an extra line** — the "assign, then test" and "assign, then use" patterns:
 
-```Python
+```python
 # Without walrus: either call len() twice, or add a setup line before the if
 if (n := len(data)) > 10:
     print(f"too long: {n} items")   # n is available here, computed once
@@ -4730,7 +4883,7 @@ The senior perspective is as much about **restraint** as capability:
 
 - **`functools.partial`** — freezes some arguments of a callable, returning a new callable with fewer parameters. The clean way to pre-configure a function for an API that wants a zero/one-arg callback:
 
-  ```Python
+  ```python
   from functools import partial
   int_base2 = partial(int, base=2)
   print(int_base2("1010"))          # 10
@@ -4740,7 +4893,7 @@ The senior perspective is as much about **restraint** as capability:
 
 - **`functools.singledispatch`** — turns a function into one that dispatches on the **type of its first argument**, giving you clean type-based overloading without an `if/elif isinstance` ladder. This is Python's answer to "function overloading" (which the language otherwise lacks):
 
-  ```Python
+  ```python
   from functools import singledispatch
 
   @singledispatch
@@ -4769,7 +4922,7 @@ The through-line: `functools` is where Python's functional-programming and metap
 
 `@dataclass` (Python 3.7+, PEP 557) is a decorator that **generates boilerplate methods from class-level annotated fields** — `__init__`, `__repr__`, and `__eq__` by default, and optionally more. It's the idiomatic modern way to write a class whose purpose is to _hold data_:
 
-```Python
+```python
 from dataclasses import dataclass, field
 
 @dataclass
@@ -4830,7 +4983,7 @@ Two related facts worth mentioning: an implicit **namespace package** (a directo
 
 A **weak reference** points to an object **without incrementing its reference count**, so it does not, by itself, keep the object alive. If the only remaining references to an object are weak, the object is still collected, and the weak references "die" (start returning `None`). This is the escape hatch for the situations where ordinary strong references cause problems.
 
-```Python
+```python
 import weakref
 
 class Resource:
@@ -4848,7 +5001,7 @@ print(ref())              # None  - the object was collected; the weakref is dea
 
 1. **Caches that shouldn't keep their contents alive.** An ordinary dict used as a cache holds a strong reference to every cached object, so nothing it caches can ever be garbage-collected — a classic memory leak. `weakref.WeakValueDictionary` (values are weak) and `WeakKeyDictionary` (keys are weak) let entries **disappear automatically** once the rest of the program stops using them:
 
-   ```Python
+   ```python
    import weakref
    cache = weakref.WeakValueDictionary()
    def get(key):
@@ -4873,7 +5026,7 @@ The mental model: use a weak reference whenever you want to _observe or cache_ a
 
 `match`/`case` (Python 3.10+, PEP 634) is **structural pattern matching** — and the word "structural" is the whole point. It is emphatically **not** a C-style `switch`: rather than just comparing a value against constants, it **destructures** data by shape and **binds** the pieces to variables in one step.
 
-```Python
+```python
 def handle(command):
     match command.split():
         case ["go", direction]:                 # matches a 2-element list, binds direction
@@ -4907,7 +5060,7 @@ The honest senior framing: `match`/`case` earns its place when you'd otherwise w
 
 `==` asks **"are these equal in value?"** (it calls `__eq__`). `is` asks **"are these the exact same object in memory?"** (it compares identity — effectively `id(a) == id(b)` — and can never be overridden). Two distinct objects can be equal; the same object is trivially both.
 
-```Python
+```python
 a = [1, 2, 3]
 b = [1, 2, 3]
 print(a == b)   # True  - same contents
@@ -4920,7 +5073,7 @@ print(a is c)   # True  - c is just another name for the same object
 
 **Where identity trips people up: caching makes `is` _appear_ to work on values, until it doesn't.** CPython pre-allocates and reuses certain immutable objects, so identity accidentally coincides with equality for them:
 
-```Python
+```python
 print(256 is 256)     # True  - small ints (-5..256) are cached singletons
 print(257 is 257)     # often False - 257 is outside the cached range
 x = "hello"; y = "hello"
@@ -4940,7 +5093,7 @@ Senior-level footnotes:
 
 **Monkey patching** is replacing or extending code — a method, function, attribute, or whole class — **at runtime**, dynamically, by reassigning it. Python allows it because classes and modules are just mutable objects: you can rebind their attributes after they're defined.
 
-```Python
+```python
 import some_library
 
 def patched(self, *args, **kwargs):
@@ -4975,7 +5128,7 @@ When you write `a + b`, Python doesn't have a single "add" — it dispatches to 
 3. Python then tries the **reflected** method **`b.__radd__(a)`** — giving the _right_ operand a chance. This is how `2 + my_object` can work even though `int.__add__` has never heard of your class: `int.__add__` returns `NotImplemented`, so Python calls `my_object.__radd__(2)`.
 4. If both return `NotImplemented`, Python raises `TypeError: unsupported operand type(s)`.
 
-```Python
+```python
 class Money:
     def __init__(self, cents): self.cents = cents
     def __add__(self, other):
@@ -5003,7 +5156,7 @@ When a new exception is raised while another is being handled, Python **links th
 
 **Implicit chaining.** Raising inside an `except` (or `finally`, or `with`) automatically sets the new exception's `__context__` to the one being handled:
 
-```Python
+```python
 try:
     open("foo.bar")
 except OSError:
@@ -5014,7 +5167,7 @@ The traceback prints both, joined by **"During handling of the above exception, 
 
 **Explicit chaining with `raise ... from`.** To state deliberately that one exception *caused* another, use `from`:
 
-```Python
+```python
 try:
     open("foo.bar")
 except OSError as e:
@@ -5025,7 +5178,7 @@ except OSError as e:
 
 **Suppressing the chain with `from None`.** What does this print?
 
-```Python
+```python
 try:
     1 / 0
 except ZeroDivisionError:
@@ -5041,7 +5194,7 @@ Only the `RuntimeError`. `from None` sets `__cause__` to `None` and `__suppress_
 
 **The crucial subtlety:** `from None` (and `from e`) only change what is *printed*. The original exception is still stored in `__context__` — ignored for display, not discarded. That is the practical lever: if a library swallows a detailed error and re-raises a vague one, you can recover the original from the chain **without touching the library**:
 
-```Python
+```python
 try:
     token = Token(raw)                 # library raises DecodeError("could not decode")
 except DecodeError as e:
@@ -5055,7 +5208,7 @@ Rule of thumb: use `raise ... from e` when the new exception is genuinely caused
 
 **Exception notes (`add_note`).** Since Python 3.11 you can attach extra context to an existing exception *without* wrapping or re-raising it with a new type. Notes accumulate in the exception's `__notes__` list and are printed beneath the traceback:
 
-```Python
+```python
 try:
     try:
         raise ValueError
@@ -5077,7 +5230,7 @@ This is often cleaner than re-raising with a different message: you enrich the *
 
 **`ExceptionGroup` and `except*`.** An `ExceptionGroup` packs several exceptions into a single object — essential when concurrent operations can each fail independently. The new `except*` syntax matches and handles **by type across the group**, peeling out the matching sub-exceptions and letting the rest propagate:
 
-```Python
+```python
 try:
     raise ExceptionGroup(
         "multiple failures",
@@ -5095,7 +5248,7 @@ Each `except*` clause receives a *sub-group* containing only the matching except
 
 The built-in `Warning` classes — `UserWarning`, `DeprecationWarning`, `PendingDeprecationWarning`, and others — inherit from `Warning`, which itself inherits from `Exception`. But despite being in the exception hierarchy, they are **not meant to be raised**. They are *categories* for the `warnings` module, which reports non-fatal issues without stopping the program:
 
-```Python
+```python
 import warnings
 
 def foo():
@@ -5105,7 +5258,7 @@ def foo():
 
 The value is that the *user*, not the library author, controls what gets reported, via the **warning filter**:
 
-```Python
+```python
 warnings.simplefilter("ignore")   # silence every warning
 warnings.simplefilter("error")    # promote warnings to exceptions -> foo() now raises
 ```
@@ -5128,7 +5281,7 @@ Question 120 covered *what* a metaclass is; the senior follow-up is *what actual
 3. **Execute the class body** into that namespace — every method `def` and class variable becomes a key.
 4. **Create the class object** by calling `metaclass(name, bases, namespace)`, which runs the metaclass's `__new__` (builds the class) then `__init__` (configures it).
 
-```Python
+```python
 class OrderedMeta(type):
     @classmethod
     def __prepare__(mcs, name, bases, **kwds):
@@ -5141,7 +5294,7 @@ class OrderedMeta(type):
 
 **Instance-creation time — a *different* hook.** When you write `Foo(1, 2)`, Python does **not** call `Foo.__new__` directly. It calls `type(Foo).__call__` — i.e. the **metaclass's `__call__`** — and *that* is what orchestrates the usual `instance = cls.__new__(cls, ...)` then `cls.__init__(instance, ...)` dance. Overriding the metaclass `__call__` is therefore the clean way to control instantiation itself — the correct way to build a true Singleton or an instance cache, avoiding the well-known pitfalls of hijacking `__new__`:
 
-```Python
+```python
 class Singleton(type):
     _instances = {}
     def __call__(cls, *args, **kwargs):
@@ -5180,7 +5333,7 @@ Question 11 laid out the two mechanisms — always-on reference counting plus a 
 
 `setup.py` is the historical build script of a Python package: a plain Python file that calls `setuptools.setup(...)` with the project's metadata and dependencies. Because it is *executable code run at build/install time*, it was both powerful and problematic — a tool couldn't even learn a package's name or dependencies without **executing arbitrary code**, which hurt security, reproducibility, and speed.
 
-```Python
+```python
 # setup.py  (the legacy style)
 from setuptools import setup, find_packages
 setup(
@@ -5233,7 +5386,7 @@ GraphQL is a **query language for APIs plus a runtime** that executes those quer
 
 **Serving it from Python.** The main libraries are **Strawberry** (modern, uses type hints/dataclasses, first-class FastAPI integration), **Graphene** (older, class-based), and **Ariadne** (schema-first SDL). A minimal Strawberry + FastAPI service:
 
-```Python
+```python
 import strawberry
 from strawberry.fastapi import GraphQLRouter
 from fastapi import FastAPI
@@ -5299,7 +5452,7 @@ Question 87 introduced `unittest`; in practice most modern teams reach for **`py
 
 **Fixtures are dependency injection for tests.** A fixture is a function that builds something a test needs; the test requests it by naming it as a parameter. `yield` splits setup from teardown, and **scopes** (`function`, `class`, `module`, `session`) control how often it runs. Shared fixtures live in `conftest.py`, discovered automatically without imports:
 
-```Python
+```python
 import pytest
 
 @pytest.fixture
@@ -5314,7 +5467,7 @@ def test_user_count(db):      # pytest injects the fixture by name
 
 **Parametrization** turns one test into a table of cases — far better than a loop, because each row reports pass/fail independently:
 
-```Python
+```python
 @pytest.mark.parametrize("value, expected", [(2, 4), (3, 9), (-1, 1)])
 def test_square(value, expected):
     assert square(value) == expected
@@ -5322,7 +5475,7 @@ def test_square(value, expected):
 
 **Mocking — isolate the unit from the world.** Use `unittest.mock` (or the `mocker` fixture from `pytest-mock`) to replace slow/external dependencies. The single most common mistake is **patching where the object is *defined* instead of where it is *used*** — you must patch the name in the module under test (`myapp.service.requests`, not `requests`). Configure behaviour with `return_value`/`side_effect` and assert interactions with `assert_called_once_with`:
 
-```Python
+```python
 def test_fetch(mocker):
     m = mocker.patch("myapp.service.requests.get")
     m.return_value.json.return_value = {"ok": True}
@@ -5336,7 +5489,7 @@ Know the vocabulary — **stub** (canned answers), **mock** (asserts on calls), 
 
 **Pydantic** is a **runtime data-validation and parsing** library driven by type hints — the backbone of FastAPI and the standard way to turn untrusted external input (JSON bodies, config, env vars) into trusted, typed Python objects. You declare a model with annotations; Pydantic **validates, coerces, and (de)serializes** for you, raising a structured `ValidationError` when the data doesn't fit.
 
-```Python
+```python
 from pydantic import BaseModel, Field, field_validator
 
 class User(BaseModel):
@@ -5369,7 +5522,7 @@ Questions 121 and 124 established that hints don't run and introduced `dataclass
 
 **`Protocol` — structural (duck) typing, statically.** Instead of requiring inheritance from a base class (nominal typing), a `Protocol` matches **any object that has the right shape**. This types Python's actual duck-typing idiom without forcing an inheritance hierarchy:
 
-```Python
+```python
 from typing import Protocol
 
 class Readable(Protocol):
@@ -5383,7 +5536,7 @@ Decorate with `@runtime_checkable` to allow `isinstance` against it (shallow —
 
 **`TypeVar`/`Generic` — parametric polymorphism.** A `TypeVar` lets a function or class be typed *in terms of* the caller's type, so a container preserves element type instead of collapsing to `Any`. Python 3.12 (**PEP 695**) added clean built-in syntax:
 
-```Python
+```python
 # classic
 from typing import TypeVar, Generic
 T = TypeVar("T")
@@ -5441,7 +5594,7 @@ The mindset to convey: **treat every byte crossing a trust boundary as hostile**
 
 Question 24 covered *using* `with`; a senior is expected to *author* context managers and know the toolkit. The protocol is two dunder methods: **`__enter__`** (runs on entry, its return value binds to `as x`) and **`__exit__`** (runs on exit — normally *or* via exception — guaranteeing cleanup, which is why `with` beats manual try/finally and the unreliable `__del__` from Q135).
 
-```Python
+```python
 class Timer:
     def __enter__(self):
         self.t0 = time.perf_counter()
@@ -5455,7 +5608,7 @@ The subtlety interviewers probe: **`__exit__` returning `True` suppresses the ex
 
 **The generator style is usually cleaner** — `@contextlib.contextmanager` turns a single-`yield` generator into a context manager, with setup before the `yield` and teardown after (wrap in try/finally so cleanup survives exceptions):
 
-```Python
+```python
 from contextlib import contextmanager
 
 @contextmanager
@@ -5501,7 +5654,7 @@ The headline a senior states immediately: **use the `logging` module, never `pri
 
 Questions 1, 23, and 119 covered the GIL and *choosing* a concurrency model; this is the *how*. The modern high-level API is **`concurrent.futures`**, which unifies threads and processes behind one interface: **`ThreadPoolExecutor`** (I/O-bound) and **`ProcessPoolExecutor`** (CPU-bound), both offering `submit()` (returns a **`Future`**) and `map()`, with `as_completed()` to consume results as they finish. Prefer it over hand-managing `Thread`/`Process` objects.
 
-```Python
+```python
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 with ThreadPoolExecutor(max_workers=8) as pool:
@@ -5524,7 +5677,7 @@ The foundational split is the **server-to-application interface**. **WSGI** is t
 
 **Dependency injection via `Depends`** is FastAPI's signature feature. You declare a dependency as a parameter; FastAPI **resolves and injects** it, caching per-request and unwinding any cleanup:
 
-```Python
+```python
 from fastapi import Depends, FastAPI
 
 async def get_db():
@@ -5584,7 +5737,7 @@ Questions 92 and 136 covered the *concepts* — distribution options and the `se
 
 **A — The standards toolchain (`build` + `twine`, the "pip world"):** the most transparent, no extra framework.
 
-```Bash
+```bash
 python -m pip install --upgrade build twine
 python -m build                                     # -> dist/ (sdist + wheel)
 python -m twine check dist/*                         # validate long-description/metadata
@@ -5596,7 +5749,7 @@ Authenticate with an API token: username `__token__`, password `pypi-…` (set `
 
 **B — Poetry (integrated deps + build + publish):**
 
-```Bash
+```bash
 poetry new mylib                 # scaffold (or `poetry init` in an existing project)
 poetry version patch             # bump SemVer: 0.1.0 -> 0.1.1
 poetry build                     # -> dist/
@@ -5606,7 +5759,7 @@ poetry publish                   # (add --build to build+publish in one step)
 
 **C — uv (the fast, newer all-in-one, Rust-based):**
 
-```Bash
+```bash
 uv init --lib mylib              # scaffold a library (pyproject + src layout)
 uv build                         # -> dist/ (sdist + wheel)
 uv publish --publish-url https://test.pypi.org/legacy/  --token <testpypi-token>   # test
