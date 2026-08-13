@@ -72,7 +72,7 @@
 - [68- How to implement Quick Sort in Python?](#68--how-to-implement-quick-sort-in-python)
 - [69- How to implement Selection sort in Python?](#69--how-to-implement-selection-sort-in-python)
 - [70- How to implement Shell sort in Python?](#70--how-to-implement-shell-sort-in-python)
-- [71- What are the commands that are used to copy an object in Python?](#71--what-are-the-commands-that-areused-to-copy-an-object-in-python)
+- [71- What are the commands that are used to copy an object in Python?](#71--what-are-the-commands-that-are-used-to-copy-an-object-in-python)
 - [72- What is the difference between deep and shallow copy?](#72--what-is-the-difference-between-deep-and-shallow-copy)
 - [73- How can the ternary operators be used in Python?](#73--how-can-the-ternary-operators-be-used-in-python)
 - [74- What will be the output of the code below?](#74--what-will-be-the-output-of-the-code-below)
