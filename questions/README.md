@@ -152,6 +152,11 @@
 - [148- Concurrency in practice: `concurrent.futures`, thread safety, and synchronization primitives](#148--concurrency-in-practice-concurrentfutures-thread-safety-and-synchronization-primitives)
 - [149- What is ASGI vs WSGI, and how does a framework like FastAPI use dependency injection?](#149--what-is-asgi-vs-wsgi-and-how-does-a-framework-like-fastapi-use-dependency-injection)
 - [150- What are the concrete steps to publish a library to PyPI with pip (build/twine), Poetry, or uv?](#150--what-are-the-concrete-steps-to-publish-a-library-to-pypi-with-pip-buildtwine-poetry-or-uv)
+- [151- Free-threaded Python (PEP 703, no-GIL) and subinterpreters (PEP 684 and 734): what actually changes for concurrency?](#151--free-threaded-python-pep-703-no-gil-and-subinterpreters-pep-684-and-734-what-actually-changes-for-concurrency)
+- [152- How does CPython execute bytecode? `dis`, the ceval loop, frames, and the specializing adaptive interpreter (PEP 659)](#152--how-does-cpython-execute-bytecode-dis-the-ceval-loop-frames-and-the-specializing-adaptive-interpreter-pep-659)
+- [153- A deeper look at CPython memory: `pymalloc` arenas, pools, and blocks, `tracemalloc`, and diagnosing leaks and fragmentation](#153--a-deeper-look-at-cpython-memory-pymalloc-arenas-pools-and-blocks-tracemalloc-and-diagnosing-leaks-and-fragmentation)
+- [154- Generators as coroutines: `send`, `throw`, `close`, and `yield from` — and how they became `async`/`await`](#154--generators-as-coroutines-send-throw-close-and-yield-from--and-how-they-became-asyncawait)
+- [155- Customizing classes without a metaclass: `__init_subclass__`, `__set_name__`, and the descriptor protocol in depth](#155--customizing-classes-without-a-metaclass-__init_subclass__-__set_name__-and-the-descriptor-protocol-in-depth)
 
 ## 1- Python uses a Global Interpreter Lock. Does that mean it doesn’t use actual threads?
 
@@ -4625,9 +4630,9 @@ This is the mechanism that makes `list.append` **amortised O(1)**, and it is wor
 
 A list keeps two numbers: `ob_size` (elements currently used) and `allocated` (slots the backing buffer can hold). As long as `ob_size < allocated`, an append just writes into the next free slot — genuinely O(1). The interesting case is when `ob_size == allocated` and you append again:
 
-1. CPython computes a **new, larger capacity** - it does _not_ grow by one. The growth formula (`list_resize` in CPython) is roughly:
+1. CPython computes a **new, larger capacity** — it does _not_ grow by one. The growth formula (`list_resize` in CPython) is roughly:
 
-   ```Python
+   ```
    new_allocated = new_size + (new_size >> 3) + 6   # then rounded
    ```
 
@@ -5774,3 +5779,159 @@ uv publish --token <pypi-token>  # real PyPI (or set UV_PUBLISH_TOKEN)
 - **Metadata quality = a good PyPI page.** Fill `description`, `readme`, `license`, `classifiers`, `requires-python`, `[project.urls]`, and `[project.scripts]`/`[project.entry-points]` for CLIs and plugins.
 
 The takeaway: the mechanics are identical — **`pyproject.toml` → build an sdist + wheel → upload to PyPI**. Pick **one** tool for ergonomics: **`build` + `twine`** for maximum transparency and control, **Poetry** for an integrated dependency-plus-publish workflow, or **uv** for speed and a single modern toolchain — then automate it in CI with **Trusted Publishing** and a tag-triggered release.
+
+## 151- Free-threaded Python (PEP 703, no-GIL) and subinterpreters (PEP 684 and 734): what actually changes for concurrency?
+
+This is the deep end of the GIL thread that runs through Q1, Q2, Q23, and the "how do I pick a concurrency model" question (Q119). For roughly three decades the answer to "can Python threads run CPU-bound code in parallel?" was **no, because of the GIL**. Two _separate_ CPython efforts are now changing that answer, and the senior insight is that they attack the same problem **from opposite ends** — one removes the lock, the other replicates it.
+
+**Free-threaded CPython (PEP 703)** ships as an experimental build starting in 3.13 — the "`t`" ABI (`python3.13t`) — and **removes the GIL entirely**, so multiple threads execute Python bytecode truly in parallel across cores. Keeping reference counting correct without one big lock required real machinery: **biased reference counting** (a cheap fast path for the object's owning thread plus an atomic shared counter), **immortal objects** (PEP 683 — `None`, `True`/`False`, small ints, and interned strings never touch their refcount), per-object locking, and a thread-safe variant of the pymalloc allocator (Q153). The costs are real: single-threaded code gets somewhat slower (the fast-path refcount checks and lost specialization from Q152), **C extensions must be recompiled and audited** for thread-safety because they can no longer assume the GIL serializes them, and it stays opt-in/experimental through 3.13–3.14. But it finally makes plain `threading` a legitimate answer for CPU-bound work.
+
+**Per-interpreter GIL and subinterpreters (PEP 684 for the runtime, PEP 734 for the stdlib API)** take the opposite route: **keep a GIL, but give each subinterpreter its own** so they stop contending. 3.12 moved most interpreter state to be per-interpreter; 3.13 exposes the `interpreters` module and a `concurrent.futures.InterpreterPoolExecutor`. Each subinterpreter is an isolated Python — its own imports, modules, and GIL — closer to `multiprocessing`'s isolation but living **in one process** (no `fork`, no child-process startup). You communicate over **queues/channels** that share only a narrow set of objects rather than passing arbitrary references around.
+
+So the mental model for choosing today refines Q119: **free-threading = shared memory, you manage the locks** (maximum performance, maximum footguns — data races are back), while **subinterpreters = isolated memory, you pass messages** (safer, but with marshaling overhead). For a service like this one, most parallelism is still I/O-bound and is pushed onto **Celery workers** (separate OS processes — the boring, robust answer), but the free-threaded build is why "just use a thread pool" may finally become viable for a CPU-bound endpoint without spawning processes.
+
+**The trap** is assuming "no-GIL makes my existing threaded code faster/parallel." That is only true on the special build **and** only if every C-extension dependency supports it; on a normal build, nothing changes. Worse, removing the GIL **exposes latent races the GIL was accidentally hiding** — a non-atomic `counter += 1` on a shared object, or a check-then-act on a dict — so code that "worked" for years can start corrupting data. The synchronization discipline from Q148 (locks, `queue.Queue`, immutability) stops being optional.
+
+The takeaway: two PEPs, two philosophies — **PEP 703 removes the lock (shared-memory parallelism, bring your own synchronization)** and **PEP 684/734 replicates the lock per interpreter (message-passing isolation inside one process)** — and together they finally give CPython an in-process story for CPU-bound parallelism that used to force you into `multiprocessing`.
+
+## 152- How does CPython execute bytecode? `dis`, the ceval loop, frames, and the specializing adaptive interpreter (PEP 659)
+
+Q85 walked the pipeline (source → AST → bytecode → run) and Q86 covered `__pycache__`. This goes one level deeper: **what actually runs the bytecode**, and why it matters for performance and tracebacks.
+
+**Compilation produces a code object.** The compiler turns each function into a **code object** reachable as `func.__code__`, holding `co_code` (the raw bytecode), `co_consts`, `co_varnames`, `co_names`, the required stack size, and flags. `dis.dis(func)` disassembles it into readable opcodes:
+
+```python
+import dis
+def f(a, b):
+    return a + b
+dis.dis(f)
+# LOAD_FAST   a
+# LOAD_FAST   b
+# BINARY_OP   0 (+)
+# RETURN_VALUE
+```
+
+**A stack machine runs it.** CPython is a **stack-based bytecode virtual machine**: the core is `_PyEval_EvalFrameDefault` in `ceval.c`, a large dispatch loop that reads one instruction at a time and pushes/pops an **evaluation stack**. There are no registers — `a + b` is literally "push `a`, push `b`, pop both and push their sum." That simplicity is why the bytecode is portable and why the interpreter is (relatively) easy to reason about.
+
+**Frames tie calls together.** Each call creates a **frame** capturing the locals, the value stack, the instruction pointer (`f_lasti`), and a link to the caller (`f_back`). That `f_back` chain **is** your traceback, and it's what `sys._getframe()`, `sys.settrace`, debuggers, and profilers walk. Python 3.11 made frames dramatically cheaper — they live lazily as C structs on a per-thread data stack and are only materialized into full Python `frame` objects when something actually needs one — a major reason 3.11 was ~10–60% faster than 3.10.
+
+**PEP 659 — the specializing adaptive interpreter (3.11+)** is the big modern idea: **quickening plus inline caching**. The interpreter observes which _types_ actually flow through a generic opcode and rewrites it in place into a **specialized** form — `BINARY_OP` on two ints becomes an int-add fast path; a `LOAD_ATTR` that keeps hitting the same class layout becomes a cached, guard-checked lookup. If an assumption breaks (a different type shows up), it **deoptimizes** back to the generic opcode. This is adaptive, JIT-_like_ behavior without a full JIT — and 3.13 added an experimental copy-and-patch JIT layered on top.
+
+**Why a senior cares:** it explains _why_ micro-optimizations behave as they do — **monomorphic code** (the same types every call) specializes and runs faster than polymorphic code; it's why `dis` output on modern Python shows adaptive/specialized opcodes; and it demystifies tracebacks and tooling (they walk the frame chain). It also frames the free-threading trade-off in Q151, since specialization interacts with removing the GIL.
+
+The takeaway: CPython compiles to a **code object**, then a **stack machine (`_PyEval_EvalFrameDefault`) executes it frame by frame**, and since 3.11 the **specializing adaptive interpreter** rewrites hot opcodes into type-specialized fast paths (deoptimizing when guards fail) — so `dis`, monomorphic code, and the frame chain are the three concepts to hold when reasoning about performance and stack traces.
+
+## 153- A deeper look at CPython memory: `pymalloc` arenas, pools, and blocks, `tracemalloc`, and diagnosing leaks and fragmentation
+
+Q11 covered the private heap plus refcount/GC, Q90/Q115/Q116 covered the `dict`/`list`/`tuple` layouts, and Q135 covered the cyclic collector. This is the **allocator layer underneath all of them** — the thing that decides where an object's bytes come from.
+
+**CPython does not call `malloc` per object.** It layers allocators: a raw domain (`PyMem_RawMalloc` → the system `malloc`), an object domain, and for small objects a dedicated allocator called **pymalloc (obmalloc)**. Objects **≤ 512 bytes** are served by pymalloc; anything larger goes straight to the system allocator.
+
+**Arenas → pools → blocks.** pymalloc grabs memory from the OS in big **arenas** (256 KiB). Each arena is sliced into **pools** of 4 KiB (one OS page). A pool serves a **single size class** — block sizes are rounded up to a multiple of 8 (16 on 64-bit) bytes — so allocating an object is just a **free-list pop** of a fixed-size block: no syscall and minimal fragmentation _within_ a size class.
+
+**Why memory often doesn't go back to the OS.** An arena is only released when **all** of its pools and blocks are free. A single surviving object can pin an entire 256 KiB arena — the classic **fragmentation** surprise where RSS stays high long after you `del` most of your data. Freed blocks aren't returned to the OS either; they go on a free list to be reused by the same process. This is why "my long-running Python process never gives memory back" is usually _expected_ behavior, not a bug.
+
+**Immortal singletons tie in.** Small ints (−5..256), interned strings, and `None`/`True`/`False` are effectively permanent — and in 3.12+ literally _immortal_ (PEP 683), never refcounted or freed. That's by design: they're shared singletons (the identity gotchas of Q128), so pinning them costs nothing meaningful.
+
+**Tooling to diagnose:**
+
+- `sys.getsizeof(obj)` — the shallow size of one object (it does **not** recurse into contents).
+- **`tracemalloc`** — the built-in that snapshots allocations grouped by traceback; the first tool to reach for on a suspected leak because it tells you **what grew between two points**.
+- `gc` — `gc.get_objects()`, `gc.get_referrers(obj)` to find who still holds a reference; `gc.set_debug(gc.DEBUG_LEAK)`; the third-party `objgraph` to visualize reference chains.
+- OS view via `psutil` (RSS) versus the Python view — the gap between them _is_ the fragmentation/allocator caching described above.
+
+```python
+import tracemalloc
+tracemalloc.start()
+snap1 = tracemalloc.take_snapshot()
+# ... run the suspected work ...
+snap2 = tracemalloc.take_snapshot()
+for stat in snap2.compare_to(snap1, "lineno")[:10]:
+    print(stat)      # the biggest growth by source line
+```
+
+**"Leaks" in a garbage-collected language are almost always unintended references** (Q135): a module-level cache or list that only ever grows, an `lru_cache` with no `maxsize` pinning large results, a closure or callback that captured `self` and outlived it, or `__del__` on members of a reference cycle. The fixes are `weakref` (Q126), bounded caches, and explicitly breaking cycles.
+
+**Repo-relevant:** a long-running FastAPI or Celery worker that slowly climbs in memory is the textbook case. Wrap a request or task in `tracemalloc` snapshots, look for unbounded caches, and remember that even after you fix the real leak, **RSS may not fall** because of arena fragmentation.
+
+The takeaway: small objects flow through **pymalloc's arena → pool → block hierarchy** (a free-list fast path, no per-object `malloc`), which is fast but means **memory returns to the OS only when a whole arena empties** — so high RSS is frequently fragmentation, while true leaks are lingering references best hunted with **`tracemalloc` snapshots plus `gc` referrer inspection** and fixed with `weakref` and bounded caches.
+
+## 154- Generators as coroutines: `send`, `throw`, `close`, and `yield from` — and how they became `async`/`await`
+
+Q36 and Q37 introduced generators and iterators; Q118 covered asyncio. This connects them, because the senior insight is that **native coroutines are generators grown up** — the `async`/`await` machinery is the generator protocol productized.
+
+**A generator is a two-way, resumable coroutine — not just a lazy iterator.** Beyond `next()`, `yield` is an _expression_ that can receive a value:
+
+- `gen.send(x)` — resume the generator, and the paused `yield` **evaluates to `x`** inside it. `send(None)` is equivalent to `next()`, and you must "prime" a generator with `next()`/`send(None)` before you can send a real value.
+- `gen.throw(exc)` — resume by **raising `exc` at the yield point**, which the generator can catch and handle.
+- `gen.close()` — raise `GeneratorExit` at the yield point so `finally`/cleanup runs; this is exactly how `contextlib.contextmanager` (Q145) tears down after the `yield`.
+
+```python
+def averager():
+    total = count = 0
+    avg = None
+    while True:
+        x = yield avg          # receives the value from .send(x)
+        total += x
+        count += 1
+        avg = total / count
+
+a = averager()
+next(a)                        # prime it
+print(a.send(10))              # 10.0
+print(a.send(20))              # 15.0
+a.close()                      # raises GeneratorExit inside, runs cleanup
+```
+
+**`yield from` (PEP 380)** delegates to a sub-generator: it transparently forwards `send`, `throw`, and `close` to the inner generator **and returns the inner generator's `return` value** (`result = yield from sub()`). Crucially it is _not_ just `for x in sub: yield x` — it wires up the full two-way protocol, which is precisely what you need to _compose_ coroutines out of smaller ones.
+
+**The bridge to async/await.** Historically (3.4), asyncio coroutines literally _were_ generators — you wrote `@asyncio.coroutine` and drove them with `yield from`. Python 3.5 introduced **native coroutines** (`async def`/`await`) as a distinct type, but the underlying machinery is the same: `await` is the successor to `yield from` for driving awaitables, and the **event loop (Q118) repeatedly `.send()`s values into a coroutine and receives back the awaitable it suspended on**. The final result is carried out via `StopIteration.value`. In other words, the event loop is "just" a scheduler that drives many coroutine objects through `send`/`throw`.
+
+Knowing they're generator-derived explains the rest of asyncio: **cancellation** is `coro.throw(CancelledError)` (the same mechanism as `gen.throw`), **cleanup on cancel** runs through `GeneratorExit`/`finally`, and a bare `yield` inside an `async def` produces an **async generator** consumed with `async for`.
+
+**Gotchas:** forgetting to prime a `send`-based coroutine (you'll get `TypeError: can't send non-None value to a just-started generator`); swallowing `GeneratorExit` and then `yield`-ing again (Python raises `RuntimeError: generator ignored GeneratorExit`); and assuming `yield from`/`await` parallelize — they do not. One coroutine runs at a time on the loop; parallelism comes from `asyncio.gather`/`TaskGroup` (Q118, Q148).
+
+The takeaway: a generator is a **two-way, resumable coroutine** — `send` feeds values in, `throw` injects exceptions, `close` triggers cleanup via `GeneratorExit`, and `yield from` composes generators while forwarding all three plus the `return` value — and **`async`/`await` is that exact protocol productized**, with the event loop acting as the scheduler that `.send()`s coroutines forward.
+
+## 155- Customizing classes without a metaclass: `__init_subclass__`, `__set_name__`, and the descriptor protocol in depth
+
+Q120 and Q134 covered metaclasses, Q46 introduced descriptors, and Q32 covered `property`. The senior insight here is that **you rarely actually need a metaclass**: Python 3.6 (PEP 487) added two hooks that cover most real use cases with far less complexity and none of the metaclass-conflict pain.
+
+**`__init_subclass__` — a classmethod on the _parent_ that runs once per subclass definition.** It lets a base class inspect, validate, or **register** its subclasses without a metaclass, and it receives keyword arguments passed in the class header. This is the clean way to build plugin registries or enforce that subclasses declare required attributes:
+
+```python
+class PluginBase:
+    registry = {}
+
+    def __init_subclass__(cls, /, key, **kwargs):
+        super().__init_subclass__(**kwargs)
+        PluginBase.registry[key] = cls          # auto-register every subclass
+
+class CsvLoader(PluginBase, key="csv"):
+    ...
+# PluginBase.registry == {"csv": CsvLoader}
+```
+
+**`__set_name__` — the hook that lets a descriptor learn its own attribute name.** When a class body assigns a descriptor to a name, Python calls `descriptor.__set_name__(owner, name)` **at class-creation time**, solving the old annoyance where a descriptor had no idea what attribute it was bound to (and you had to repeat the name). This is exactly how modern field libraries — SQLAlchemy 2.0 mapped columns, Pydantic-style models, dataclass-adjacent field systems — discover their attribute names:
+
+```python
+class Field:                                     # a data descriptor
+    def __set_name__(self, owner, name):
+        self.storage = "_" + name                # learns its own name
+    def __get__(self, obj, objtype=None):
+        return self if obj is None else getattr(obj, self.storage)
+    def __set__(self, obj, value):
+        setattr(obj, self.storage, value)
+```
+
+**The descriptor protocol, deeper than Q46.** The three hooks are `__get__(self, obj, objtype)`, `__set__(self, obj, value)`, and `__delete__(self, obj)`. The critical distinction is **data descriptor** (defines `__set__` or `__delete__`) versus **non-data descriptor** (only `__get__`), because it drives attribute-lookup precedence:
+
+> **data descriptor on the type > instance `__dict__` > non-data descriptor > plain class attribute.**
+
+That single rule explains a lot: **`property` is a data descriptor, so an instance attribute can't shadow it** (the property always intercepts). A plain **method is a non-data descriptor** — a function's `__get__` is precisely what **binds `self`** — which is why you _can_ override a method on a single instance by assigning to its `__dict__`. And **`functools.cached_property` is a non-data descriptor _on purpose_**: it computes once, writes the result into the instance `__dict__`, and thereafter the instance attribute shadows the descriptor so there's no recompute — a direct, practical consequence of the precedence rules.
+
+**Put together**, a typed/validating field implemented as a descriptor that learns its name via `__set_name__`, collected by a base class that uses `__init_subclass__`, is the _entire_ pattern behind modern data and ORM libraries — achieved with **no metaclass at all**.
+
+**When you still genuinely need a metaclass (Q120/Q134):** when you must change what a class fundamentally _is_ — customizing `__prepare__` (the namespace used while the class body executes), altering the MRO, controlling `isinstance`/`__call__`, or transforming the class object before `__init_subclass__` even runs. Otherwise prefer the hooks: they **compose across multiple base classes** (metaclasses conflict and force you to write a combined metaclass), and they're far easier to read.
+
+The takeaway: reach for **`__init_subclass__`** (react to subclass creation — registries and validation) and **`__set_name__`** (let a descriptor discover its own attribute name) before ever writing a metaclass; combined with the **data vs non-data descriptor precedence** — the rule that explains why `property` beats an instance attribute while `cached_property` deliberately doesn't — these PEP 487 hooks cover the vast majority of "I thought I needed a metaclass" situations with dramatically less complexity.
