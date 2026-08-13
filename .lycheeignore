@@ -1,8 +1,6 @@
-# Placeholder / sample URLs that appear inside code examples in Que_README.md.
 # Lines are treated as regular expressions matched against each URL.
 ^https://github\.com/you/mylib
 ^https://github\.com/org/repo\.git
 ^https://api/health
 ^https?://localhost
 ^https?://127\.0\.0\.1
-
