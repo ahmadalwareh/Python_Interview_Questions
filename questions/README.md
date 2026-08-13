@@ -5110,9 +5110,514 @@ warnings.simplefilter("ignore")   # silence every warning
 warnings.simplefilter("error")    # promote warnings to exceptions -> foo() now raises
 ```
 
-Two behaviours to know:
+Two behaviors to know:
 
 - By default each distinct warning is shown **once per location** and then suppressed (the `"default"` filter), which is why calling `foo()` a second time prints nothing new.
 - The `"error"` filter turns warnings into real exceptions — and this is *precisely why* the hierarchy roots at `Exception`: promoting a warning to an error is just raising it. Enabling `-W error` (or `filterwarnings = error` in pytest) is the standard way to make `DeprecationWarning`s **fail the build** in CI, catching deprecated usage before it breaks on an upgrade.
 
 When to use which: **raise an exception** for a problem the caller must handle right now; **emit a warning** for something that still works but shouldn't be relied on — deprecations, or suspicious-but-legal usage — leaving the final decision (ignore, show, or escalate to an error) to the user.
+
+## 134- Walk through the full class-creation protocol: `__prepare__`, the metaclass, and how `__call__` controls instantiation
+
+Question 120 covered *what* a metaclass is; the senior follow-up is *what actually happens* when a `class` statement runs, and how that differs from what happens when you later call the class to make an instance. These are two separate events driven by two different hooks, and conflating them is the classic mistake.
+
+**Class-definition time — the four steps behind `class Foo(Base): ...`:**
+
+1. **Determine the metaclass.** Python uses the explicit `metaclass=` if given, otherwise the most-derived metaclass among the bases, otherwise `type`.
+2. **Prepare the namespace.** Python calls `metaclass.__prepare__(name, bases, **kwds)`, which returns the mapping used to execute the class body. The default is an ordinary `dict`, but returning a custom mapping lets you *record definition order* or *forbid duplicate names* — this is exactly how `EnumMeta` rejects two members with the same name.
+3. **Execute the class body** into that namespace — every method `def` and class variable becomes a key.
+4. **Create the class object** by calling `metaclass(name, bases, namespace)`, which runs the metaclass's `__new__` (builds the class) then `__init__` (configures it).
+
+```Python
+class OrderedMeta(type):
+    @classmethod
+    def __prepare__(mcs, name, bases, **kwds):
+        return {}                         # a real impl might return OrderedDict / a duplicate-guard
+    def __new__(mcs, name, bases, ns):
+        cls = super().__new__(mcs, name, bases, ns)
+        cls._fields = [k for k in ns if not k.startswith("__")]
+        return cls
+```
+
+**Instance-creation time — a *different* hook.** When you write `Foo(1, 2)`, Python does **not** call `Foo.__new__` directly. It calls `type(Foo).__call__` — i.e. the **metaclass's `__call__`** — and *that* is what orchestrates the usual `instance = cls.__new__(cls, ...)` then `cls.__init__(instance, ...)` dance. Overriding the metaclass `__call__` is therefore the clean way to control instantiation itself — the correct way to build a true Singleton or an instance cache, avoiding the well-known pitfalls of hijacking `__new__`:
+
+```Python
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+class Config(metaclass=Singleton):
+    pass
+
+assert Config() is Config()   # same object every time
+```
+
+**The distinction to state crisply:** metaclass `__new__`/`__init__` run **once, when the class is defined**; metaclass `__call__` runs **every time you instantiate the class**. And as question 120 stressed, for almost all real needs the lighter hooks — `__init_subclass__` (react to subclassing) and `__set_name__` (descriptors learn their attribute name) — are the right tools; reach for `__prepare__` and a custom `__call__` only when you genuinely need to reshape the namespace or intercept construction.
+
+## 135- Reference cycles, `__del__`, `weakref`, and `gc.freeze()`: the practical garbage-collection questions
+
+Question 11 laid out the two mechanisms — always-on reference counting plus a cyclic collector for the cycles refcounting can't see. The senior-level follow-ups probe the *interactions* between those mechanisms and the tools you use to tame them.
+
+**`__del__` and cycles — the historical trap.** A finaliser (`__del__`) that participates in a reference cycle used to be poison: before **PEP 442 (Python 3.4)** the collector couldn't decide a safe order to run finalisers in a cycle, so it gave up and dumped those objects into `gc.garbage`, leaking them forever. Since 3.4 finalisers *do* run even inside cycles, but `gc.garbage` still exists and `__del__` remains unreliable for other reasons: its timing is tied to refcount reaching zero, it may **not run at all** at interpreter shutdown, and it can even *resurrect* the object by creating a new reference to `self`. The rule: **never use `__del__` for resource cleanup** — use a context manager (`with`) or `weakref.finalize`, which is explicitly designed for this.
+
+**`weakref` — references that don't keep objects alive.** A weak reference does *not* increment the refcount, so it never prevents collection. Three canonical uses:
+
+- **Caches** that shouldn't pin their entries in memory — `weakref.WeakValueDictionary` / `WeakKeyDictionary`.
+- **Breaking cycles** — e.g. a child holding a *weak* back-reference to its parent so the pair can be collected by refcounting alone, no cyclic pass needed.
+- **Death callbacks** — `weakref.ref(obj, callback)` or `weakref.finalize(obj, cleanup)` to run code when the object goes away.
+
+**Tuning the collector.** It runs on **allocation-count thresholds** (`gc.get_threshold()`), not a clock. Practical levers:
+
+- `gc.disable()` in a **short-lived batch job** (the process exits before cycles matter) or in a **latency-sensitive request path** where you can't afford an unpredictable pause — then `gc.collect()` manually at a quiet moment.
+- **`gc.freeze()` (Python 3.7+)** is the pre-fork server trick: call it *after* loading your app but *before* forking workers (gunicorn/uWSGI). It moves all currently-tracked objects into a permanent generation the collector ignores, so subsequent collections don't touch their GC headers — which keeps the shared, copy-on-write memory pages *clean* across `fork()` instead of being dirtied by refcount/GC bookkeeping. This is the famous optimisation Instagram used to cut memory.
+
+**Diagnosing a leak in a long-running service:** reach for `tracemalloc` (snapshot + diff allocations by line), `gc.get_referrers(obj)` / `gc.get_objects()` to find what is holding an object alive, `objgraph` to visualise reference chains, and `gc.set_debug(gc.DEBUG_LEAK)` to log uncollectable objects. Remember the allocator subtlety from Q11: freeing objects returns memory to pymalloc's free lists, **not** always to the OS, so flat-but-high RSS is not necessarily a leak.
+
+## 136- What is `setup.py`, and how has Python packaging changed with `pyproject.toml`?
+
+`setup.py` is the historical build script of a Python package: a plain Python file that calls `setuptools.setup(...)` with the project's metadata and dependencies. Because it is *executable code run at build/install time*, it was both powerful and problematic — a tool couldn't even learn a package's name or dependencies without **executing arbitrary code**, which hurt security, reproducibility, and speed.
+
+```Python
+# setup.py  (the legacy style)
+from setuptools import setup, find_packages
+setup(
+    name="mypkg", version="1.0.0",
+    packages=find_packages(),
+    install_requires=["requests>=2"],
+    entry_points={"console_scripts": ["mycli = mypkg.cli:main"]},
+)
+```
+
+**The modern, standards-based workflow** replaces that with **static declaration in `pyproject.toml`**, defined by three PEPs a senior should be able to name:
+
+- **PEP 518** — the `[build-system]` table declares which **build backend** to use and what it needs to build, so tools stop assuming setuptools.
+- **PEP 517** — a standard *interface* between front-end tools (`pip`, `build`) and the backend, decoupling them.
+- **PEP 621** — the `[project]` table for **static metadata** (name, version, dependencies, scripts) that tools can read *without executing code*.
+
+```toml
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mypkg"
+version = "1.0.0"
+dependencies = ["requests>=2"]
+
+[project.scripts]
+mycli = "mypkg.cli:main"
+```
+
+**Key points to land:**
+
+- **`setup.py` is not dead, but its role shrank.** It's now just one possible *configuration file* for the setuptools backend, still useful for **compiled C/Rust extensions (`ext_modules`)** or genuinely dynamic metadata. But invoking it directly (`python setup.py install`, `sdist`, `bdist_wheel`) is **deprecated** — use `python -m build` and `pip` instead. `distutils` itself was **removed from the stdlib in Python 3.12**.
+- **Build backends are pluggable:** `setuptools`, `hatchling`, `flit-core`, `pdm-backend`, `maturin` (Rust). Tools like Poetry, Hatch, PDM, and uv wrap this same PEP 517/518/621 flow.
+- **Editable installs** (`pip install -e .`) — for live development — now work for `pyproject.toml`-only projects thanks to **PEP 660**, no `setup.py` required.
+- **Entry points** declared here power both **console scripts** (CLI commands) and **plugin discovery** at runtime via `importlib.metadata.entry_points()`.
+- Building produces an **sdist** (source) and a **wheel** (the installable built distribution — see the wheel-vs-egg question); publish with `twine upload dist/*`.
+
+The one-line takeaway: **declare metadata statically in `pyproject.toml` and let a PEP 517 backend build it; keep `setup.py` only for legacy projects or native extensions.**
+
+## 137- What is GraphQL, how does it differ from REST, and how do you serve it from Python?
+
+GraphQL is a **query language for APIs plus a runtime** that executes those queries against your data. Instead of many endpoints each returning a fixed shape, a GraphQL service exposes **one endpoint** (typically `POST /graphql`) backed by a **strongly typed schema**, and the **client specifies exactly which fields it wants** in the response.
+
+**How it differs from REST:**
+
+- **Response shape is client-controlled.** REST returns a server-defined payload, which leads to **over-fetching** (you get fields you don't need) or **under-fetching** (you must call three endpoints to assemble one screen). A GraphQL query returns precisely the requested fields, and can traverse nested/related data in **one round trip**.
+- **One typed schema, introspectable.** The schema (queries, mutations, subscriptions) is self-documenting and tooling-friendly (auto-complete, GraphiQL).
+- **Trade-offs the interviewer wants to hear:** HTTP **caching is harder** (everything is a `POST` to one URL, versus REST's cacheable `GET`s and CDNs); **rate-limiting and observability** are trickier because one URL hides wildly different costs; and you must **defend against expensive queries** (depth/complexity limits, persisted queries) and the **N+1 problem**.
+
+**Serving it from Python.** The main libraries are **Strawberry** (modern, uses type hints/dataclasses, first-class FastAPI integration), **Graphene** (older, class-based), and **Ariadne** (schema-first SDL). A minimal Strawberry + FastAPI service:
+
+```Python
+import strawberry
+from strawberry.fastapi import GraphQLRouter
+from fastapi import FastAPI
+
+@strawberry.type
+class Book:
+    title: str
+    author: str
+
+@strawberry.type
+class Query:
+    @strawberry.field
+    def books(self) -> list[Book]:
+        return [Book(title="Dune", author="Herbert")]
+
+schema = strawberry.Schema(Query)
+app = FastAPI()
+app.include_router(GraphQLRouter(schema), prefix="/graphql")
+```
+
+**Resolvers and the N+1 problem.** Every field is backed by a **resolver** function. The classic performance trap: a query for 100 authors whose resolver each issues one DB query for that author's books → **101 queries**. The standard fix is a **DataLoader**, which **batches** the individual lookups made during one request into a single query and **caches** within that request.
+
+**When to choose which:** GraphQL shines for **many clients with divergent data needs** (web + mobile), bandwidth-constrained clients, and **deeply nested/graph-like** data. REST is often the better default for **simple CRUD**, when you need **HTTP caching/CDNs**, file uploads, or a **public, cacheable** API. The two also coexist happily behind the same service.
+
+## 138- How would you integrate an AI/ML model into a Python service, and what are the engineering concerns?
+
+Most application engineers do **inference, not training** — the job is to take a trained model and serve its predictions reliably inside a normal service. There are two integration patterns:
+
+- **Call a hosted model API** (OpenAI, Vertex, Bedrock): no infrastructure, pay per call, but you inherit **network latency, rate limits, cost per request, and data-privacy** constraints (you're sending data to a third party).
+- **Self-host the model**: load the weights **in-process** (PyTorch/`transformers`/scikit-learn) or behind a dedicated serving layer (**Triton, TorchServe, vLLM**, or a `FastAPI` wrapper). You control latency and data, but own the GPU/CPU capacity and ops.
+
+**The concern that trips people up in an async service:** model inference is **CPU/GPU-bound and synchronous**. In FastAPI/`asyncio`, running it directly in an `async def` handler **blocks the event loop** and stalls *every* concurrent request. Offload it — `await loop.run_in_executor(pool, model.predict, x)` for a thread/process pool, or hand it to a **Celery worker** (exactly the `worker` mode this repo runs). This ties back to the GIL: heavy native libraries (PyTorch, NumPy) **release the GIL** during compute, so a thread pool genuinely helps; pure-Python pre/post-processing does not and needs processes.
+
+**Lifecycle and operational concerns:**
+
+- **Load the model once at startup**, keep it warm in memory (e.g. in the app lifespan), never per-request — loading weights is expensive.
+- **Version the model artifact** independently of code; store it in a registry/S3, not the repo, and log which version served each prediction.
+- **Throughput vs latency:** dynamic **batching** of requests, **caching** results/embeddings, streaming where possible.
+- **Resilience for external calls:** timeouts, **retries with exponential backoff**, circuit breakers, and hard **cost/quota controls**.
+- **Observability & correctness:** monitor latency and error rates, watch for **data/model drift**, log inputs/outputs with **PII care**, and pin the *preprocessing* alongside the model so results stay reproducible.
+
+The senior framing: treat the model as an **unreliable, expensive, versioned dependency** — isolate it behind a service boundary, keep it off the event loop, and wrap it in the same timeouts, retries, caching, and monitoring you'd give any external system.
+
+## 139- What does a senior engineer need to know about building on LLMs (tokens, context windows, RAG, structured output, hallucination)?
+
+At the API level an LLM is a **next-token predictor**: you send a prompt, it samples output tokens one at a time. The single most important mental model is that it is **stateless** — it has no memory between calls, so a "conversation" is an illusion you maintain by **resending the entire history** every request.
+
+**Tokens and the context window.** Text is split into **tokens** (~4 characters / ¾ of a word in English). You are billed per **input + output** token and bounded by the **context window** — the maximum tokens for a single request (prompt *and* completion). Count them with `tiktoken`; inputs that exceed the window must be **truncated, summarised, or chunked**. Runaway history is the usual cause of surprise bills and `context_length_exceeded` errors.
+
+**Sampling controls:** `temperature` / `top_p` govern randomness (near-0 for extraction/classification, higher for creative text), `max_tokens` caps output, `stop` sequences end generation, and `seed` gives *best-effort* determinism. Streaming tokens back (SSE) is a UX necessity for anything long.
+
+**Hallucination.** LLMs produce **fluent, confident, and sometimes false** output, and they cannot reliably tell when they're wrong. You mitigate — never fully eliminate — with grounding, asking for citations, constraining the output, external verification, and **human-in-the-loop** for high-stakes decisions.
+
+**RAG (Retrieval-Augmented Generation) — the dominant grounding pattern:** **embed** your documents into vectors and store them in a **vector database** (pgvector, Pinecone, FAISS, Qdrant); at query time, embed the user's question, **retrieve the top-k most similar chunks**, and inject them into the prompt as context. This grounds answers in *your* data, sidesteps the context-window and knowledge-staleness limits, and is how "chat over your documents" is built.
+
+**Structured output — don't parse prose.** For anything programmatic, force the model into a machine-readable shape via **JSON mode / function (tool) calling / a schema**, validate it (e.g. with **pydantic**), and retry on validation failure. Libraries like `instructor` and the OpenAI SDK's structured outputs do exactly this; orchestration frameworks (LangChain, LlamaIndex) help but can over-abstract — reach for them deliberately.
+
+**Security and engineering discipline:** treat **model output and any retrieved/third-party content as untrusted input** — **prompt injection** is the LLM-era injection attack, so never let raw model output trigger privileged actions unchecked. Round it out with cost controls (cache, right-size the model, trim history), rate-limit/retry handling, and **evals** — regression tests for prompts, because a model or prompt change can silently degrade quality with no stack trace to warn you.
+
+## 140- How do you actually test Python code — pytest fixtures, parametrization, and mocking?
+
+Question 87 introduced `unittest`; in practice most modern teams reach for **`pytest`**, and a senior is expected to know *why* and to test with discipline. Pytest replaces `unittest`'s ceremony (subclass `TestCase`, `self.assertEqual`) with **plain `assert`** — its rewritten assertion introspection prints the actual operands on failure — plus **fixtures**, **parametrization**, and a rich plugin ecosystem.
+
+**Fixtures are dependency injection for tests.** A fixture is a function that builds something a test needs; the test requests it by naming it as a parameter. `yield` splits setup from teardown, and **scopes** (`function`, `class`, `module`, `session`) control how often it runs. Shared fixtures live in `conftest.py`, discovered automatically without imports:
+
+```Python
+import pytest
+
+@pytest.fixture
+def db():
+    conn = connect()          # setup
+    yield conn                # hand it to the test
+    conn.close()             # teardown, even if the test fails
+
+def test_user_count(db):      # pytest injects the fixture by name
+    assert db.count("users") == 0
+```
+
+**Parametrization** turns one test into a table of cases — far better than a loop, because each row reports pass/fail independently:
+
+```Python
+@pytest.mark.parametrize("value, expected", [(2, 4), (3, 9), (-1, 1)])
+def test_square(value, expected):
+    assert square(value) == expected
+```
+
+**Mocking — isolate the unit from the world.** Use `unittest.mock` (or the `mocker` fixture from `pytest-mock`) to replace slow/external dependencies. The single most common mistake is **patching where the object is *defined* instead of where it is *used*** — you must patch the name in the module under test (`myapp.service.requests`, not `requests`). Configure behaviour with `return_value`/`side_effect` and assert interactions with `assert_called_once_with`:
+
+```Python
+def test_fetch(mocker):
+    m = mocker.patch("myapp.service.requests.get")
+    m.return_value.json.return_value = {"ok": True}
+    assert fetch() == {"ok": True}
+    m.assert_called_once_with("https://api/health", timeout=5)
+```
+
+Know the vocabulary — **stub** (canned answers), **mock** (asserts on calls), **fake** (a working lightweight implementation, e.g. an in-memory DB) — and the `monkeypatch` fixture for env vars and attributes. Round it out with **markers** (`@pytest.mark.skip`, `xfail`, custom markers, `-k` selection), **coverage** (`pytest --cov`, aim >80%), and **property-based testing** (`Hypothesis`) to generate edge cases you'd never enumerate by hand. The senior framing: keep tests **fast, isolated, and deterministic**, follow the **test pyramid** (many unit, fewer integration, few E2E), and mock at the boundaries — not the internals.
+
+## 141- What is Pydantic, and how does it differ from `dataclasses`?
+
+**Pydantic** is a **runtime data-validation and parsing** library driven by type hints — the backbone of FastAPI and the standard way to turn untrusted external input (JSON bodies, config, env vars) into trusted, typed Python objects. You declare a model with annotations; Pydantic **validates, coerces, and (de)serializes** for you, raising a structured `ValidationError` when the data doesn't fit.
+
+```Python
+from pydantic import BaseModel, Field, field_validator
+
+class User(BaseModel):
+    id: int
+    name: str = Field(min_length=1)
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def must_have_at(cls, v: str) -> str:
+        if "@" not in v:
+            raise ValueError("invalid email")
+        return v
+
+User.model_validate({"id": "42", "name": "Ada", "email": "a@b.com"})  # id coerced "42"->42
+```
+
+**The crucial distinction from `dataclasses` (Q124):** a dataclass is *only* a boilerplate reducer — it will happily store `User(id="not-an-int")` because annotations are **not enforced at runtime** (Q121). Pydantic exists precisely to **enforce** them: parse, validate, coerce, and serialize. Rule of thumb — **dataclasses for trusted internal data, Pydantic at the boundaries** where data arrives from outside.
+
+Points a senior should land:
+
+- **v1 vs v2 matters.** Pydantic 2 rewrote the core in Rust (`pydantic-core`) for a large speedup and **renamed the API**: `.dict()`→`.model_dump()`, `.json()`→`.model_dump_json()`, `parse_obj`→`model_validate`, and the `@validator`/`@root_validator` decorators became `@field_validator`/`@model_validator`. Mixing v1 and v2 idioms is a common migration bug.
+- **`Field(...)`** adds constraints (`gt`, `max_length`, `default_factory`, aliases) and doc metadata that flows into the auto-generated **JSON Schema / OpenAPI**.
+- **`pydantic-settings`** (`BaseSettings`) reads and validates configuration from environment variables — the typed alternative to scattering `os.getenv` calls.
+- Validation isn't free; for hot paths over already-trusted data, a `dataclass` or `NamedTuple` is lighter.
+
+## 142- Beyond basic hints — what are `Protocol`, `TypeVar`/`Generic`, and how do you actually enforce types?
+
+Questions 121 and 124 established that hints don't run and introduced `dataclasses`; the senior-level material is the **static** type system you build for tools like **mypy** and **pyright**, and the two features that make it powerful: **Protocols** and **generics**.
+
+**`Protocol` — structural (duck) typing, statically.** Instead of requiring inheritance from a base class (nominal typing), a `Protocol` matches **any object that has the right shape**. This types Python's actual duck-typing idiom without forcing an inheritance hierarchy:
+
+```Python
+from typing import Protocol
+
+class Readable(Protocol):
+    def read(self) -> bytes: ...
+
+def consume(src: Readable) -> bytes:   # accepts files, sockets, BytesIO — anything with read()
+    return src.read()
+```
+
+Decorate with `@runtime_checkable` to allow `isinstance` against it (shallow — checks method presence only).
+
+**`TypeVar`/`Generic` — parametric polymorphism.** A `TypeVar` lets a function or class be typed *in terms of* the caller's type, so a container preserves element type instead of collapsing to `Any`. Python 3.12 (**PEP 695**) added clean built-in syntax:
+
+```Python
+# classic
+from typing import TypeVar, Generic
+T = TypeVar("T")
+class Stack(Generic[T]):
+    def push(self, item: T) -> None: ...
+    def pop(self) -> T: ...
+
+# PEP 695 (3.12+) — no TypeVar import
+class Stack[T]:
+    def push(self, item: T) -> None: ...
+    def pop(self) -> T: ...
+```
+
+TypeVars can be **bounded** (`TypeVar("T", bound=Number)`) or **constrained** (`TypeVar("S", str, bytes)`), and variance matters for correctness. Round out the toolbox: **`Optional[X]` / `X | None`**, **`Union` / `X | Y`**, **`Literal`** (exact values), **`Final`**, **`@overload`** (multiple typed signatures), **`ParamSpec`** (typing decorators that forward args), **`Self`**, **`Annotated`** (attach metadata — how FastAPI/Pydantic carry validation), and **`TypedDict`** for structured dicts.
+
+**Enforcement is a *tooling* decision, not a runtime one.** Run **mypy** or **pyright** in CI, ideally in **strict mode**, to catch type errors before runtime; guard import-cycle-only imports behind `if TYPE_CHECKING:`; and ship **stub files (`.pyi`)** for typing code you can't annotate inline. The payoff a senior emphasises: types are executable documentation that a machine verifies — most valuable on large, long-lived codebases and public APIs.
+
+## 143- How do you find and fix a performance bottleneck in Python?
+
+The senior answer begins with discipline, not tricks: **measure before you optimise.** Knuth's "premature optimization is the root of all evil" is the rule — profile to find the real hot spot, because it is almost never where you guess, and un-profiled "optimisations" trade readability for nothing.
+
+**Know which tool answers which question:**
+
+- **`timeit`** — microbenchmark a single expression or snippet, correctly (many loops, best-of-N).
+- **`cProfile` + `pstats`** — deterministic, function-level profile: *which functions* dominate cumulative/total time. The standard first pass.
+- **`line_profiler`** — line-by-line timing *inside* the hot function `cProfile` fingered.
+- **`py-spy`** — a **sampling** profiler that attaches to a **running production process without modifying or restarting it** — the tool for "prod is slow right now." Can emit flame graphs.
+- **Memory**: `tracemalloc` (stdlib, snapshot/diff allocations by line), `memory_profiler`, and `memray` / `scalene` (which profiles CPU *and* memory together).
+
+**Then optimise in order of leverage:**
+
+1. **Algorithm and data structure first** — the biggest wins are almost always Big-O. Swapping a repeated `x in some_list` (O(n)) for a `set` (O(1)) beats any micro-tuning (ties to Q90).
+2. **Use the interpreter's fast paths** — built-ins and C-implemented libraries: `str.join` over `+=` in a loop, comprehensions over manual loops, and **vectorise with NumPy/pandas** to push loops into C (which also *releases the GIL*, Q1).
+3. **Avoid repeated work** — hoist invariants out of loops, bind hot attribute/global lookups to locals, and **cache** (`functools.cache`/`lru_cache`, Q103).
+4. **Reduce memory pressure** — `__slots__` (Q77) for many small objects, **generators** to stream instead of materialising large lists.
+5. **Only then reach for heavy machinery** — `Cython`, `numba` (JIT), a C/Rust extension, or **concurrency** (choosing the right model per Q119, remembering the GIL means threads help I/O, processes help CPU).
+
+The takeaway: **profile → fix the biggest thing → re-measure**, and stop when it's fast enough. A clear O(n) beating a clever O(n log n) with a huge constant is often the right engineering call.
+
+## 144- What are the security footguns every Python engineer must know?
+
+Security is where senior engineers earn their title, and Python has a specific set of traps worth naming precisely:
+
+- **Deserialising untrusted data = remote code execution.** **`pickle`**, `marshal`, and `yaml.load` can **execute arbitrary code** while loading. Never unpickle data you didn't produce; for untrusted input use **JSON**, and always **`yaml.safe_load`**. This is the single most dangerous, most-overlooked Python-specific footgun.
+- **`eval` / `exec` / `compile` on any input derived from a user** is code injection. Almost always avoidable with `ast.literal_eval`, a real parser, or a lookup table.
+- **Injection generally.** **SQL injection** — use **parameterised queries / bound parameters**, *never* f-strings or `%` into SQL (an ORM helps but you can still foot-gun with raw SQL). **Command injection** — call `subprocess` with an **argument list and `shell=False`**, never `shell=True` on interpolated strings. **Path traversal** — validate/normalise paths against a base directory.
+- **Randomness for security.** `random` is a **predictable PRNG** — never use it for tokens, passwords, or session IDs. Use the **`secrets`** module (`secrets.token_urlsafe`). Hash passwords with **bcrypt/argon2/scrypt**, never plain `md5`/`sha256`, and compare secrets with **`hmac.compare_digest`** to avoid timing attacks.
+- **`assert` is stripped under `-O`.** Optimised bytecode (`python -O`) removes `assert` statements, so **never use `assert` for a security or validation check** in production code — the check silently vanishes.
+- **Supply chain.** Pin dependencies, scan them (**`pip-audit`**, Safety, GitHub Dependabot), and beware **typosquatting** on PyPI. `pip install` can run arbitrary code from a malicious `setup.py` (Q136) — this is why static-metadata wheels are safer.
+- **XML** — the stdlib parsers are vulnerable to entity-expansion/XXE attacks; use **`defusedxml`** for untrusted XML.
+
+The mindset to convey: **treat every byte crossing a trust boundary as hostile** — deserialisation, subprocess arguments, SQL parameters, file paths, template inputs — and prefer the safe API by default.
+
+## 145- How do you write your own context manager, and what's in `contextlib`?
+
+Question 24 covered *using* `with`; a senior is expected to *author* context managers and know the toolkit. The protocol is two dunder methods: **`__enter__`** (runs on entry, its return value binds to `as x`) and **`__exit__`** (runs on exit — normally *or* via exception — guaranteeing cleanup, which is why `with` beats manual try/finally and the unreliable `__del__` from Q135).
+
+```Python
+class Timer:
+    def __enter__(self):
+        self.t0 = time.perf_counter()
+        return self
+    def __exit__(self, exc_type, exc, tb):
+        self.elapsed = time.perf_counter() - self.t0
+        return False          # False => don't suppress an exception; True would swallow it
+```
+
+The subtlety interviewers probe: **`__exit__` returning `True` suppresses the exception**; returning `False`/`None` lets it propagate. `__exit__` always runs, so it's the place to release locks, connections, or transactions.
+
+**The generator style is usually cleaner** — `@contextlib.contextmanager` turns a single-`yield` generator into a context manager, with setup before the `yield` and teardown after (wrap in try/finally so cleanup survives exceptions):
+
+```Python
+from contextlib import contextmanager
+
+@contextmanager
+def transaction(conn):
+    tx = conn.begin()
+    try:
+        yield conn
+        tx.commit()
+    except Exception:
+        tx.rollback()
+        raise
+```
+
+**`contextlib` toolbox worth naming:** `suppress(Exception)` (a clean "ignore this error"), `closing(obj)` (call `.close()` on exit), `redirect_stdout`/`redirect_stderr`, `nullcontext` (a no-op stand-in for optional CMs), and **`ExitStack`** — the power tool for entering a **dynamic/variable number** of context managers (e.g. opening a list of files) and unwinding them all correctly. And for `asyncio` (Q118) there's the async mirror: **`__aenter__`/`__aexit__`**, **`@asynccontextmanager`**, and **`async with`** — essential for async DB sessions and HTTP clients.
+
+## 146- What does a senior need to know about talking to a database (ORM vs Core, sessions, pooling, transactions, N+1)?
+
+Most services live or die on their database layer, and **SQLAlchemy** is Python's dominant toolkit, so the interview centres there. The first distinction is **Core vs ORM**: **Core** is a Pythonic SQL expression language (you compose queries, rows come back as tuples/mappings); the **ORM** maps Python classes to tables and gives you objects with identity and change-tracking. They share one engine, and mixing them is normal.
+
+**Connection pooling — the performance fundamental.** Opening a DB connection is expensive, so the **engine holds a pool** and hands out/returns connections. A senior can speak to `pool_size`, `max_overflow`, `pool_timeout`, and especially **`pool_pre_ping`** (validate a connection before use so a firewall-dropped or DB-restarted connection doesn't blow up the next request). Getting pool sizing wrong — too small starves throughput, too large exhausts the DB's connection limit — is a classic production incident.
+
+**The Session and the Unit of Work.** The ORM `Session` batches your changes and tracks objects via an **identity map** (one object per primary key per session). The distinctions that matter:
+
+- **`flush`** pushes pending SQL to the DB (so it's visible within the transaction) but doesn't end it; **`commit`** flushes *and* commits the transaction; **`rollback`** discards it.
+- Wrap work in a transaction and keep sessions **short-lived and request-scoped** — a long-lived shared session is a common bug (this repo's `RequestContextMiddleware` attaching `request.state.db` per request reflects that discipline).
+
+**The N+1 query problem** (also raised for GraphQL, Q137): lazily loading a relationship inside a loop fires one query per parent → hundreds of round trips. Fix with **eager loading** (`selectinload`, `joinedload`). Other essentials: **Alembic** for schema **migrations**, **async** drivers (`asyncpg` + SQLAlchemy's async engine) so DB I/O doesn't block the event loop (Q118), and the maturity to know **an ORM isn't always right** — raw parameterised SQL (Q144) or a lighter query builder can be the better tool for complex analytical queries.
+
+## 147- How should logging be done in a production Python service?
+
+The headline a senior states immediately: **use the `logging` module, never `print`.** `print` gives you no levels, no timestamps, no routing, and no way for operators to turn detail up or down. `logging` is a configurable framework built from four pieces: **Loggers** (what you call), **Handlers** (where records go — console, file, syslog, HTTP), **Formatters** (how they're rendered), and **Filters**.
+
+**The idioms that separate juniors from seniors:**
+
+- **Get a module-level logger by name:** `logger = logging.getLogger(__name__)`. This builds the **dotted logger hierarchy** (`myapp.services.db`), so you can raise/lower verbosity per subsystem. Never log through the root logger directly.
+- **Configure once, at the application entry point** — typically with `logging.config.dictConfig(...)`. **Libraries must not configure logging**; a well-behaved library only adds a `NullHandler` so it stays silent until the *application* opts in.
+- **Use lazy `%`-style formatting**, not f-strings: `logger.info("user %s did %s", uid, action)`. The string is only interpolated **if that level is enabled**, saving work on suppressed `DEBUG` lines — and it keeps the message template stable for structured/aggregated logs.
+- **Log exceptions with the traceback:** inside an `except`, call `logger.exception("failed")` (or `logger.error(..., exc_info=True)`) to capture the stack.
+
+**For real services, go structured.** Emit **JSON logs** (via `python-json-logger` or `structlog`) so a log aggregator (ELK, Loki, Datadog) can index fields, and attach a **correlation/request ID** — often propagated with **`contextvars`** (which, unlike thread-locals, work correctly across `async` tasks, Q118) — so you can trace one request across many log lines. Pitfalls to mention: **duplicate log lines** from adding handlers more than once or from **propagation** to ancestor loggers, and the cost of logging in tight loops. The takeaway: logging is an **operability feature** — design it so problems in production are diagnosable without a redeploy.
+
+## 148- Concurrency in practice: `concurrent.futures`, thread safety, and synchronization primitives
+
+Questions 1, 23, and 119 covered the GIL and *choosing* a concurrency model; this is the *how*. The modern high-level API is **`concurrent.futures`**, which unifies threads and processes behind one interface: **`ThreadPoolExecutor`** (I/O-bound) and **`ProcessPoolExecutor`** (CPU-bound), both offering `submit()` (returns a **`Future`**) and `map()`, with `as_completed()` to consume results as they finish. Prefer it over hand-managing `Thread`/`Process` objects.
+
+```Python
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+with ThreadPoolExecutor(max_workers=8) as pool:
+    futures = [pool.submit(fetch, url) for url in urls]
+    for f in as_completed(futures):
+        result = f.result()     # re-raises any exception from the worker
+```
+
+**Thread safety — the misconception to correct:** the GIL does **not** make your code thread-safe. It guarantees a single *bytecode* runs at a time, but a high-level operation like `counter += 1` is **read-modify-write across several bytecodes**, so two threads can interleave and lose an update. Any **check-then-act** or **compound** operation over shared mutable state is a race.
+
+**The synchronization toolbox** (`threading`): **`Lock`** (mutual exclusion — always use `with lock:`), **`RLock`** (re-entrant, same thread can re-acquire), **`Semaphore`** (limit N concurrent), **`Event`** (signal between threads), **`Condition`** (wait-for-predicate), and **`Barrier`**. But the senior's preferred design is to **avoid shared mutable state altogether**: hand work between threads through a **`queue.Queue`**, which is itself thread-safe, turning locking into a producer/consumer pipeline. Know **deadlock** (two threads each holding a lock the other wants — prevent with consistent lock ordering) and **`threading.local`** for per-thread state.
+
+**Two `ProcessPoolExecutor` gotchas** to mention: arguments and return values must be **picklable** (Q144's pickle caveats apply), and on Windows/macOS-spawn you must guard the entry point with **`if __name__ == "__main__":`** or you'll fork-bomb yourself. And the async equivalent (Q118) lives in `asyncio` — `asyncio.Lock`/`Semaphore`/`Queue` — which coordinate *tasks* on one thread, not OS threads.
+
+## 149- What is ASGI vs WSGI, and how does a framework like FastAPI use dependency injection?
+
+The foundational split is the **server-to-application interface**. **WSGI** is the classic **synchronous** standard (one request occupies a worker thread/process start to finish) behind Flask and traditional Django. **ASGI** is its **asynchronous** successor: it supports `async` handlers, long-lived connections (WebSockets, SSE), and lets **one worker juggle thousands of concurrent I/O-bound requests** on an event loop (Q118). **FastAPI** (on Starlette) is ASGI; you serve it with **`uvicorn`**, often managed by **`gunicorn`** running multiple uvicorn workers to use all CPU cores. This is exactly this repo's `api` mode.
+
+**Why FastAPI is the modern default:** it's **type-hint driven** — request/response bodies are declared as **Pydantic models** (Q141), so you get validation, serialization, and an **auto-generated OpenAPI/Swagger** spec for free from the same annotations.
+
+**Dependency injection via `Depends`** is FastAPI's signature feature. You declare a dependency as a parameter; FastAPI **resolves and injects** it, caching per-request and unwinding any cleanup:
+
+```Python
+from fastapi import Depends, FastAPI
+
+async def get_db():
+    db = Session()
+    try:
+        yield db                 # injected into the endpoint
+    finally:
+        db.close()               # teardown after the response
+
+app = FastAPI()
+
+@app.get("/users/{uid}")
+async def read_user(uid: int, db=Depends(get_db)):
+    return db.get(User, uid)
+```
+
+The wins a senior highlights: dependencies are **reusable and composable** (auth, DB session, pagination, this repo's `auth.dependency`), and **overridable in tests** via `app.dependency_overrides` — which is why the codebase can swap in `BASF_FEDERATION_DEBUG_USER` to bypass auth under test.
+
+**The trap that ties it all together:** in an ASGI app, a **blocking call inside an `async def`** (a synchronous DB driver, `requests`, `time.sleep`, heavy CPU or model inference from Q138) **stalls the entire event loop and every concurrent request**. The fixes: use **async-native libraries** (`httpx`, `asyncpg`), or declare the handler as a plain **`def`** (FastAPI runs it in a threadpool), or offload heavy work to a **process pool or a Celery worker** (this repo's `worker` mode). Rounding out the picture: **middleware** (cross-cutting concerns like CORS and this repo's `RequestContextMiddleware`), **background tasks**, and the **lifespan** hook for startup/shutdown (opening the Mongo/Redis/S3 connections). This layered discipline — thin HTTP handlers, injected dependencies, business logic and I/O pushed into services — is precisely the router → service → helper architecture this project enforces.
+
+## 150- What are the concrete steps to publish a library to PyPI with pip (build/twine), Poetry, or uv?
+
+Questions 92 and 136 covered the *concepts* — distribution options and the `setup.py`→`pyproject.toml` shift. This is the *procedure*. The key insight that de-mystifies it: **all three tools do the same thing** — turn your project into the two standard artifacts (an **sdist** `.tar.gz` and a **wheel** `.whl`, Q41) and upload them to the same index, **PyPI**. They differ only in ergonomics. So learn the shared pipeline once, then the three command sets.
+
+**The shared pipeline (tool-agnostic):**
+
+1. **Pick a unique, available name** — check `https://pypi.org/project/<name>/`; names are first-come and can't clash.
+2. **Create accounts on both PyPI and TestPyPI**, enable 2FA, and create an **API token** (or set up Trusted Publishing, below).
+3. **Lay out the project** with a `src/` layout and declare **static metadata in `pyproject.toml`** (PEP 621), plus a `README`, `LICENSE`, and a version:
+
+   ```toml
+   [build-system]
+   requires = ["hatchling"]          # or setuptools / flit-core / pdm-backend / maturin
+   build-backend = "hatchling.build"
+
+   [project]
+   name = "mylib"
+   version = "0.1.0"
+   description = "A short, searchable summary"
+   readme = "README.md"
+   requires-python = ">=3.12"
+   license = "MIT"
+   authors = [{ name = "You", email = "you@example.com" }]
+   dependencies = ["httpx>=0.27"]
+   classifiers = ["Programming Language :: Python :: 3.12"]
+
+   [project.urls]
+   Homepage = "https://github.com/you/mylib"
+
+   [project.scripts]
+   mycli = "mylib.cli:main"          # entry point -> installs a CLI command
+   ```
+
+4. **Build** → produces `dist/*.whl` and `dist/*.tar.gz`.
+5. **Verify** — check the metadata, and install the built wheel into a *fresh* virtualenv to confirm it imports and runs.
+6. **Upload to TestPyPI first, then to real PyPI.**
+
+**A — The standards toolchain (`build` + `twine`, the "pip world"):** the most transparent, no extra framework.
+
+```Bash
+python -m pip install --upgrade build twine
+python -m build                                     # -> dist/ (sdist + wheel)
+python -m twine check dist/*                         # validate long-description/metadata
+python -m twine upload --repository testpypi dist/*  # dry-run on TestPyPI
+python -m twine upload dist/*                         # publish to real PyPI
+```
+
+Authenticate with an API token: username `__token__`, password `pypi-…` (set `TWINE_USERNAME`/`TWINE_PASSWORD` env vars or a `~/.pypirc`).
+
+**B — Poetry (integrated deps + build + publish):**
+
+```Bash
+poetry new mylib                 # scaffold (or `poetry init` in an existing project)
+poetry version patch             # bump SemVer: 0.1.0 -> 0.1.1
+poetry build                     # -> dist/
+poetry config pypi-token.pypi pypi-xxxx
+poetry publish                   # (add --build to build+publish in one step)
+```
+
+**C — uv (the fast, newer all-in-one, Rust-based):**
+
+```Bash
+uv init --lib mylib              # scaffold a library (pyproject + src layout)
+uv build                         # -> dist/ (sdist + wheel)
+uv publish --publish-url https://test.pypi.org/legacy/  --token <testpypi-token>   # test
+uv publish --token <pypi-token>  # real PyPI (or set UV_PUBLISH_TOKEN)
+```
+
+**The cross-cutting essentials a senior stresses:**
+
+- **A version is immutable and single-use.** Once `mylib 0.1.0` is uploaded, PyPI will **never** let you overwrite or re-upload that filename — you must **bump the version** for every release. Follow **SemVer**, keep **one source of truth** for the version (read it at runtime with `importlib.metadata.version("mylib")`), and remember you can *yank* a bad release but not replace it. This is exactly why you **test on TestPyPI first** — so a mistake doesn't burn a real version number.
+- **Trusted Publishing (OIDC) is the modern, secure CI path.** Instead of storing a long-lived API token in CI secrets, you configure PyPI to *trust* your GitHub Actions/GitLab pipeline; it mints a **short-lived token per run**. The `pypa/gh-action-pypi-publish` action is the standard way. In real projects, **publishing runs in CI on a version tag** — build, test, then publish — not from a laptop.
+- **The build backend is your choice** (Q136), independent of the publish tool: `setuptools`, `hatchling`, `flit-core`, `pdm-backend`, or `maturin` for Rust/native extensions. Poetry uses `poetry-core`; uv defaults to `hatchling` but honours whatever `[build-system]` you declare.
+- **Metadata quality = a good PyPI page.** Fill `description`, `readme`, `license`, `classifiers`, `requires-python`, `[project.urls]`, and `[project.scripts]`/`[project.entry-points]` for CLIs and plugins.
+
+The takeaway: the mechanics are identical — **`pyproject.toml` → build an sdist + wheel → upload to PyPI**. Pick **one** tool for ergonomics: **`build` + `twine`** for maximum transparency and control, **Poetry** for an integrated dependency-plus-publish workflow, or **uv** for speed and a single modern toolchain — then automate it in CI with **Trusted Publishing** and a tag-triggered release.
